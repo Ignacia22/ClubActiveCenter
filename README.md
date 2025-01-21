@@ -71,6 +71,3 @@
 
 13. **Repetir el ciclo para una nueva tarea.**
 
-### ⚠️ Aclaración
-El orden de los comandos puede variar dependiendo de la situación específica o lo que se quiera realizar.
-
