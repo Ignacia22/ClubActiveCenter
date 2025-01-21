@@ -70,5 +70,3 @@
     Si ya no se necesita la rama, se puede eliminar.
 
 13. **Repetir el ciclo para una nueva tarea.**
-
-khsdklfjbalkfblaskbfb kjkszbzlb
