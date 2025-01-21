@@ -19,3 +19,47 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* Estilos para el menú móvil */
+@media (max-width: 767px) {
+  #menu-toggle:checked + div + ul {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #menu-toggle:checked + div + ul li {
+    width: 100%;
+  }
+
+  #menu-toggle:checked + div + ul a {
+    padding: 10px;
+    display: block;
+    width: 100%;
+  }
+}
+
+/* Estilos para el menú de escritorio */
+@media (min-width: 768px) {
+  .group:hover > div {
+    display: block;
+  }
+
+  .group > div {
+    display: none;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Estilos para los submenús en móvil */
+@media (max-width: 767px) {
+  [id^="submenu-toggle-"]:checked + label + ul {
+    display: block;
+  }
+}
+
+/* Efecto de la barra debajo de los elementos del menú */
+.group:hover span > span {
+  width: 100%;
+}

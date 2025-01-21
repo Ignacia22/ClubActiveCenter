@@ -11,8 +11,18 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        navbarDefault: "#000",
+        navbarScrolled: "#fff",
       },
+      boxShadow: {
+        navbar: "0 2px 4px rgba(255, 255, 255, 0.2)", // Sombra navbar en blanco
+    },
+    fontFamily: {
+      sans: ['Noto Sans Tamil', 'sans-serif'],
+      
+    },    
     },
   },
+  
   plugins: [],
 } satisfies Config;
