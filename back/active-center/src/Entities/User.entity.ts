@@ -34,10 +34,10 @@ export class User {
   @Column({ type: 'varchar', length: 50, nullable: true })
   city?: string;
 
-  @Column({ type: 'number', length: 8, unique: true, nullable: false })
+  @Column({ type: 'integer', unique: true, nullable: false })
   dni: number;
 
-  @Column({ type: 'enum', default: UserStatus.disconect, nullable: true })
+  @Column({ type: 'enum', default: UserStatus.disconect, nullable: true, enum: UserStatus })
   userStatus: string;
 
   @Column({ type: 'boolean', default: false, nullable: true })
