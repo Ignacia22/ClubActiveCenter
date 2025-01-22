@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Reservation } from './Reservation.entity';
+import { Order } from './Order.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -35,6 +36,9 @@ export class User {
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations: Reservation[];
+
+  @OneToMany(() => Order, (orders) => orders.user)
+  orders: Order;
 
   @Column({ type: 'enum', default: UserStatus.disconect, nullable: true, enum: UserStatus })
   userStatus: string;
