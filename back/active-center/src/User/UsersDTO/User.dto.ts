@@ -48,20 +48,6 @@ export class UserDtoREsponseGet {
   @IsOptional()
   address?: string;
 
-  @ApiPropertyOptional({
-    description: 'La ciudad de residencia del usuario.',
-    example: 'Ciudad de México',
-  })
-  @IsOptional()
-  city?: string;
-
-  @ApiPropertyOptional({
-    description: 'El país de residencia del usuario.',
-    example: 'México',
-  })
-  @IsOptional()
-  country?: string;
-
   @ApiProperty({
     description: 'El número de documento del usuario (DNI).',
     example: 12345678,
@@ -135,20 +121,6 @@ export class UserDTOResponseId {
   })
   @IsOptional()
   address?: string;
-
-  @ApiPropertyOptional({
-    description: 'La ciudad de residencia del usuario.',
-    example: 'Ciudad de México',
-  })
-  @IsOptional()
-  city?: string;
-
-  @ApiPropertyOptional({
-    description: 'El país de residencia del usuario.',
-    example: 'México',
-  })
-  @IsOptional()
-  country?: string;
 
   @ApiProperty({
     description: 'El número de documento del usuario (DNI).',

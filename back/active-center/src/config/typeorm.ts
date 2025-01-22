@@ -1,21 +1,23 @@
+/* eslint-disable prettier/prettier */
 import { registerAs } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { dbConfig } from './config.envs';
 
 dotenvConfig({ path: `.env` });
 
 const config = {
-  type: 'postgres',
-  host: `${process.env.DB_HOST}` || 'localhost',
-  port: process.env.DB_PORT,
-  username: `${process.env.DB_USERNAME}`,
-  password: `${process.env.DB_PASSWORD}`,
-  database: `${process.env.DB_NAME}`,
-  entities: [],
-  migrations: [],
-  autoLoadEntities: true,
-  logging: true,
-  synchronize: true
+  type: dbConfig.type,
+  host: dbConfig.host,
+  port: dbConfig.port,
+  username: dbConfig.username,
+  password: dbConfig.password,
+  database: dbConfig.database,
+  synchronize: dbConfig.synchronize,
+  logging: dbConfig.logging,
+  dropSchema: dbConfig.dropSchema,
+  entities: dbConfig.entities,
+  migrations: dbConfig.migration,  
 };
 
 

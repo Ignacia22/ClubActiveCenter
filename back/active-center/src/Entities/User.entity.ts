@@ -4,9 +4,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Reservation } from './Reservation.entity';
+import { Order } from './Order.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -25,19 +28,19 @@ export class User {
   @Column({ type: 'varchar', length: 16, unique: true })
   phone: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  country?: string;
-
   @Column({ type: 'text', nullable: true })
   address?: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  city?: string;
-
-  @Column({ type: 'number', length: 8, unique: true, nullable: false })
+  @Column({ type: 'integer', unique: true, nullable: false })
   dni: number;
 
-  @Column({ type: 'enum', default: UserStatus.disconect, nullable: true })
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservations: Reservation[];
+
+  @OneToMany(() => Order, (orders) => orders.user)
+  orders: Order;
+
+  @Column({ type: 'enum', default: UserStatus.disconect, nullable: true, enum: UserStatus })
   userStatus: string;
 
   @Column({ type: 'boolean', default: false, nullable: true })
