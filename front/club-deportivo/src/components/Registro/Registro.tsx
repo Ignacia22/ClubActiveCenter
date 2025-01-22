@@ -1,3 +1,5 @@
+import React from "react";
+
 const Register = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-[url('/assets/Images/pexels-sukh-winder-3740393-5611633.jpg')] bg-cover bg-center">
