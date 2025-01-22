@@ -6,16 +6,16 @@ import MobileMenuToggle from "./MobileMenuToggle";
 export default function Nav() {
     return (
         <nav className="sticky top-0 z-50 bg-navbarDefault shadow-navbar">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 py-6">
                 <div className="flex justify-between items-center">
                     {/* Logo */}
                     <Link href="/Home" className="py-4">
                         <Image
                             src="/assets/Images/imagen_2025-01-15_210703968-removebg-preview.png"
                             alt="Logo"
-                            width={50}
-                            height={50}
-                            className="h-12 w-auto"
+                            width={100}
+                            height={100}
+                            className="h-12 w-auto max-w-[200] min-w-[100]"
                         />
                     </Link>
 
