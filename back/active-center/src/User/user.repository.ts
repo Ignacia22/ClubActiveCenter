@@ -3,7 +3,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/Entities/User.entity';
 import { Repository } from 'typeorm';
-import { RegisterUserDTO } from './UsersDTO/User.dto';
 
 @Injectable()
 export class UserRepository {
@@ -25,9 +24,5 @@ export class UserRepository {
     const user: User | null = await this.userRepository.findOneBy({email});
     if(!user) throw new NotFoundException('Mail o contraseña incorrecta.');
     return user;
-  }
-
-  async registerUser(user: RegisterUserDTO): Promise<User> {
-    return await this.userRepository.save(user);
   }
 }

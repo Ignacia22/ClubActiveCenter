@@ -9,7 +9,7 @@ export class Reservation {
     id: string
     
     @Column({type: 'date', nullable: false, default: new Date()})
-    date: Date;
+    date: Date; 
 
     @Column({type: 'boolean', default: true})
     status: boolean;

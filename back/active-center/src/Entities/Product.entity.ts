@@ -23,6 +23,6 @@ export class Product {
     @Column({type: 'decimal', scale: 2, precision: 8, nullable: false})
     price: number;
 
-    @Column({type: 'integer', precision: 4, nullable: false})
+    @Column({type: 'integer', nullable: false})
     stock: number;
 }
