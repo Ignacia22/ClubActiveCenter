@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
