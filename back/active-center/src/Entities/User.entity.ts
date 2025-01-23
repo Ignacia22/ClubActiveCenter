@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import { UserStatus } from 'src/User/UsersDTO/User.dto';
 import {
   Column,
   CreateDateColumn,
@@ -10,6 +9,7 @@ import {
 } from 'typeorm';
 import { Reservation } from './Reservation.entity';
 import { Order } from './Order.entity';
+import { UserStatus } from 'src/User/UserDTO/users.dto';
 
 @Entity({ name: 'users' })
 export class User {

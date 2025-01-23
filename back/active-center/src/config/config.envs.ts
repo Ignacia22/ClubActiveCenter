@@ -44,3 +44,6 @@ export const dbConfig = {
   dropSchema: DB_DROPSCHEMA,
   migration: DB_MIGRATION,
 };
+
+export const SALT: number = data.SALT ? parseInt(data.SALT, 10) : 10;
+export const SECRET_SECRET_WORD: string | undefined = data.SECRET_WORD;

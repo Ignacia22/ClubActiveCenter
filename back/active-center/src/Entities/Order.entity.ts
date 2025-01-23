@@ -2,7 +2,7 @@
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User.entity";
 import { Product } from "./Product.entity";
-import { StatusOrder } from "src/Order/OrderDTO/Order.dto";
+import { StatusOrder } from "src/Order/OrderDTO/orders.dto";
 
 @Entity({name: 'orders'})
 export class Order {
