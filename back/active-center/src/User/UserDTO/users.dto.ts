@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiHideProperty, ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsEmpty, IsNotEmpty, IsNumber, IsOptional, IsPhoneNumber, IsString, IsStrongPassword, IsUUID, Length } from "class-validator";
 
 
@@ -220,33 +220,25 @@ export class RegisterUserDTO {
   @IsNotEmpty({ message: 'El DNI es obligatorio y no puede estar vacío.' })
   dni: number;
 
-  @ApiPropertyOptional({
-    description: 'El estado del usuario dentro del sistema. Este valor es gestionado internamente y no debe ser enviado.',
-  })
+  @ApiHideProperty()
   @IsEmpty({
     message: 'No se permite incluir el estado del usuario en la solicitud. Este valor se asigna automáticamente.',
   })
   userStatus?: string;
 
-  @ApiPropertyOptional({
-    description: 'Indicador de privilegios administrativos. Este valor es gestionado internamente y no debe ser enviado.',
-  })
+  @ApiHideProperty()
   @IsEmpty({
     message: 'No se permite incluir el indicador de administrador en la solicitud. Este valor se asigna automáticamente.',
   })
   isAdmin?: boolean;
 
-  @ApiPropertyOptional({
-    description: 'La fecha en que se creó el usuario. Este valor es gestionado internamente y no debe ser enviado.',
-  })
+  @ApiHideProperty()
   @IsEmpty({
     message: 'No se permite incluir la fecha de creación del usuario en la solicitud. Este valor se asigna automáticamente.',
   })
   createUser?: Date;
 
-  @ApiPropertyOptional({
-    description: 'La fecha de la última actualización del usuario. Este valor es gestionado internamente y no debe ser enviado.',
-  })
+  @ApiHideProperty()
   @IsEmpty({
     message: 'No se permite incluir la fecha de actualización del usuario en la solicitud. Este valor se asigna automáticamente.',
   })
