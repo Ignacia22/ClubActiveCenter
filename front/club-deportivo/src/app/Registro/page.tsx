@@ -1,12 +1,8 @@
 import Register from "@/components/Registro/Registro";
 import React from "react";
 
-const page = () => {
-  return (
-    <>
-      <Register />
-    </>
-  );
+const Registro = () => {
+  return <Register />;
 };
 
-export default page;
+export default Registro;
