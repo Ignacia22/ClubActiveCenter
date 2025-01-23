@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Headers, Post, Put } from '@nestjs/common';
+import { Controller, Headers, Post, Put, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId } from 'src/User/UserDTO/users.dto';
 import { SingInDTOResponse } from './AuthDTO/auths.dto';
@@ -20,6 +20,9 @@ export class AuthController {
 
   @Put('tokenRefresh')
   async tokenRefresh(@Headers('authorization') token: string): Promise<any>{
-    return await this.authService.tokenRefresh(token.split(' ')[1]);
+    const tokenBearer: string[] = token.split(' ');
+    if(!tokenBearer[1]) throw new UnauthorizedException("Token invalido");
+    if(!tokenBearer[0]) throw new UnauthorizedException("Formato de token invalido.");
+    return await this.authService.tokenRefresh(tokenBearer[1]);
   }
 }

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty, IsString } from "class-validator";
 import { UserStatus } from "src/User/UserDTO/users.dto";
 
 
@@ -91,4 +92,11 @@ export class TokenRefreshPayloadDTO {
       enum: UserStatus
     })
     userStatus: string;
+}
+
+export class RefreshTokenDTO {
+  
+  @IsString({message: 'El token debe ser una cadena de texto.'})
+  @IsNotEmpty({message: 'El token no puede estar vacio'})
+  token: string;
 }
