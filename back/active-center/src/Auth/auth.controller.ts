@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Headers, Post, Put } from '@nestjs/common';
+import { Body, Controller, Headers, Post, Put, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId } from 'src/User/UserDTO/users.dto';
 import { SingInDTOResponse } from './AuthDTO/auths.dto';
