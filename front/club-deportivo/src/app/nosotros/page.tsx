@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import Image from "next/image";
 import futbol from "../public/assets/futbol.jpg";
 import paddel from "../public/assets/paddel.png";
 import tennis from "../public/assets/tennis.jpg";
@@ -32,6 +31,16 @@ export default function Nosotros() {
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
           </div>
+        </div>
+        <div className="md:w-1/2 md:pl-8">
+          <h2 className="text-3xl font-bold mb-4">Nuestra Historia</h2>
+          <p>
+            Desde que abrimos nuestras puertas en el año 2010, nos hemos
+            dedicado a ofrecer un espacio donde el deporte y la comunidad se
+            unen. Nuestro gimnasio fue fundado con la visión de brindar un lugar
+            accesible y profesional para todos, desde principiantes hasta
+            atletas experimentados.
+          </p>
         </div>
       </div>
 
@@ -73,7 +82,7 @@ export default function Nosotros() {
 
       {/* Sección 3: Beneficios */}
       <div className="text-center">
-        <Image
+        <img
           src={beneficiosdelclub.src}
           alt="Beneficios del gimnasio"
           width={1440}
