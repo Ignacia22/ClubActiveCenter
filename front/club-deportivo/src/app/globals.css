@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Definición de colores para el modo claro y oscuro */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,52 +15,69 @@
   }
 }
 
+/* Estilos generales para el body */
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-
 /* Estilos para el menú móvil */
 @media (max-width: 767px) {
+  /* Menú desplegable */
   #menu-toggle:checked + div + ul {
     display: flex;
     flex-direction: column;
     width: 100%;
   }
 
+  /* Asegura que los elementos del menú ocupen todo el ancho */
   #menu-toggle:checked + div + ul li {
     width: 100%;
   }
 
+  /* Estilo de los enlaces en el menú móvil */
   #menu-toggle:checked + div + ul a {
     padding: 10px;
     display: block;
     width: 100%;
   }
+
+  /* Submenú en móvil */
+  [id^="submenu-toggle-"]:checked + label + ul {
+    display: block;
+  }
 }
 
 /* Estilos para el menú de escritorio */
 @media (min-width: 768px) {
+  /* Mostrar el submenú al hacer hover */
   .group:hover > div {
     display: block;
   }
 
+  /* Submenú oculto por defecto */
   .group > div {
     display: none;
     transition: all 0.3s ease;
   }
 }
 
-/* Estilos para los submenús en móvil */
-@media (max-width: 767px) {
-  [id^="submenu-toggle-"]:checked + label + ul {
-    display: block;
+/* Efecto de la barra debajo de los elementos del menú al hacer hover */
+.group:hover span > span {
+  width: 100%;
+}
+
+/* Animación personalizada para el carrusel */
+@keyframes slow-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-66.66%); /* Mueve tres imágenes */
   }
 }
 
-/* Efecto de la barra debajo de los elementos del menú */
-.group:hover span > span {
-  width: 100%;
+.animate-slow-scroll {
+  animation: slow-scroll 15s linear infinite; /* Ajusta la duración (30s) para que la animación sea más lenta */
 }
