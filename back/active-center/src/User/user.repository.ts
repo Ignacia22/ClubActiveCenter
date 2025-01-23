@@ -19,4 +19,10 @@ export class UserRepository {
     if (!user) throw new NotFoundException('El usuario buscado no existe.');
     return user;
   }
+
+  async getUserByEmail(email: string): Promise<User> {
+    const user: User | null = await this.userRepository.findOneBy({email});
+    if(!user) throw new NotFoundException('Mail o contraseña incorrecta.');
+    return user;
+  }
 }

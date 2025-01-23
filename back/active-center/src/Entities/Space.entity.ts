@@ -16,8 +16,8 @@ export class Space {
     @Column({type: 'text', default: "iwmfiwmfiwfmwfw", nullable: false})
     img: string;
 
-    @Column({type: 'enum'})
-    status: string;
+    @Column({type: 'boolean' })
+    status: boolean;
 
     @ManyToOne(() => Activity, (activity) => activity.spaces)
     activity: Activity[];
