@@ -6,6 +6,7 @@ import nosotros from "../public/assets/nosotros.jpg";
 import nosotros2 from "../public/assets/nosotros2.jpg";
 import fotonosotros from "../public/assets/fotonosotros.jpg";
 import beneficiosdelclub from "../public/assets/beneficiosdelclub.png";
+import Link from "next/link";
 
 export default function Nosotros() {
   return (
@@ -81,20 +82,25 @@ export default function Nosotros() {
       </div>
 
       {/* Sección 3: Beneficios */}
-      <div className="text-center">
+      <div className="rounded-lg relative mx-auto">
         <img
           src={beneficiosdelclub.src}
           alt="Beneficios del gimnasio"
           width={1440}
           height={500}
-          className="w-full rounded-lg mb-6"
+          className="w-full"
         />
-        <h2 className="text-3xl font-bold mb-4">Beneficios de Elegirnos</h2>
-        <p className="mx-auto max-w-4xl">
-          En nuestro gimnasio encontrarás entrenadores profesionales, tecnología
-          de última generación, clases grupales para todas las edades, acceso a
-          canchas premium y un ambiente que te motivará a dar lo mejor de ti.
-        </p>
+        <div className="absolute top-1/4 left-8 text-white font-tamil shadow-text text-[6rem] leading-tight tracking-wide">
+          BENEFICIOS DEL <br />
+          <span className="font-tamil shadow-text text-[6rem]">CLUB!!</span>
+        </div>
+        <div className="absolute bottom-1/4 left-16">
+          <Link href={"Membresias"}>
+            <button className="bg-white text-black p-3 rounded-lg hover:bg-black hover:text-white">
+              VER MÁS
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );

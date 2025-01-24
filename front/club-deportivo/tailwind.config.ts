@@ -15,6 +15,7 @@ export default {
         navbarScrolled: "#fff",
       },
       boxShadow: {
+        text: "4px 4px 15px rgba(255, 255, 255, 0.5)", // Sombra de texto
         navbar: "0 2px 4px rgba(255, 255, 255, 0.2)", // Sombra navbar en blanco
       },
       fontFamily: {
@@ -33,6 +34,5 @@ export default {
       },
     },
   },
-
   plugins: [],
 } satisfies Config;
