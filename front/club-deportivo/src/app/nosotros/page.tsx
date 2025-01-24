@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
+
 import futbol from "../public/assets/futbol.jpg";
 import paddel from "../public/assets/paddel.png";
 import tennis from "../public/assets/tennis.jpg";
 import nosotros from "../public/assets/nosotros.jpg";
 import nosotros2 from "../public/assets/nosotros2.jpg";
 import fotonosotros from "../public/assets/fotonosotros.jpg";
-import beneficiosdelclub from "../public/assets/beneficiosdelclub.png";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Nosotros() {
@@ -34,8 +35,10 @@ export default function Nosotros() {
           </div>
         </div>
         <div className="md:w-1/2 md:pl-8">
-          <h2 className="text-3xl font-bold mb-4">Nuestra Historia</h2>
-          <p>
+          <h2 className="text-4xl md:text-[4rem] font-sans font-bold drop-shadow-lg">
+            Nuestra Historia
+          </h2>
+          <p className="mt-8">
             Desde que abrimos nuestras puertas en el año 2010, nos hemos
             dedicado a ofrecer un espacio donde el deporte y la comunidad se
             unen. Nuestro gimnasio fue fundado con la visión de brindar un lugar
@@ -49,7 +52,7 @@ export default function Nosotros() {
       <div className="flex flex-col md:flex-row items-center gap-8">
         {/* Texto al costado */}
         <div className="md:w-1/2 md:pr-8">
-          <h2 className="text-3xl font-bold mb-4">
+          <h2 className="text-4xl md:text-[4rem] font-sans font-bold drop-shadow-lg leading-relaxed">
             Canchas de Primera Calidad
           </h2>
           <p>
@@ -82,22 +85,27 @@ export default function Nosotros() {
       </div>
 
       {/* Sección 3: Beneficios */}
-      <div className="rounded-lg relative mx-auto">
-        <img
-          src={beneficiosdelclub.src}
-          alt="Beneficios del gimnasio"
-          width={1440}
-          height={500}
-          className="w-full"
+      <div className="relative h-screen w-full">
+        <Image
+          src="/assets/Images/pexels-cottonbro-10340615.jpg"
+          alt="Imagen de bienvenida"
+          layout="fill"
+          objectFit="cover"
+          className="z-0 opacity-70"
         />
-        <div className="absolute top-1/4 left-8 text-white font-tamil shadow-text text-[6rem] leading-tight tracking-wide">
-          BENEFICIOS DEL <br />
-          <span className="font-tamil shadow-text text-[6rem]">CLUB!!</span>
-        </div>
-        <div className="absolute bottom-1/4 left-16">
-          <Link href={"Membresias"}>
-            <button className="bg-white text-black p-3 rounded-lg hover:bg-black hover:text-white">
-              VER MÁS
+        <div className="absolute inset-0 flex flex-col items-start justify-center px-6 md:px-20 text-white z-10">
+          <h1 className="text-5xl md:text-[5rem] font-sans font-bold drop-shadow-lg">
+            Beneficios del Club
+          </h1>
+          <p className="mt-6 md:mt-8 font-sans font-medium text-[1em] md:text-[1.1em] drop-shadow-md w-full md:w-1/2 text-left">
+            Este complejo ofrece instalaciones de alta gama, personal capacitado
+            y áreas de descanso cómodas para garantizar una excelente
+            experiencia deportiva y recreativa. Además, contamos con diversas
+            opciones de membresía.
+          </p>
+          <Link href="../Membresias">
+            <button className="mt-6 md:mt-8 bg-white hover:bg-slate-300 hover:text-black text-black font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
+              Aprender más
             </button>
           </Link>
         </div>
