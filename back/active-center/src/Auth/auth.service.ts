@@ -9,8 +9,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId, UserStatus } from 'src/User/UserDTO/users.dto';
-import { SingInDTOResponse, TokenRefreshPayloadDTO } from './AuthDTO/auths.dto';
-import { Role } from './roles.enun';
+import { RefreshTokenDTO, SingInDTOResponse, TokenRefreshPayloadDTO } from './AuthDTO/auths.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +30,7 @@ export class AuthService {
     try {
       user.password = await this.hashPassword(user.password);
       const registerUser: User = await this.userRepository.save(user);
-      const {updateUser, isAdmin, createUser, orders, reservations, ...partialUser} = registerUser;
+      const {updateUser, isAdmin, createUser, orders, reservations, password, ...partialUser} = registerUser;
       return partialUser;
     } catch (error) {
       throw new HttpException({
@@ -67,7 +66,7 @@ export class AuthService {
     }
   }
 
-  async tokenRefresh(token: string): Promise<any> {
+  async tokenRefresh(token: string): Promise<RefreshTokenDTO> {
     try {
       const payload: TokenRefreshPayloadDTO = await this.jwtService.verifyAsync(token, {secret: SECRET_SECRET_WORD});
       const tokenRefresh: string = this.jwtService.sign({sub: payload.sub, email: payload.email, id: payload.id, isAdmin: payload.isAdmin, userStatus: payload.userStatus});

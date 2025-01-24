@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Inject } from '@nestjs/common';
 import * as sgMail from '@sendgrid/mail';
 

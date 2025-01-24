@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty, IsString } from "class-validator";
 import { UserStatus } from "src/User/UserDTO/users.dto";
 
 
@@ -83,7 +84,7 @@ export class TokenRefreshPayloadDTO {
       description: 'Indica si el usuario tiene privilegios de administrador.',
       example: true,
     })
-    isAdmin: boolean;
+    isAdmin: boolean | string[];
   
     @ApiProperty({
       description: 'Estado actual del usuario dentro del sistema.',
@@ -91,4 +92,28 @@ export class TokenRefreshPayloadDTO {
       enum: UserStatus
     })
     userStatus: string;
+
+    @ApiProperty({
+      description: 'Fecha y hora de expiración del token (UNIX timestamp en segundos)',
+      example: Math.floor(Date.now() / 1000) + 60 * 60,
+    })
+    exp: number;
+
+    @ApiProperty({
+      description: 'Fecha y hora en que se emitió el token (UNIX timestamp en segundos)',
+      example: Math.floor(Date.now() / 1000),
+    })
+    iat: number;
+
+    @ApiProperty({
+      description: 'Roles para la validación de tokens.'
+    })
+    roles: string[];
+}
+
+export class RefreshTokenDTO {
+  
+  @IsString({message: 'El token debe ser una cadena de texto.'})
+  @IsNotEmpty({message: 'El token no puede estar vacio'})
+  tokenAccess: string;
 }
