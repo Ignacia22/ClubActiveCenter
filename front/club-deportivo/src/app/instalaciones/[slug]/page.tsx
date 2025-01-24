@@ -2,7 +2,7 @@ import { instalacionesConfig } from "@/config/instalacionesConfig";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
-export default async function InstalacionPage({ params }: { params: { slug: string } }) {
+export default async function InstalacionPage({ params }: { params: Promise<{slug: string}>}) {
   const { slug } = await params;
   const instalacion = instalacionesConfig.find((inst) => inst.id === slug);
 
