@@ -1,12 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Category } from "./Category.entity";
+import { v4 as uuid } from 'uuid';
 
 @Entity({name: 'products'})
 export class Product {
     
     @PrimaryGeneratedColumn('uuid')
-    id: string;
+    id = uuid();
 
     @Column({type: 'text', nullable: false})
     img: string;

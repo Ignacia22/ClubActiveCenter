@@ -2,12 +2,13 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Reservation } from "./Reservation.entity";
 import { Space } from "./Space.entity";
+import { v4 as uuid } from 'uuid';
 
 @Entity({name: 'activities'})
 export class Activity {
     
     @PrimaryGeneratedColumn('uuid')
-    id: string;
+    id = uuid();
 
     @Column({ type: 'varchar', length: 50, nullable: false })
     name: string;

@@ -10,11 +10,12 @@ import {
 import { Reservation } from './Reservation.entity';
 import { Order } from './Order.entity';
 import { UserStatus } from 'src/User/UserDTO/users.dto';
+import { v4 as uuid } from 'uuid';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id = uuid();
 
   @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
