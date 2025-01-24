@@ -104,6 +104,11 @@ export class TokenRefreshPayloadDTO {
       example: Math.floor(Date.now() / 1000),
     })
     iat: number;
+
+    @ApiProperty({
+      description: 'Roles para la validación de tokens.'
+    })
+    roles: string[];
 }
 
 export class RefreshTokenDTO {

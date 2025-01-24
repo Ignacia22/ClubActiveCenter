@@ -23,8 +23,8 @@ export class AuthGuard implements CanActivate {
     try {
       const payload: TokenRefreshPayloadDTO = await this.jwtService.verifyAsync(token, {secret: SECRET_SECRET_WORD});
 
-      if(payload.isAdmin) payload.isAdmin = [Role.admin]
-      else payload.isAdmin = [Role.user];
+      if(payload.isAdmin) payload.roles = [Role.admin]
+      else payload.roles = [Role.user];
 
       req.access = {
         ...payload,
