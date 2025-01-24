@@ -84,7 +84,7 @@ export class TokenRefreshPayloadDTO {
       description: 'Indica si el usuario tiene privilegios de administrador.',
       example: true,
     })
-    isAdmin: boolean;
+    isAdmin: boolean | string[];
   
     @ApiProperty({
       description: 'Estado actual del usuario dentro del sistema.',
@@ -92,11 +92,23 @@ export class TokenRefreshPayloadDTO {
       enum: UserStatus
     })
     userStatus: string;
+
+    @ApiProperty({
+      description: 'Fecha y hora de expiración del token (UNIX timestamp en segundos)',
+      example: Math.floor(Date.now() / 1000) + 60 * 60,
+    })
+    exp: number;
+
+    @ApiProperty({
+      description: 'Fecha y hora en que se emitió el token (UNIX timestamp en segundos)',
+      example: Math.floor(Date.now() / 1000),
+    })
+    iat: number;
 }
 
 export class RefreshTokenDTO {
   
   @IsString({message: 'El token debe ser una cadena de texto.'})
   @IsNotEmpty({message: 'El token no puede estar vacio'})
-  token: string;
+  tokenAccess: string;
 }

@@ -2,7 +2,7 @@
 import { Body, Controller, Headers, Post, Put, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId } from 'src/User/UserDTO/users.dto';
-import { SingInDTOResponse } from './AuthDTO/auths.dto';
+import { RefreshTokenDTO, SingInDTOResponse } from './AuthDTO/auths.dto';
 import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
@@ -30,7 +30,11 @@ export class AuthController {
   }
 
   @Put('tokenRefresh')
-  async tokenRefresh(@Headers('authorization') token: string): Promise<any>{
+  @ApiOperation({
+    summary: 'Actualizar un token a partir del original.',
+    description: 'Este endpoint permite actualizar un token para poder seguir conectado sin la necesidad de volver iniciar sesión cuando el token se expire.',
+  })
+  async tokenRefresh(@Headers('authorization') token: string): Promise<RefreshTokenDTO>{
     const tokenBearer: string[] = token.split(' ');
     if(!tokenBearer[1]) throw new UnauthorizedException("Token invalido");
     if(!tokenBearer[0]) throw new UnauthorizedException("Formato de token invalido.");
