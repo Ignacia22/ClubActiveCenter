@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId, UserStatus } from 'src/User/UserDTO/users.dto';
 import { RefreshTokenDTO, SingInDTOResponse, TokenRefreshPayloadDTO } from './AuthDTO/auths.dto';
-import { SendGridService } from 'src/sendGrid/sendGrid.service';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 
 @Injectable()
 export class AuthService {
@@ -52,7 +52,7 @@ export class AuthService {
   async SignIn(user: SignInUserDTO): Promise<SingInDTOResponse>{
     try {
       const validate: User = await this.validate(user);
-      const token: string = this.jwtService.sign({sub: validate.id, id: validate.id, email: validate.email, isAdmin:[validate.isAdmin], userStatus: validate.userStatus});
+      const token: string = this.jwtService.sign({sub: validate.id, id: validate.id, email: validate.email, isAdmin: validate.isAdmin, userStatus: validate.userStatus});
       const {dni, orders, password, updateUser, isAdmin, reservations, createUser, ...extra} = validate;
       this.userRepository.save({...validate, userStatus: UserStatus.active});
       return {

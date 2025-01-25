@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
     const header: string | undefined = req.headers['authorization'];
     if(!header) return false;
     const token: string = header.split(' ')[1];
-    if(!header.startsWith('Bearer ')) throw new UnauthorizedException('Tipo de token invalido.');
+    if(!header.startsWith('Bearer ')) throw new UnauthorizedException('Formato de autoriazación invalido.');
     if(!token) throw new UnauthorizedException('No se detecto el token de autorización.');
     
     try {
