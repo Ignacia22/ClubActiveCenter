@@ -39,7 +39,8 @@ export class AuthService {
       const {updateUser, isAdmin, createUser, orders, reservations, password, ...partialUser} = registerUser;
       const { email }: { email: string } = user;  
       
-      this.sendGridService.wellcomeMail(email)
+      this.sendGridService.wellcomeMail(email);
+
       return partialUser;
     } catch (error) {
       throw new HttpException({
