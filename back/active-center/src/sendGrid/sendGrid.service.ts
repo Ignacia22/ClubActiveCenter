@@ -7,14 +7,13 @@ export class SendGridService {
         @Inject('SENDGRID') private readonly sgMail: sgMail.MailService
     ){}
 
-    async wellcomeMail( to: string,subject: string): Promise<void>{
+    async wellcomeMail( to: string): Promise<void>{
         const templateId = "d-8c4aa8bdf6d24112b4f8dddea1f6363f";
         const senderMail = "jumi.rc@hotmail.com";
 
         const mail = {
             to,
             from: senderMail,
-            subject,
             templateId: templateId
         }
         try {
