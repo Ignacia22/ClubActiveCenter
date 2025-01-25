@@ -35,6 +35,7 @@ export class UserController {
     description:
       'Este endpoint se encarga de obtener un usuario por id atarvez de un uuid valido.',
   })
+  @ApiBearerAuth()
   async getUserById(@Param('id', ParseUUIDPipe) id: string): Promise<UserDTOResponseId> {
     return await this.userService.getUserById(id);
   }

@@ -44,7 +44,7 @@ export class User {
   @Column({ type: 'enum', default: UserStatus.disconect, nullable: true, enum: UserStatus })
   userStatus: string;
 
-  @Column({ type: 'boolean', default: false, nullable: true })
+  @Column({ type: 'boolean', default: false, nullable: false })
   isAdmin?: boolean;
 
   @CreateDateColumn()

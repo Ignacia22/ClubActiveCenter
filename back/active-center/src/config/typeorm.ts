@@ -17,7 +17,10 @@ const config = {
   logging: dbConfig.logging,
   dropSchema: dbConfig.dropSchema,
   entities: dbConfig.entities,
-  migrations: dbConfig.migration,  
+  migrations: dbConfig.migration,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };
 
 

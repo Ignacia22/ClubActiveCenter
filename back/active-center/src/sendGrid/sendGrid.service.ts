@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Inject } from '@nestjs/common';
-import * as sgMail from '@sendgrid/mail';
+import * as sgMail  from '@sendgrid/mail';
 
 export class SendGridService {
     constructor(
