@@ -1,8 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FaFacebook, FaTwitter, FaInstagram, FaPhone, FaMailBulk } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaTwitter,
+  FaInstagram,
+  FaPhone,
+  FaMailBulk,
+} from "react-icons/fa";
 import { FaLocationPin } from "react-icons/fa6";
-
 
 export default function Footer() {
   return (
@@ -12,10 +17,9 @@ export default function Footer() {
 
       {/* Contenedor principal */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-center md:text-left">
-
         {/* Sección 1: Logo */}
         <div className="flex justify-center md:justify-center lg:justify-start">
-          <Link href="/Home">
+          <Link href="/home">
             <Image
               src="/assets/Images/imagen_2025-01-15_210703968-removebg-preview.png"
               alt="Logo"
@@ -73,7 +77,8 @@ export default function Footer() {
       {/* Derechos reservados */}
       <div className="text-center mt-12">
         <p className="text-gray-500 text-sm">
-          © {new Date().getFullYear()} Nuestra Compañía. Todos los derechos reservados.
+          © {new Date().getFullYear()} Nuestra Compañía. Todos los derechos
+          reservados.
         </p>
       </div>
     </footer>
