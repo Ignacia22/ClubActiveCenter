@@ -1,5 +1,6 @@
+import Carousel from "@/components/Carousel/Carousel";
 import { instalacionesConfig } from "@/config/instalacionesConfig";
-import Image from "next/image";
+
 import { notFound } from "next/navigation";
 
 export default async function InstalacionPage({ params }: { params: Promise<{slug: string}>}) {
@@ -11,37 +12,36 @@ export default async function InstalacionPage({ params }: { params: Promise<{slu
   }
 
   return (
-    <div className="container mx-auto py-20 px-4">
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="relative h-96">
-          <Image
-            src={instalacion.imagen}
-            alt={instalacion.titulo}
-            fill
-            className="object-cover rounded-lg shadow-lg"
-          />
+    <div className="relative min-h-screen bg-black text-white py-20 px-6 md:px-4">
+      {/* Carrusel de imágenes */}
+      <div className="flex justify-center mt-16 md:w-2/3">
+        <Carousel images={instalacion.carruselImagenes} />
+      </div>
+
+      {/* Título vertical */}
+      <div className="absolute top-1/2 -translate-y-1/2 -right-8 md:right-6">
+        <p className="text-6xl md:text-8xl px-6 m-[2rem] md:m-[4rem] mb-[3em] md:mb-[5em] font-bold rotate-90">
+          {instalacion.titulo}
+        </p>
+      </div>
+
+      {/* Detalles y características */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 mx-auto max-w-4xl text-black text-center">
+        <div className="bg-white p-6 md:p-8 rounded-lg">
+          <h3 className="font-bold text-base md:text-lg">Detalles</h3>
+          <ul className="text-left mt-4 space-y-2">
+            {instalacion.detalles.map((detalle, index) => (
+              <li key={index} className="text-gray-700">{detalle}</li>
+            ))}
+          </ul>
         </div>
-        <div>
-          <h1 className="text-4xl font-bold mb-4">{instalacion.titulo}</h1>
-          <p className="text-gray-600 mb-6 text-lg">{instalacion.descripcion}</p>
-
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-4">Detalles de la Instalación</h2>
-            <ul className="list-disc list-inside space-y-2">
-              {instalacion.detalles.map((detalle, index) => (
-                <li key={index} className="text-gray-700">{detalle}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Características</h2>
-            <ul className="list-disc list-inside space-y-2">
-              {instalacion.caracteristicas.map((caracteristica, index) => (
-                <li key={index} className="text-gray-700">{caracteristica}</li>
-              ))}
-            </ul>
-          </div>
+        <div className="bg-white p-6 md:p-8 rounded-lg">
+          <h3 className="font-bold text-base md:text-lg">Características</h3>
+          <ul className="text-left mt-4 space-y-2">
+            {instalacion.caracteristicas.map((caracteristica, index) => (
+              <li key={index} className="text-gray-700">{caracteristica}</li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
