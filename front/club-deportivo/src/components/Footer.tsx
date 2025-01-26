@@ -21,7 +21,7 @@ export default function Footer() {
         <div className="flex justify-center md:justify-center lg:justify-start">
           <Link href="/home">
             <Image
-              src="/assets/Images/imagen_2025-01-15_210703968-removebg-preview.png"
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737838109/imagen_2025-01-15_210703968-removebg-preview_pzguoo.png"
               alt="Logo"
               width={80}
               height={80}
