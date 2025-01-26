@@ -2,7 +2,7 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiOperation } from '@nestjs/swagger';
-import { UserDTOPage, UserDTOResponseId } from './UsersDTO/User.dto';
+import { UserDTOPage, UserDTOResponseId } from './UserDTO/users.dto';
 
 @Controller('user')
 export class UserController {

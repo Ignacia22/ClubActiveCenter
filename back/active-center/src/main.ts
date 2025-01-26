@@ -5,9 +5,7 @@ import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   setupSwagger(app);
-
   await app.listen(process.env.PORT ?? 3000, () =>
     console.log(`Server is listen on the port ${process.env.PORT}`),
   );
