@@ -21,4 +21,5 @@ export const navConfig: NavItem[] = [
       { text: "Natacion", path: "/instalaciones/natacion" },
     ],
   },
+  { text: "Actividades", path: "/actividades", isPrivate: false },
 ];
