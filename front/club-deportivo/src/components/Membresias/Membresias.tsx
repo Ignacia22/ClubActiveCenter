@@ -1,5 +1,8 @@
 import Image from "next/image";
 
+import React from "react";
+
+
 const MembershipPlans = () => {
   return (
     <div className="bg-black text-white min-h-screen py-12 px-6">
