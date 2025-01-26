@@ -51,7 +51,7 @@ export const products: IProducts[] = [
     name: "Botines unisex",
     price: 249,
     description:
-      "Botines de fútbol unisex con diseño moderno y gran tracción en césped natural o sintético.",
+      "Diseño moderno y gran tracción en césped natural o sintético.",
     image:
       "https://res.cloudinary.com/dqiehommi/image/upload/v1737862763/unisex_botin.21_ihrdfs.png",
     stock: 0,

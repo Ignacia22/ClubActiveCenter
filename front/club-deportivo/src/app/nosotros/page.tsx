@@ -1,11 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-
-import futbol from "../public/assets/futbol.jpg";
-import paddel from "../public/assets/paddel.png";
-import tennis from "../public/assets/tennis.jpg";
-import nosotros from "../public/assets/nosotros.jpg";
-import nosotros2 from "../public/assets/nosotros2.jpg";
-import fotonosotros from "../public/assets/fotonosotros.jpg";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,17 +11,17 @@ export default function Nosotros() {
         <div className="relative w-full md:w-1/2 h-96 overflow-hidden">
           <div className="flex w-[300%] h-full animate-slow-scroll">
             <img
-              src={nosotros.src}
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737839430/WhatsApp_Image_2025-01-25_at_5.53.49_PM_bfft2z.jpg"
               alt="Imagen 1"
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
             <img
-              src={nosotros2.src}
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737839365/WhatsApp_Image_2025-01-25_at_5.53.48_PM_1_rvb6ec.jpg"
               alt="Imagen 2"
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
             <img
-              src={fotonosotros.src}
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737839364/WhatsApp_Image_2025-01-25_at_5.53.48_PM_liku7i.jpg"
               alt="Imagen 3"
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
@@ -66,17 +59,17 @@ export default function Nosotros() {
         <div className="relative w-full md:w-1/2 h-96 overflow-hidden">
           <div className="flex w-[300%] h-full animate-slow-scroll">
             <img
-              src={futbol.src}
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737839576/pexels-tomfisk-3507477_g1cosp.jpg"
               alt="Fútbol"
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
             <img
-              src={paddel.src}
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737839423/WhatsApp_Image_2025-01-25_at_5.53.50_PM_ghadh9.jpg"
               alt="Paddel"
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
             <img
-              src={tennis.src}
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737837727/pexels-willianjusten-29175966_mlmlbx.jpg"
               alt="Tenis"
               className="w-1/3 flex-shrink-0 object-cover rounded-lg"
             />
@@ -87,7 +80,7 @@ export default function Nosotros() {
       {/* Sección 3: Beneficios */}
       <div className="relative h-screen w-full">
         <Image
-          src="/assets/Images/pexels-cottonbro-10340615.jpg"
+          src="https://res.cloudinary.com/dqiehommi/image/upload/v1737838004/pexels-cottonbro-10340615_nx5l6i.jpg"
           alt="Imagen de bienvenida"
           layout="fill"
           objectFit="cover"

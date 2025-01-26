@@ -10,6 +10,8 @@ export const navConfig: NavItem[] = [
   { text: "Nosotros", path: "/nosotros", isPrivate: false },
   { text: "Planes y Membresias", path: "/Membresias", isPrivate: false },
   { text: "Reservas", path: "/reservas", isPrivate: false },
+  { text: "Tienda", path: "/tienda", isPrivate: false },
+
   {
     text: "Instalaciones",
     path: "/instalaciones",

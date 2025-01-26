@@ -28,8 +28,8 @@ export default function Tienda() {
           </p>
         </header>
       </div>
-      <div className="w-full max-w-7xl mx-auto h-full">
-        <div className=" grid items-center gap-8 md:grid-cols-3 lg:grid-cols-4 ">
+      <div className="bg-black w-full max-w-7xl mx-auto h-full">
+        <div className="bg-black grid items-center gap-8 md:grid-cols-3 lg:grid-cols-4 overflow-hidden">
           {products.map((product) => (
             <Card key={product.id} product={product} />
           ))}
