@@ -1,9 +1,19 @@
 "use client";
+"use client";
 import React, { useState } from "react";
 import Image from "next/image";
 
+// Define la interfaz para el tipo de deporte
+interface Sport {
+  id: number;
+  nombre: string;
+  horario: string;
+  imagen: string;
+}
+
 const Reservas = () => {
-  const deportes = [
+  // Datos de los deportes
+  const deportes: Sport[] = [
     {
       id: 1,
       nombre: "Tenis",
@@ -62,16 +72,19 @@ const Reservas = () => {
     },
   ];
 
-  const [selectedSport, setSelectedSport] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Estados con tipado explícito
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const openModal = (sport) => {
+  // Abrir el modal
+  const openModal = (sport: Sport) => {
     setSelectedSport(sport);
     setIsModalOpen(true);
   };
 
+  // Cerrar el modal
   const closeModal = () => {
     setSelectedSport(null);
     setSelectedDate("");
@@ -79,8 +92,9 @@ const Reservas = () => {
     setIsModalOpen(false);
   };
 
+  // Confirmar reserva
   const confirmReservation = () => {
-    if (selectedDate && selectedTime) {
+    if (selectedDate && selectedTime && selectedSport) {
       alert(`Reserva confirmada para ${selectedSport.nombre}`);
       closeModal();
     } else {
@@ -130,7 +144,7 @@ const Reservas = () => {
         ))}
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && selectedSport && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-black rounded-lg p-6 w-96 shadow-xl">
             <h2 className="text-lg font-bold text-center mb-4">
