@@ -9,7 +9,7 @@ export default function BeneficiosInfo() {
         {/* Beneficios */}
       <div className="relative h-screen w-full">
         <Image
-          src="/assets/Images/pexels-cottonbro-10340615.jpg"
+          src="https://res.cloudinary.com/dqiehommi/image/upload/v1737838004/pexels-cottonbro-10340615_nx5l6i.jpg"
           alt="Imagen de bienvenida"
           layout="fill"
           objectFit="cover"
