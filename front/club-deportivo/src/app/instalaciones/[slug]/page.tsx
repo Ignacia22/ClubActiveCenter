@@ -1,5 +1,9 @@
+import BotonReserva from "@/components/Botones/BotonReserva";
 import Carousel from "@/components/Carousel/Carousel";
+import BeneficiosInfo from "@/components/HomeInfo/BeneficiosInfo";
+import Parallax from "@/components/Parallax";
 import { instalacionesConfig } from "@/config/instalacionesConfig";
+import Image from "next/image";
 
 import { notFound } from "next/navigation";
 
@@ -12,39 +16,93 @@ export default async function InstalacionPage({ params }: { params: Promise<{slu
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-white py-20 px-6 md:px-4">
-      {/* Carrusel de imágenes */}
-      <div className="flex justify-center mt-16 md:w-2/3">
-        <Carousel images={instalacion.carruselImagenes} />
-      </div>
+    <div className="min-h-screen bg-black text-white py-20 px-6 md:px-12">
+  {/* Efecto Parallax para la Imagen */}
+  <Parallax>
+  <div className="relative w-full mb-8 md:mb-16">
+  {/* Imagen */}
+  <Image
+    src={instalacion.images}
+    alt={instalacion.titulo2}
+    className="w-full h-auto rounded-xl shadow-md"
+    width={800}
+    height={600}
+    objectFit="cover"
+  />
 
-      {/* Título vertical */}
-      <div className="absolute top-1/2 -translate-y-1/2 -right-8 md:right-6">
-        <p className="text-6xl md:text-8xl px-6 m-[2rem] md:m-[4rem] mb-[3em] md:mb-[5em] font-bold rotate-90">
-          {instalacion.titulo}
-        </p>
-      </div>
+  {/* Título */}
+  <div className="absolute inset-0 flex items-center justify-center">
+    <h1 className="font-sans tracking-wide text-9xl md:text-9xl font-bold text-white drop-shadow-lg">
+      {instalacion.titulo2}
+    </h1>
+  </div>
+</div>
 
-      {/* Detalles y características */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 mx-auto max-w-4xl text-black text-center">
-        <div className="bg-white p-6 md:p-8 rounded-lg">
-          <h3 className="font-bold text-base md:text-lg">Detalles</h3>
-          <ul className="text-left mt-4 space-y-2">
-            {instalacion.detalles.map((detalle, index) => (
-              <li key={index} className="text-gray-700">{detalle}</li>
-            ))}
-          </ul>
+    {/* Resto del contenido */}
+    <div>
+      {/* Carrusel y Título */}
+      <div className="flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto">
+        {/* Carrusel de imágenes */}
+        <div className="w-full md:w-1/2 mb-8 md:mb-0">
+          <Carousel images={instalacion.carruselImagenes} />
         </div>
-        <div className="bg-white p-6 md:p-8 rounded-lg">
-          <h3 className="font-bold text-base md:text-lg">Características</h3>
-          <ul className="text-left mt-4 space-y-2">
-            {instalacion.caracteristicas.map((caracteristica, index) => (
-              <li key={index} className="text-gray-700">{caracteristica}</li>
-            ))}
-          </ul>
+
+        {/* Título */}
+        <div className="w-full md:w-1/2 text-center md:text-left md:pl-12">
+          <h1 className="text-6xl md:text-7xl tracking-wide font-bold mb-6">{instalacion.titulo}</h1>
+          <BotonReserva />
         </div>
       </div>
     </div>
+  </Parallax>
+
+ {/* Detalles y Características */}
+<div className="mt-16 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+  {/* Detalles */}
+  <div className="bg-white bg-opacity-15 p-8 rounded-lg shadow-lg">
+    <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 border-b border-gray-700 pb-4">
+      Detalles
+    </h2>
+    <ul className="space-y-4">
+      {instalacion.detalles.map((detalle, index) => (
+        <li
+          key={index}
+          className="flex items-center gap-4 text-lg text-white"
+        >
+          <span className="w-4 h-4 bg-blue-600 rounded-full flex-shrink-0"></span>
+          {detalle}
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {/* Características */}
+  <div className="bg-gray-800 bg-opacity-60 p-8 rounded-lg shadow-lg">
+    <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 border-b border-gray-700 pb-4">
+      Características
+    </h2>
+    <ul className="space-y-4">
+      {instalacion.caracteristicas.map((caracteristica, index) => (
+        <li
+          key={index}
+          className="flex items-center gap-4 text-lg text-gray-300"
+        >
+          <span className="w-4 h-4 bg-green-500 rounded-full flex-shrink-0"></span>
+          {caracteristica}
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+  
+
+  {/* Beneficios */}
+  <div className="mt-[7em]">
+    <BeneficiosInfo />
+  </div>
+</div>
+
   );
 }
 
