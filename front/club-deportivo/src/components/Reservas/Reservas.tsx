@@ -185,7 +185,7 @@ const Reservas = () => {
             <div className="flex justify-between mt-6">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 bg-gray-300 text-white rounded-md hover:bg-red-600 transition"
+                className="px-4 py-2 bg-red-400 text-white rounded-md hover:bg-red-600 transition"
               >
                 Cancelar
               </button>

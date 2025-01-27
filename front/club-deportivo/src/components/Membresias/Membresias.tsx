@@ -11,7 +11,7 @@ const MembershipPlans = () => {
             <h1 className="text-6xl font-bold mb-6 leading-tight">
               Planes y Membresías
             </h1>
-            <p className="text-gray-400 text-lg">
+            <p className="text-white text-lg">
               Maecenas eget condimentum velit, sit amet feugiat lectus. Vivamus
               luctus eros aliquet convallis ultricies. Mauris augue massa.
             </p>
@@ -63,7 +63,7 @@ const MembershipPlans = () => {
               <p className="text-2xl font-bold">$60</p>
               <p className="text-sm font-medium">TRIMESTRAL</p>
             </div>
-            <ul className="text-gray-700 text-sm space-y-2 mb-6">
+            <ul className="text-black text-sm space-y-2 mb-6">
               <li>✓ Acceso al gimnasio sin límite de horarios.</li>
               <li>✓ Acceso a la piscina durante horas normales.</li>
               <li>✓ Participación en todas las clases grupales.</li>
