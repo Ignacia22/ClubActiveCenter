@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Headers, Post, Put, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Headers, Post, Put, SetMetadata, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId } from 'src/User/UserDTO/users.dto';
 import { RefreshTokenDTO, SingInDTOResponse } from './AuthDTO/auths.dto';
@@ -15,6 +15,7 @@ export class AuthController {
     description:
       'Este endpoint permite registrar un nuevo usuario en el sistema, creando su cuenta con los datos proporcionados (nombre, correo, contraseña, etc.). Se validan los datos y se crea un usuario en la base de datos.',
   })
+  @SetMetadata('isPublic', true)
   async SignUp (@Body() user: RegisterUserDTO): Promise<UserDTOResponseId> {
     return await this.authService.SignUp(user);
   }
@@ -25,11 +26,13 @@ export class AuthController {
     description:
       'Este endpoint permite a los usuarios autenticarse en el sistema proporcionando su correo electrónico y contraseña. Si las credenciales son válidas, se genera un token JWT para la sesión.',
   })
+  @SetMetadata('isPublic', true)
   async SignIn (@Body() user: SignInUserDTO): Promise<SingInDTOResponse> {
     return await this.authService.SignIn(user);
   }
 
   @Put('tokenRefresh')
+  @SetMetadata('isPublic', true)
   @ApiOperation({
     summary: 'Actualizar un token a partir del original.',
     description: 'Este endpoint permite actualizar un token para poder seguir conectado sin la necesidad de volver iniciar sesión cuando el token se expire.',

@@ -11,11 +11,11 @@ export default function Nav() {
           {/* Logo */}
           <Link href="/home" className="py-4">
             <Image
-              src="/assets/Images/imagen_2025-01-15_210703968-removebg-preview.png"
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737838109/imagen_2025-01-15_210703968-removebg-preview_pzguoo.png"
               alt="Logo"
-              width={100}
-              height={100}
-              className="h-12 w-auto max-w-[200] min-w-[100]"
+              width={150}
+              height={150}
+              className="h-16 w-auto max-w-[200] min-w-[100]"
             />
           </Link>
 

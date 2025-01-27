@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import ActivitiesSection from "./ActivitiesSection";
+import BeneficiosInfo from "./BeneficiosInfo";
 
 export default function InfoHome() {
   return (
@@ -8,7 +9,7 @@ export default function InfoHome() {
       {/* Sección principal */}
       <div className="relative h-screen w-full">
         <Image
-          src="/assets/Images/pexels-sukh-winder-3740393-5611633.jpg"
+          src="https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg"
           alt="Imagen de bienvenida"
           fill
           objectFit="cover"
@@ -32,8 +33,8 @@ export default function InfoHome() {
         <div className="container mx-auto flex flex-col md:flex-row items-center">
           <div className="w-full md:w-2/3 mb-8 md:mb-0">
             <Image
-              src="/assets/Images/pixelcut-export.png"
-              alt="Próximos Eventos"
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737837626/pixelcut-export_n5iubx.png"
+              alt="Bienestar"
               width={3902}
               height={3952}
               className="w-full h-auto"
@@ -42,7 +43,7 @@ export default function InfoHome() {
           <div className="w-full md:w-1/3 md:ml-8 text-center md:text-left">
             <h2 className="text-5xl md:text-7xl font-sans font-bold mb-4 text-white">Bienestar Deportivo</h2>
             <p className="text-white my-6 md:my-9">
-              Mantente al tanto de nuestros próximos eventos y actividades especiales. Tenemos una agenda llena de emocionantes competiciones, entrenamientos y actividades recreativas para que disfrutes al máximo.
+            Descubre cómo el deporte puede transformar tu bienestar físico y mental. Únete a nuestras actividades llenas de energía, desde emocionantes competiciones hasta entrenamientos diseñados para todos los niveles. Mantente activo, diviértete y forma parte de una comunidad apasionada por el movimiento.
             </p>
             <Link href="/eventos">
               <button className="mt-4 bg-white hover:bg-slate-300 text-black font-sans font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
@@ -59,8 +60,8 @@ export default function InfoHome() {
         <div className="container mx-auto flex flex-col md:flex-row-reverse items-center">
           <div className="w-full md:w-2/3 mb-8 md:mb-0">
             <Image
-              src="/assets/Images/pixelcut-export (1).png"
-              alt="Próximos Eventos"
+              src="https://res.cloudinary.com/dqiehommi/image/upload/v1737837539/pixelcut-export_1_pyyrvq.png"
+              alt="Hombre de Pie"
               width={3902}
               height={3952}
               className="w-full h-auto"
@@ -85,26 +86,8 @@ export default function InfoHome() {
         <ActivitiesSection />
       </div>
 
-      {/* Beneficios */}
-      <div className="relative h-screen w-full">
-        <Image
-          src="/assets/Images/pexels-cottonbro-10340615.jpg"
-          alt="Imagen de bienvenida"
-          layout="fill"
-          objectFit="cover"
-          className="z-0 opacity-70"
-        />
-        <div className="absolute inset-0 flex flex-col items-start justify-center px-6 md:px-20 text-white z-10">
-          <h1 className="text-5xl md:text-[5rem] font-sans font-bold drop-shadow-lg">Beneficios del Club</h1>
-          <p className="mt-6 md:mt-8 font-sans font-medium text-[1em] md:text-[1.1em] drop-shadow-md w-full md:w-1/2 text-left">
-            Este complejo ofrece instalaciones de alta gama, personal capacitado y áreas de descanso cómodas para garantizar una excelente experiencia deportiva y recreativa. Además, contamos con diversas opciones de membresía.
-          </p>
-          <Link href="/instalaciones">
-            <button className="mt-6 md:mt-8 bg-white hover:bg-slate-300 hover:text-black text-black font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
-              Aprender más
-            </button>
-          </Link>
-        </div>
+      <div>
+        <BeneficiosInfo/>
       </div>
     </div>
   );

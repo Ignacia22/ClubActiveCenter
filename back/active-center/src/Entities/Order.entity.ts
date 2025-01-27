@@ -3,12 +3,13 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColum
 import { User } from "./User.entity";
 import { Product } from "./Product.entity";
 import { StatusOrder } from "src/Order/OrderDTO/orders.dto";
+import { v4 as uuid } from 'uuid';
 
 @Entity({name: 'orders'})
 export class Order {
     
     @PrimaryGeneratedColumn('uuid')
-    id: string
+    id = uuid();
 
     @ManyToOne(() => User, (user) => user.orders)
     user: User;

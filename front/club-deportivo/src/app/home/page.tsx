@@ -1,4 +1,4 @@
-import InfoHome from "@/components/InfoHome";
+import InfoHome from "@/components/HomeInfo/InfoHome";
 
 
 export default function Home() {

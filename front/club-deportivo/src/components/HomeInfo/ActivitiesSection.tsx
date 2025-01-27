@@ -1,21 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
+import { IconType } from "react-icons";
+import { FaSwimmer } from "react-icons/fa";
+import {  GiSoccerBall, GiTennisRacket } from "react-icons/gi";
+
 
 export interface ActivitiesItem {
   text: string;
   path: string;
+  icon?: IconType;
 }
 
 export default function ActivitiesSection() {
   const activities: ActivitiesItem[] = [
-    { text: "Basquetball", path: "/instalaciones/basquetball" },
-    { text: "Voley", path: "/instalaciones/voley" },
-    { text: "Padel", path: "/instalaciones/padel" },
-    { text: "Tennis", path: "/instalaciones/tennis" },
-    { text: "Futbol", path: "/instalaciones/futbol" },
-    { text: "Natación", path: "/instalaciones/natacion" },
-    { text: "Squash", path: "/instalaciones/squash" },
-    { text: "Gimnasia", path: "/instalaciones/gimnasia" },
+  { text: "Padel", path: "/instalaciones/padel", icon: GiTennisRacket },
+  { text: "Tennis", path: "/instalaciones/tennis", icon: GiTennisRacket },
+  { text: "Futbol", path: "/instalaciones/futbol", icon: GiSoccerBall },
+  { text: "Natación", path: "/instalaciones/natacion", icon: FaSwimmer },
   ];
 
   return (
@@ -23,7 +24,7 @@ export default function ActivitiesSection() {
       {/* Imagen principal */}
       <div className="flex justify-center mt-16 md:w-2/3">
         <Image
-          src="/assets/Images/pixelcut-export (2).png"
+          src="https://res.cloudinary.com/dqiehommi/image/upload/v1737837539/pixelcut-export_2_gqq2jh.png"
           alt="Persona con balón"
           width={700}
           height={500}
@@ -40,16 +41,18 @@ export default function ActivitiesSection() {
 
       {/* Tarjetas de actividades */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 mx-auto max-w-4xl text-black text-center">
-        {activities.map((activity, index) => (
-          <Link
-            key={index}
-            href={activity.path}
-            className="bg-white p-6 md:p-8 rounded-lg hover:bg-slate-400 hover:text-white transition flex items-center justify-center"
-          >
-            <h3 className="font-bold text-base md:text-lg">{activity.text}</h3>
-          </Link>
-        ))}
-      </div>
+  {activities.map((activity, index) => (
+    <Link
+      key={index}
+      href={activity.path}
+      className="bg-white p-6 md:p-8 rounded-lg hover:bg-slate-400 hover:text-white transition flex flex-col items-center justify-center"
+    >
+      {activity.icon && <activity.icon className="w-12 h-12 mb-4 text-black" />} {/* Ícono centrado arriba del texto */}
+      <h3 className="font-bold text-base md:text-lg">{activity.text}</h3>
+    </Link>
+  ))}
+</div>
+
 
       {/* Botón para ver más */}
       <div className="flex justify-center mt-8">

@@ -22,4 +22,4 @@ import typeorm from './config/typeorm';
     }),
   ],
 })
-export class configModule {}
+export class configModule {} 

@@ -2,11 +2,13 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User.entity";
 import { Activity } from "./Activity.entity";
+import { v4 as uuid } from 'uuid';
+
 
 @Entity({name: 'reservations'})
 export class Reservation {
     @PrimaryGeneratedColumn('uuid')
-    id: string
+    id = uuid();
     
     @Column({type: 'date', nullable: false, default: new Date()})
     date: Date; 
