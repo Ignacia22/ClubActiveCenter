@@ -29,9 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Nav/>
+        {" "}
+        {/* Aquí envuelves todo el layout con el contexto */}
+        <Nav />
         {children}
-        <Footer/>
+        <Footer />
       </body>
     </html>
   );

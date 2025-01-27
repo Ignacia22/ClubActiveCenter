@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
 import { IProducts } from "@/app/Interfaces/IProducts";
 
 export default function Card({ product }: { product: IProducts }) {
@@ -6,7 +7,7 @@ export default function Card({ product }: { product: IProducts }) {
     <div className="bg-black text-white">
       <div>
         {/* Card del producto */}
-        <div className="relative bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow h-full">
+        <div className="relative bg-white rounded-lg shadow-lg shadow-gray-500/50 overflow-hidden hover:shadow-xl transition-shadow h-full">
           <div className="relative w-full h-80">
             {/* Imagen del producto */}
             <img
@@ -29,9 +30,13 @@ export default function Card({ product }: { product: IProducts }) {
             <p className="text-sm text-gray-600 text-center">
               Estado: {product.State}
             </p>
-            <button className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition">
-              COMPRAR
-            </button>
+
+            {/* Botón de "Ver más Detalles" con Link para redirigir */}
+            <Link href={`/products/${product.id}`} passHref>
+              <button className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition">
+                Ver más detalles
+              </button>
+            </Link>
           </div>
         </div>
       </div>
