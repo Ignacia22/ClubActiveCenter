@@ -2,7 +2,7 @@ import React from "react";
 
 const Register = () => {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[url('/assets/Images/pexels-sukh-winder-3740393-5611633.jpg')] bg-cover bg-center">
+    <div className="flex justify-center items-center min-h-screen bg-[url('https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg')] bg-cover bg-center">
       <form className="bg-black bg-opacity-80 p-8 rounded-lg shadow-md w-full max-w-lg">
         <h2 className="text-3xl font-bold mb-6 text-white text-center">
           ¡Se parte de nuestra comunidad!

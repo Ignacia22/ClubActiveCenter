@@ -1,9 +1,8 @@
 "use client";
-"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 
-// Define la interfaz para el tipo de deporte
 interface Sport {
   id: number;
   nombre: string;
@@ -12,7 +11,6 @@ interface Sport {
 }
 
 const Reservas = () => {
-  // Datos de los deportes
   const deportes: Sport[] = [
     {
       id: 1,
@@ -72,19 +70,16 @@ const Reservas = () => {
     },
   ];
 
-  // Estados con tipado explícito
   const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Abrir el modal
   const openModal = (sport: Sport) => {
     setSelectedSport(sport);
     setIsModalOpen(true);
   };
 
-  // Cerrar el modal
   const closeModal = () => {
     setSelectedSport(null);
     setSelectedDate("");
@@ -92,7 +87,6 @@ const Reservas = () => {
     setIsModalOpen(false);
   };
 
-  // Confirmar reserva
   const confirmReservation = () => {
     if (selectedDate && selectedTime && selectedSport) {
       alert(`Reserva confirmada para ${selectedSport.nombre}`);
