@@ -68,9 +68,27 @@ const Register = () => {
           />
         </div>
 
+        <div className="mb-4">
+          <input
+            type="password"
+            placeholder="Contraseña:"
+            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <input
+            type="password"
+            placeholder="Repetir Contraseña:"
+            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+            required
+          />
+        </div>
+
         <button
           type="submit"
-          className="w-full bg-white text-black py-2 px-4 rounded hover:bg-gray-200 transition font-bold"
+          className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-700 transition font-bold"
         >
           REGISTRATE
         </button>
