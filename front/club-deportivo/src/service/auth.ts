@@ -32,7 +32,13 @@ export const AuthService = {
         console.error("Error al registrar usuario:", errorDetails.message);
 
         if (errorDetails.message.includes("duplicate key")) {
-          alert("El correo electrónico o el DNI ya están registrados.");
+          if (errorDetails.message.includes("email")) {
+            alert("El correo electrónico ya está registrado.");
+          } else if (errorDetails.message.includes("dni")) {
+            alert("El DNI ya está registrado.");
+          } else {
+            alert("El correo electrónico o el DNI ya están registrados.");
+          }
         } else {
           alert(`Error al registrar el usuario: ${errorDetails.message}`);
         }

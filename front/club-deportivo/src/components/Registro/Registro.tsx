@@ -88,7 +88,7 @@ const Register = () => {
         dni: "",
         password: "",
       });
-    } catch (error) {
+    } catch {
       Swal.fire({
         icon: "error",
         title: "Error al registrar usuario",
