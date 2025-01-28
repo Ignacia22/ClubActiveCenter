@@ -1,7 +1,10 @@
+// components/Nav.tsx
+
 import { navConfig, NavItem } from "@/config/navConfig";
 import Image from "next/image";
 import Link from "next/link";
 import MobileMenuToggle from "./MobileMenuToggle";
+import UserCheck from "../components/userCheck"; // Importamos el componente UserCheck
 
 export default function Nav() {
   return (
@@ -51,6 +54,11 @@ export default function Nav() {
               </li>
             ))}
           </ul>
+
+          {/* User Authentication status - Add UserCheck here */}
+          <div className="hidden md:flex items-center space-x-6">
+            <UserCheck /> {/* Aquí agregamos el componente UserCheck */}
+          </div>
 
           {/* Hamburger menu for mobile */}
           <div className="md:hidden">
