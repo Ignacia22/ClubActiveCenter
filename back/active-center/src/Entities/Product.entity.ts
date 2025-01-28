@@ -2,6 +2,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Category } from "./Category.entity";
 import { v4 as uuid } from 'uuid';
+import { StatusProduct } from "src/Product/productDTO/product.DTO";
 
 @Entity({name: 'products'})
 export class Product {
@@ -26,4 +27,7 @@ export class Product {
 
     @Column({type: 'integer', nullable: false})
     stock: number;
+
+    @Column({type: 'enum', enum: StatusProduct, nullable: false, default: StatusProduct.Available})
+    productStatus: string;
 }

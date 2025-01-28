@@ -3,6 +3,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +13,7 @@ import { Reservation } from './Reservation.entity';
 import { Order } from './Order.entity';
 import { UserStatus } from 'src/User/UserDTO/users.dto';
 import { v4 as uuid } from 'uuid';
+import { Activity } from './Activity.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -34,6 +37,10 @@ export class User {
 
   @Column({ type: 'integer', unique: true, nullable: false })
   dni: number;
+
+  @ManyToMany(() => Activity)
+  @JoinTable()
+  activities: Activity[];
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations: Reservation[];

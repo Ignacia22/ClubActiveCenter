@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Reservation } from "./Reservation.entity";
 import { Space } from "./Space.entity";
 import { v4 as uuid } from 'uuid';
@@ -11,17 +11,8 @@ export class Activity {
     id = uuid();
 
     @Column({ type: 'varchar', length: 50, nullable: false })
-    name: string;
-
-    @Column({ type: 'decimal', precision: 8, scale: 2, nullable: false})
-    price: number;
+    title: string;
 
     @Column({ type: 'boolean', default: true, nullable: false})
     status: boolean;
-
-    @ManyToOne(() => Reservation, (reservation) => reservation.activities)
-    reservation: Reservation;
-
-    @OneToMany(() => Space, (space) => space.activity)
-    spaces: Space[]
 }
