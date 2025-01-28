@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User.entity";
+import { Activity } from "./Activity.entity";
 import { v4 as uuid } from 'uuid';
-import { Space } from "./Space.entity";
 
 
 @Entity({name: 'reservations'})
@@ -22,10 +22,7 @@ export class Reservation {
     @ManyToOne(() => User, (user) => user.reservations)
     user: User;
 
-    @ManyToOne(() => Space, (space) => space.reservation)
-    spaces: Space[];
-
-    @Column({type: 'integer', nullable: false})
-    hours: number;
+    @OneToMany(() => Activity, (activity) => activity.reservation)
+    activities: Activity[];
 }
 

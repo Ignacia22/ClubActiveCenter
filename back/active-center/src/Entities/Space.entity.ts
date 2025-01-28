@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Activity } from "./Activity.entity";
 import { v4 as uuid } from 'uuid';
-import { Reservation } from "./Reservation.entity";
 
 
 @Entity({name: 'spaces'})
@@ -11,27 +10,18 @@ export class Space {
     id = uuid();
     
     @Column({type: 'varchar', length: 80, nullable: false})
-    title: string;
-    
-    @Column({type: 'simple-array', default: "iwmfiwmfiwfmwfw", nullable: false})
-    img: string[];
+    name: string;
 
     @Column({type: 'text', nullable: false})
     description: string;
 
-    @Column({type: 'simple-array', nullable: false})
-    details: string[];
+    @Column({type: 'text', default: "iwmfiwmfiwfmwfw", nullable: false})
+    img: string;
 
-    @Column({type: 'simple-array', nullable: false})
-    characteristics: string[];
-
-    @Column({type: 'decimal', nullable: false, scale: 2, precision: 8})
-    price_hour: number;
-
-    @Column({type: 'boolean', default: false})
+    @Column({type: 'boolean' })
     status: boolean;
 
-    @OneToMany(() => Reservation, (reservation) => reservation.spaces)
-    reservation: Reservation[];
+    @ManyToOne(() => Activity, (activity) => activity.spaces)
+    activity: Activity[];
 }
 
