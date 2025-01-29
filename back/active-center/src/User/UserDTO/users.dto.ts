@@ -26,7 +26,7 @@ import { Confirmation } from 'src/utils/passwordConfimation.pipe';
 
 export enum UserStatus {
   active = 'Conect',
-  disconect = 'Disconect',
+  disconect = 'Disconnected',
   delete = 'Elimined',
   ban = 'Banned',
 }
