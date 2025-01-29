@@ -15,9 +15,15 @@ const config: DataSourceOptions = {
   dropSchema: dbConfig.dropSchema,
   entities: dbConfig.entities,
   migrations: dbConfig.migration,
+<<<<<<< HEAD
   ssl: {
     rejectUnauthorized: true,
   },
+=======
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
+>>>>>>> 9142c48 (Implemented Stripe, Moduls , RElations to Order, Entities)
 };
 
 export default registerAs('typeorm', () => config);
