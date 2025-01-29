@@ -1,13 +1,13 @@
 "use client";
 
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { useRouter } from "next/router";
+import Link from "next/link";
+
 import React from "react";
 
 export default function Login() {
   const { user, error, isLoading } = useUser();
 
-  const router = useRouter();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error.message}</div>;
@@ -51,13 +51,15 @@ export default function Login() {
               />
             </div>
 
-            <button
-  type="button"
-  className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-700 transition font-bold"
-  onClick={() => router.push('/api/auth/login')}
->
-  LOGIN
-</button>
+            <Link
+            href="/api/auth/logout"
+            passHref
+            legacyBehavior
+            >
+              <a className="block text-center text-white bg-red-600 hover:bg-red-700 py-2 px-4 rounded transition font-bold">
+                LOGOUT
+                </a>
+            </Link>
           </>
         )}
       </form>
