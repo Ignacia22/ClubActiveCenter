@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { IProducts } from "@/app/Interfaces/IProducts";
+import { IProducts } from "@/interface/IProducts";
 
 export default function Card({ product }: { product: IProducts }) {
   return (

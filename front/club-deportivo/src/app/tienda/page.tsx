@@ -2,7 +2,7 @@
 
 import { getProducts } from "@/helpers/getProducts";
 import { useEffect, useState } from "react";
-import { IProducts } from "../Interfaces/IProducts";
+import { IProducts } from "../../interface/IProducts";
 import Card from "../../components/Card/Card";
 
 export default function Tienda() {

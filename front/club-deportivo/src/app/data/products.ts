@@ -1,5 +1,5 @@
-import { IProducts } from "../Interfaces/IProducts";
-import { ProductState } from "../Interfaces/IProducts";
+import { IProducts } from "../../interface/IProducts";
+import { ProductState } from "../../interface/IProducts";
 
 export const products: IProducts[] = [
   {

@@ -2,30 +2,41 @@ import { navConfig, NavItem } from "@/config/navConfig";
 import Image from "next/image";
 import Link from "next/link";
 import MobileMenuToggle from "./MobileMenuToggle";
+import { CartButton } from "./IconosMenu/CartButton";
+import { UserMenu } from "./IconosMenu/UserMenu";
+
 
 export default function Nav() {
+  const isAuthenticated = false;
+  const cartItemCount = 0;
+
+  const handleLogout = () => {
+    console.log('Logout');
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-navbarDefault shadow-navbar">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/home" className="py-4">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo - ajustado para móvil y tablet */}
+          <Link href="/home" className="flex-shrink-0">
             <Image
               src="https://res.cloudinary.com/dqiehommi/image/upload/v1737838109/imagen_2025-01-15_210703968-removebg-preview_pzguoo.png"
               alt="Logo"
               width={150}
               height={150}
-              className="h-16 w-auto max-w-[200] min-w-[100]"
+              className="h-10 w-auto object-contain"
+              priority
             />
           </Link>
 
-          {/* Desktop Navigation menu */}
-          <ul className="hidden md:flex items-center justify-center flex-grow text-sm font-semibold uppercase text-white">
+          {/* Desktop Navigation menu - ajustado breakpoint a lg */}
+          <ul className="hidden lg:flex items-center justify-center flex-1 text-xs xl:text-sm font-semibold uppercase text-white space-x-2 xl:space-x-4 mx-4">
             {navConfig.map((item: NavItem) => (
-              <li key={item.path} className="relative group mx-4">
+              <li key={item.path} className="relative group">
                 <Link
                   href={item.path}
-                  className="py-6 hover:text-slate-300 transition duration-300"
+                  className="py-6 px-2 hover:text-slate-300 transition duration-300 whitespace-nowrap"
                 >
                   <span className="relative">
                     {item.text}
@@ -52,9 +63,17 @@ export default function Nav() {
             ))}
           </ul>
 
-          {/* Hamburger menu for mobile */}
-          <div className="md:hidden">
-            <MobileMenuToggle />
+          {/* Right side icons - ajustado espaciado */}
+          <div className="flex items-center gap-1">
+            <CartButton itemCount={cartItemCount} />
+            <UserMenu 
+              isAuthenticated={isAuthenticated}
+              onLogout={handleLogout}
+            />
+            {/* Menu hamburguesa solo visible hasta lg */}
+            <div className="lg:hidden ml-1">
+              <MobileMenuToggle />
+            </div>
           </div>
         </div>
       </div>
