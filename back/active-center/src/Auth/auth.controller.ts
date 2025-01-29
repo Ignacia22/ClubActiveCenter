@@ -95,7 +95,7 @@ export class AuthController {
   @UseGuards(RolesGuard)
   @ApiOperation({description: 'Este endpoint actualiza el rol del usurio, convirtiendolo en administrador o quitandole el administrador.', summary: 'Dar o quitar administrador'})
   @ApiBearerAuth()
-  async isAdmin(id: string): Promise<BanDTOResponse> {
+  async isAdmin(@Param('id', ParseUUIDPipe) id: string): Promise<BanDTOResponse> {
     return await this.authService.isAdmin(id);
   }
 }

@@ -131,7 +131,7 @@ export class AuthService {
   async validate(user: SignInUserDTO): Promise<User> {
     try {
       const exist: User | null = await this.userService.getUserByEmail(user.email);
-      if (!exist || !(await bcrypt.compare(user.password, exist.password)))throw new NotFoundException('Mail o contraseña incorrecta.');      
+      if (!exist || !(await bcrypt.compare(user.password, exist.password) || exist.userStatus === UserStatus.delete))throw new NotFoundException('Mail o contraseña incorrecta.');      
       if(exist && exist.userStatus === UserStatus.delete) throw new NotFoundException('Mail o contraseña incorrecta.');
       return exist;
     } catch (error) {
