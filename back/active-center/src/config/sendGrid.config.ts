@@ -10,7 +10,7 @@ export const SendGridConfig = {
     const sendGridApiKey = process.env.SENDGRID_API_KEY;
 
     if (!sendGridApiKey) {
-      throw new InternalServerErrorException("error en la SENDGRID_API_KEY");
+      throw new InternalServerErrorException('error en la SENDGRID_API_KEY');
     }
 
     sgMail.setApiKey(sendGridApiKey);

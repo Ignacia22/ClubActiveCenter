@@ -12,8 +12,17 @@ import { SendGridModule } from './SendGrid/sendGrid.module';
 import { ProductModule } from './Product/product.module';
 
 @Module({
-  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, ProductModule],
+  imports: [
+    configModule,
+    UserModule,
+    ReservationModule,
+    OrderModule,
+    AuthModule,
+    JWTModule,
+    SendGridModule,
+    ProductModule,
+  ],
   controllers: [],
-  providers: [{provide: APP_GUARD, useClass: AuthGuard}],
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

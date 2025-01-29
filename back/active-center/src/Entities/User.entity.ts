@@ -46,9 +46,14 @@ export class User {
   reservations: Reservation[];
 
   @OneToMany(() => Order, (orders) => orders.user)
-  orders: Order;
+  orders: Order[];
 
-  @Column({ type: 'enum', default: UserStatus.disconect, nullable: true, enum: UserStatus })
+  @Column({
+    type: 'enum',
+    default: UserStatus.disconect,
+    nullable: true,
+    enum: UserStatus,
+  })
   userStatus: string;
 
   @Column({ type: 'boolean', default: false, nullable: false })

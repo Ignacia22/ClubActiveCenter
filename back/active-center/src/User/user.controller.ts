@@ -1,8 +1,23 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { UserDTOPage, UserDTOResponseId } from './UserDTO/users.dto';
+import {
+  UpdateUserDTO,
+  UserDTOPage,
+  UserDTOResponseId,
+} from './UserDTO/users.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from './UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
@@ -36,7 +51,38 @@ export class UserController {
       'Este endpoint se encarga de obtener un usuario por id atarvez de un uuid valido.',
   })
   @ApiBearerAuth()
-  async getUserById(@Param('id', ParseUUIDPipe) id: string): Promise<UserDTOResponseId> {
+  async getUserById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<UserDTOResponseId> {
     return await this.userService.getUserById(id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({
+    summary: 'Eliminar usuario.',
+    description:
+      'Este endpoint ecibe el id del usuario, para buscarlo y luego eliminarlo.',
+  })
+  @ApiBearerAuth()
+  async deleteUser(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<'Usuario eliminado'> {
+    return await this.userService.deleteUser(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Editar usuario.',
+    description:
+      'Este endpoint recibe el id del usuario, para buscarlo y luego modificarlo con los atribustos mandados.',
+  })
+  @ApiBearerAuth()
+  async editUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() editUser: UpdateUserDTO,
+  ): Promise<'Se actualizo el perfil correctamente'> {
+    if (!Object.keys(editUser).length)
+      throw new BadRequestException('Debe al menos modificar una propiedad.');
+    return await this.userService.editUser(id, editUser);
   }
 }
