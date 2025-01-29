@@ -41,7 +41,7 @@ export default function InfoHome() {
             />
           </div>
           <div className="w-full md:w-1/3 md:ml-8 text-center md:text-left">
-            <h2 className="text-5xl md:text-7xl font-sans font-bold mb-4 text-white">Bienestar Deportivo</h2>
+            <h2 className="text-5xl md:text-6xl font-sans font-bold mb-4 text-white">Bienestar Deportivo</h2>
             <p className="text-white my-6 md:my-9">
             Descubre cómo el deporte puede transformar tu bienestar físico y mental. Únete a nuestras actividades llenas de energía, desde emocionantes competiciones hasta entrenamientos diseñados para todos los niveles. Mantente activo, diviértete y forma parte de una comunidad apasionada por el movimiento.
             </p>

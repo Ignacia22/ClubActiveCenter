@@ -1,6 +1,10 @@
 "use client"
 
-import { useActivities } from "@/context/activityContext";
+import { useActivities } from "@/context/ActivityContext";
+
+
+
+
 
 
 export default function ActivitiesPage() {
