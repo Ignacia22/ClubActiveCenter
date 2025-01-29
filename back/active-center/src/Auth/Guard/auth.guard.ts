@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { TokenRefreshPayloadDTO } from '../AuthDTO/auths.dto';
 import { SECRET_SECRET_WORD } from 'src/config/config.envs';
 import { Role } from 'src/User/UserDTO/Role.enum';
+import { UserStatus } from 'src/User/UserDTO/users.dto';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -40,6 +41,9 @@ export class AuthGuard implements CanActivate {
         token,
         { secret: SECRET_SECRET_WORD },
       );
+
+      if(payload.userStatus === UserStatus.ban) throw new UnauthorizedException('Tu cuenta ha sido baneada. Ya no tienes acceso al sistema.');
+      if(payload.userStatus !== UserStatus.active) throw new UnauthorizedException('Tu cuenta no está activa. Por favor, vuelve a iniciar sesión.');
 
       if (payload.isAdmin) payload.roles = [Role.admin];
       else payload.roles = [Role.user];
