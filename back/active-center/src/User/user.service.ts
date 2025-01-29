@@ -1,15 +1,26 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { User } from 'src/Entities/User.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserDTOPage, UserDTOREsponseGet, UserDTOResponseId } from './UserDTO/users.dto';
 
 @Injectable()
-export class UserService {
-  constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
+export class UserService implements OnModuleInit {
+  constructor(
+    @InjectRepository(User) 
+    private userRepository: Repository<User>
+  ){}
+  async onModuleInit() {
+    try{
+      console.log("Creando admin user")
+      await this.createAdminUser()
+    }catch(err){
+      throw new Error('Error al iniciar el módulo para cargar user admin');
+    }
+  }
 
   async getAllUsers(
     page: number,
@@ -67,5 +78,25 @@ export class UserService {
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     };
+  }
+
+  async createAdminUser(): Promise<void>{
+
+    const adminUser:Partial<User> = {name: "Ricardo Fort",
+      email: "jumi.rc@hotmail.com",
+      password: "1",
+      phone: "03-03-456",
+      dni: 34934095,
+      isAdmin: true
+    }
+
+    try{
+      await this.userRepository.save(adminUser);
+
+      console.log("Usuario admin creado con éxito")
+    
+    }catch(err){
+      console.log(`Ocurrió un error al crear el usuario admin ${err.message}`)
+    }
   }
 }

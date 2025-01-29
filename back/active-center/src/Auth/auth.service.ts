@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDTO, SignInUserDTO, UserDTOResponseId, UserStatus } from 'src/User/UserDTO/users.dto';
 import { RefreshTokenDTO, SingInDTOResponse, TokenRefreshPayloadDTO } from './AuthDTO/auths.dto';
-import { SendGridService } from 'src/SendGrid/sendGrid.service';
+import { SendGridService } from 'src/sendGrid/sendGrid.service';
 
 @Injectable()
 export class AuthService {

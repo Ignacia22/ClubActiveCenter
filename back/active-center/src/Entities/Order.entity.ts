@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User.entity";
-import { Product } from "./Product.entity";
 import { StatusOrder } from "src/Order/OrderDTO/orders.dto";
 import { v4 as uuid } from 'uuid';
+import { Item } from "./item.entity";
 
 @Entity({name: 'orders'})
 export class Order {
@@ -14,12 +14,11 @@ export class Order {
     @ManyToOne(() => User, (user) => user.orders)
     user: User;
 
-    @ManyToMany(() => Product)
-    @JoinTable()
-    products: Product[];
-
+    @OneToMany(() => Item, (item) => item.order)
+    item: Item[];
+    
     @Column({type: 'decimal', scale: 2, nullable: false})
-    price: number;
+    total: number;
 
     @Column({type: 'date', default: new Date, nullable: false})
     date: Date;
