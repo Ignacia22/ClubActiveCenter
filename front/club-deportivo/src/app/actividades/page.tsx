@@ -6,7 +6,6 @@ import { useActivities } from "@/context/ActivityContext";
 
 
 
-
 export default function ActivitiesPage() {
   const { activities,  } = useActivities(); // Obtenemos las actividades y la función de eliminación desde el contexto
 
