@@ -2,18 +2,21 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Activity } from "./Activity.entity";
 import { v4 as uuid } from 'uuid';
+import { Reservation } from './Reservation.entity';
 
-
-@Entity({name: 'spaces'})
+@Entity({ name: 'spaces' })
 export class Space {
-    @PrimaryGeneratedColumn('uuid')
-    id = uuid();
-    
-    @Column({type: 'varchar', length: 80, nullable: false})
-    name: string;
+  @PrimaryGeneratedColumn('uuid')
+  id = uuid();
 
-    @Column({type: 'text', nullable: false})
-    description: string;
+  @Column({ type: 'varchar', length: 80, nullable: false })
+  title: string;
+
+  @Column({ type: 'simple-array', default: 'iwmfiwmfiwfmwfw', nullable: false })
+  img: string[];
+
+  @Column({ type: 'text', nullable: false })
+  description: string;
 
     @Column({type: 'simple-array', nullable: false})
     details: string[];
@@ -24,9 +27,12 @@ export class Space {
     @Column({type: 'decimal', nullable: false, scale: 2, precision: 8})
     price_hour: number;
 
-    @Column({type: 'boolean' })
-    status: boolean;
+  @Column({ type: 'decimal', nullable: false, scale: 2, precision: 8 })
+  price_hour: number;
 
-    @ManyToOne(() => Activity, (activity) => activity.spaces)
-    activity: Activity[];
+  @Column({ type: 'boolean', default: false })
+  status: boolean;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.spaces)
+  reservation: Reservation[];
 }

@@ -15,11 +15,10 @@ const config: DataSourceOptions = {
   dropSchema: dbConfig.dropSchema,
   entities: dbConfig.entities,
   migrations: dbConfig.migration,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  // ssl: {
+  //   rejectUnauthorized: false,
+  // },
 };
-
 
 export default registerAs('typeorm', () => config);
 export const connectionSource = new DataSource(config);

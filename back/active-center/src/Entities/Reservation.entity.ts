@@ -1,35 +1,34 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "./User.entity";
-import { Activity } from "./Activity.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from './User.entity';
 import { v4 as uuid } from 'uuid';
+import { Space } from './Space.entity';
 
-
-@Entity({name: 'reservations'})
+@Entity({ name: 'reservations' })
 export class Reservation {
-    @PrimaryGeneratedColumn('uuid')
-    id = uuid();
-    
-    @Column({type: 'date', nullable: false, default: new Date()})
-    date: Date; 
+  @PrimaryGeneratedColumn('uuid')
+  id = uuid();
 
-    @Column({type: 'boolean', default: true})
-    status: boolean; 
+  @Column({ type: 'date', nullable: false, default: new Date() })
+  date: Date;
 
-    @Column({ type: 'decimal', precision: 8, scale: 2, nullable: false})
-    price: number;
+  @Column({type: 'boolean', default: true})
+  status: boolean; 
 
-    @ManyToOne(() => User, (user) => user.reservations)
-    user: User;
+  @Column({ type: 'decimal', precision: 8, scale: 2, nullable: false })
+  price: number;
 
-    @ManyToOne(() => Space, (space) => space.reservation)
-    spaces: Space;
+  @ManyToOne(() => User, (user) => user.reservations)
+  user: User;
 
-    @Column()
-    startTime: string;
+  @ManyToOne(() => Space, (space) => space.reservation)
+  spaces: Space;
 
-    @Column()
-    endTime: string;
+  @Column()
+  startTime: string;
+
+  @Column()
+  endTime: string;
 
 }
 

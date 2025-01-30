@@ -1,27 +1,24 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Reservation } from "./Reservation.entity";
-import { Space } from "./Space.entity";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Reservation } from './Reservation.entity';
+import { Space } from './Space.entity';
 import { v4 as uuid } from 'uuid';
 
-@Entity({name: 'activities'})
+@Entity({ name: 'activities' })
 export class Activity {
-    
-    @PrimaryGeneratedColumn('uuid')
-    id = uuid();
+  @PrimaryGeneratedColumn('uuid')
+  id = uuid();
 
-    @Column({ type: 'varchar', length: 50, nullable: false })
-    name: string;
+  @Column({ type: 'varchar', length: 50, nullable: false })
+  title: string;
 
-    @Column({ type: 'decimal', precision: 8, scale: 2, nullable: false})
-    price: number;
-
-    @Column({ type: 'boolean', default: true, nullable: false})
-    status: boolean;
-
-    @ManyToOne(() => Reservation, (reservation) => reservation.activities)
-    reservation: Reservation;
-
-    @OneToMany(() => Space, (space) => space.activity)
-    spaces: Space[]
+  @Column({ type: 'boolean', default: true, nullable: false })
+  status: boolean;
 }

@@ -19,7 +19,9 @@ export function setupSwagger(app: INestApplication): void {
     .addBearerAuth() // Soporte para autenticación con JWT
     .build();
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig, {extraModels: [Activity, Category, Order, Product, Reservation, Space, User]});
+  const document = SwaggerModule.createDocument(app, swaggerConfig, {
+    extraModels: [Activity, Category, Order, Product, Reservation, Space, User],
+  });
 
   SwaggerModule.setup('api', app, document);
 }
