@@ -1,55 +1,46 @@
+import { IRegisterData } from "@/interface/IRegisterData";
+import axios from "axios";
+
 const BASE_URL = "https://active-center-db.onrender.com";
 
 export const AuthService = {
-  async register(data: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    dni: number;
-    password: string;
-  }): Promise<void> {
+  async register(data: IRegisterData): Promise<void> {
     try {
-      const response = await fetch(`${BASE_URL}/auth/SignUp`, {
-        method: "POST",
+      const response = await axios.post(`${BASE_URL}/auth/SignUp`, data, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        let errorDetails;
-        try {
-          errorDetails = await response.json();
-        } catch {
-          errorDetails = {
-            message: "Error desconocido",
-            status: response.status,
-          };
-        }
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Error al registrar usuario:",
+          error.response?.data?.message || error.message
+        );
 
-        console.error("Error al registrar usuario:", errorDetails.message);
-
-        if (errorDetails.message.includes("duplicate key")) {
-          if (errorDetails.message.includes("email")) {
-            alert("El correo electrónico ya está registrado.");
-          } else if (errorDetails.message.includes("dni")) {
-            alert("El DNI ya está registrado.");
+        if (error.response) {
+          const errorMessage =
+            error.response.data?.message || "Error desconocido";
+          if (errorMessage.includes("duplicate key")) {
+            if (errorMessage.includes("email")) {
+              alert("El correo electrónico ya está registrado.");
+            } else if (errorMessage.includes("dni")) {
+              alert("El DNI ya está registrado.");
+            } else {
+              alert("El correo electrónico o el DNI ya están registrados.");
+            }
           } else {
-            alert("El correo electrónico o el DNI ya están registrados.");
+            alert(`Error al registrar el usuario: ${errorMessage}`);
           }
         } else {
-          alert(`Error al registrar el usuario: ${errorDetails.message}`);
+          alert("Hubo un error al registrar el usuario. Intenta nuevamente.");
         }
-
-        return;
+      } else {
+        console.error("Error inesperado:", error);
+        alert("Ocurrió un error inesperado. Intenta nuevamente.");
       }
-
-      await response.json();
-    } catch (error) {
-      console.error("Error de red o en el backend:", error);
-      alert("Hubo un error al registrar el usuario. Intenta nuevamente.");
     }
   },
 };
