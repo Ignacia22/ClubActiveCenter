@@ -2,7 +2,13 @@
 import Link from "next/link";
 import { IProducts } from "@/interface/IProducts";
 
-export default function Card({ product }: { product: IProducts }) {
+interface CardProps {
+  product: IProducts;
+  onAddToCart?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+}
+
+export default function Card({ product, onAddToCart, disabled }: CardProps) {
   return (
     <div className="bg-black text-white">
       <div>
@@ -31,15 +37,33 @@ export default function Card({ product }: { product: IProducts }) {
               Estado: {product.State}
             </p>
 
+            <div className="flex items-center justify-between">
+              <span className="text-green-600 font-bold">${product.price}</span>
+              <span
+                className={`text-sm font-medium ${
+                  product.stock > 0 ? 'text-gray-600' : 'text-red-500'
+                }`}
+              >
+                {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
+              </span>
+            </div>
+
             {/* Botón de "Ver más Detalles" con Link para redirigir */}
-            <Link href={`/products/${product.id}`} passHref>
-              <button className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition">
-                Ver más detalles
-              </button>
-            </Link>
+            <div className="mt-4">
+              <Link href={`/products/${product.id}`} passHref>
+                <button
+                  className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition"
+                  onClick={onAddToCart}
+                  disabled={disabled}
+                >
+                  {disabled ? 'Already in Cart' : 'Ver más detalles'}
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
