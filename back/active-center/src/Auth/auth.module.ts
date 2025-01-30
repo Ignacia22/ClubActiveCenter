@@ -5,7 +5,7 @@ import { AuthService  } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/Entities/User.entity';
 import { UserModule } from 'src/User/user.module';
-import { SendGridModule } from 'src/SendGridss/sendGrid.module';
+import { SendGridModule } from 'src/SendGrid/sendGrid.module';
 
 @Module({
   controllers: [AuthController],

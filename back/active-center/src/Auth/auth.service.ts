@@ -26,7 +26,7 @@ import {
   SingInDTOResponse,
   TokenRefreshPayloadDTO,
 } from './AuthDTO/auths.dto';
-import { SendGridService } from 'src/SendGridss/sendGrid.service';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 
 @Injectable()
 export class AuthService {
