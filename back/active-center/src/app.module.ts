@@ -10,6 +10,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './Auth/Guard/auth.guard';
 import { SendGridModule } from './SendGrid/sendGrid.module';
 import { ProductModule } from './Product/product.module';
+import { PaymentModule } from './Payment/payment.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
