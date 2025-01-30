@@ -9,10 +9,20 @@ import { JWTModule } from './jwt.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './Auth/Guard/auth.guard';
 import { SendGridModule } from './SendGrid/sendGrid.module';
+import { ProductModule } from './Product/product.module';
 
 @Module({
-  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule],
+  imports: [
+    configModule,
+    UserModule,
+    ReservationModule,
+    OrderModule,
+    AuthModule,
+    JWTModule,
+    SendGridModule,
+    ProductModule,
+  ],
   controllers: [],
-  providers: [{provide: APP_GUARD, useClass: AuthGuard}],
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

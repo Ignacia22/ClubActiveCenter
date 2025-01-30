@@ -16,10 +16,9 @@ const config: DataSourceOptions = {
   entities: dbConfig.entities,
   migrations: dbConfig.migration,
   ssl: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: true,
   },
 };
-
 
 export default registerAs('typeorm', () => config);
 export const connectionSource = new DataSource(config);
