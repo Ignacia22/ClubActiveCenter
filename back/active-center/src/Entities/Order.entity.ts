@@ -11,7 +11,6 @@ import { User } from './User.entity';
 import { Product } from './Product.entity';
 import { StatusOrder } from 'src/Order/OrderDTO/orders.dto';
 import { v4 as uuid } from 'uuid';
-import { Item } from "./item.entity";
 
 @Entity({ name: 'orders' })
 export class Order {
