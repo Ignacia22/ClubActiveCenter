@@ -2,10 +2,20 @@
 import { Module } from '@nestjs/common';
 import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Reservation } from 'src/Entities/Reservation.entity';
+import { UserService } from 'src/User/user.service';
+import { Space } from 'src/Entities/Space.entity';
+import { SpaceModule } from 'src/Space/space.module';
+import { User } from 'src/Entities/User.entity';
+import { SpaceService } from 'src/Space/space.service';
+
+
 
 
 @Module({
+  imports:[TypeOrmModule.forFeature([Reservation,Space,User])],
   controllers: [ReservationController],
-  providers: [ReservationService],
+  providers: [ReservationService,UserService,SpaceService],
 })
 export class ReservationModule {}

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { configModule } from './config.module';
 import { UserModule } from './User/user.module';
 import { ReservationModule } from './Reservation/reservation.module';
@@ -9,10 +9,24 @@ import { JWTModule } from './jwt.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './Auth/Guard/auth.guard';
 import { SendGridModule } from './SendGrid/sendGrid.module';
+import { ProductModule } from './Product/product.module';
 
 @Module({
-  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule],
+  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, ProductModule],
   controllers: [],
-  providers: [{provide: APP_GUARD, useClass: AuthGuard}],
+  providers: [{provide: APP_GUARD, useClass: AuthGuard},SpaceService],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit{
+
+  constructor(private spaceService:SpaceService){}
+
+  async onModuleInit() {
+    try{
+      await this.spaceService.addSpace();
+
+    }catch{
+      throw new Error('Method not implemented.');
+    }
+  }
+
+}

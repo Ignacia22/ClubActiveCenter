@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Activity } from "./Activity.entity";
 import { v4 as uuid } from 'uuid';
 
@@ -15,8 +15,14 @@ export class Space {
     @Column({type: 'text', nullable: false})
     description: string;
 
-    @Column({type: 'text', default: "iwmfiwmfiwfmwfw", nullable: false})
-    img: string;
+    @Column({type: 'simple-array', nullable: false})
+    details: string[];
+
+    @Column({type: 'simple-array', nullable: false})
+    characteristics: string[];
+
+    @Column({type: 'decimal', nullable: false, scale: 2, precision: 8})
+    price_hour: number;
 
     @Column({type: 'boolean' })
     status: boolean;
@@ -24,4 +30,3 @@ export class Space {
     @ManyToOne(() => Activity, (activity) => activity.spaces)
     activity: Activity[];
 }
-
