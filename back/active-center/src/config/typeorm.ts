@@ -15,9 +15,9 @@ const config: DataSourceOptions = {
   dropSchema: dbConfig.dropSchema,
   entities: dbConfig.entities,
   migrations: dbConfig.migration,
-  ssl: {
-    rejectUnauthorized: true,
-  },
+  // ssl: {
+  //   rejectUnauthorized: true,
+  // },
 };
 
 export default registerAs('typeorm', () => config);
