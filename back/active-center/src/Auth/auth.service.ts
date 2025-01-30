@@ -3,7 +3,6 @@
 import {
   BadRequestException,
   ConflictException,
-  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -18,7 +17,7 @@ import { JwtService } from '@nestjs/jwt';
 import {
   RegisterUserDTO,
   SignInUserDTO,
-  UserDTOResponseId,
+  UserDTOResponse,
   UserStatus,
 } from 'src/User/UserDTO/users.dto';
 import {
@@ -40,7 +39,7 @@ export class AuthService {
 
   async SignUp(
     user: Omit<RegisterUserDTO, 'passwordConfirmation'>,
-  ): Promise<UserDTOResponseId> {
+  ): Promise<UserDTOResponse> {
     try {
       user.password = await this.userService.hashPassword(user.password);
       const exist: User | null = await this.userDeleted(user);
@@ -64,7 +63,7 @@ export class AuthService {
     }
   }
 
-  async saveUser(user: User): Promise<UserDTOResponseId> {
+  async saveUser(user: User): Promise<UserDTOResponse> {
     const registerUser: User = await this.userRepository.save({...user, userStatus: UserStatus.disconect});
     const {
       updateUser,

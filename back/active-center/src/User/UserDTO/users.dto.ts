@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-
 import {
   ApiHideProperty,
   ApiProperty,
@@ -134,52 +133,6 @@ export class UserDTOPage {
   users: UserDTOREsponseGet[];
 }
 
-export class UserDTOResponseId {
-  @ApiProperty({
-    description: 'El identificador único del usuario.',
-  })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({
-    description: 'El nombre completo del usuario.',
-    example: 'Juan Pérez',
-  })
-  name: string;
-
-  @ApiProperty({
-    description: 'El correo electrónico del usuario.',
-    example: 'usuario@ejemplo.com',
-  })
-  email: string;
-
-  @ApiProperty({
-    description: 'El número de teléfono del usuario.',
-    example: '+5215512345678',
-  })
-  phone: string;
-
-  @ApiPropertyOptional({
-    description: 'La dirección del usuario.',
-    example: 'Calle Falsa 123',
-  })
-  @IsOptional()
-  address?: string;
-
-  @ApiProperty({
-    description: 'El número de documento del usuario (DNI).',
-    example: 12345678,
-  })
-  dni: number;
-
-  @ApiProperty({
-    description: 'El estado actual del usuario.',
-    enum: UserStatus,
-    example: UserStatus.disconect,
-  })
-  userStatus: string;
-}
-
 export class RegisterUserDTO {
   @ApiProperty({
     description:
@@ -250,7 +203,7 @@ export class RegisterUserDTO {
   @ApiProperty({
     description:
       'El número de teléfono del usuario, incluyendo el código del país.',
-    example: '+5215512345678',
+    example: '+5491178900995',
   })
   @IsPhoneNumber(undefined, {
     message:
@@ -414,4 +367,105 @@ export class UpdateUserDTO {
   @ApiHideProperty()
   @IsEmpty({ message: 'No pueden ser modificadas las órdenes del usuario.' })
   orders: Order[];
+}
+
+export class UserDTOResponseId {
+  @ApiProperty({
+    description: 'El identificador único del usuario.',
+  })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({
+    description: 'El nombre completo del usuario.',
+    example: 'Juan Pérez',
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'El correo electrónico del usuario.',
+    example: 'usuario@ejemplo.com',
+  })
+  email: string;
+
+  @ApiProperty({
+    description: 'El número de teléfono del usuario.',
+    example: '+5215512345678',
+  })
+  phone: string;
+
+  @ApiPropertyOptional({
+    description: 'La dirección del usuario.',
+    example: 'Calle Falsa 123',
+  })
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty({
+    description: 'El número de documento del usuario (DNI).',
+    example: 12345678,
+  })
+  dni: number;
+
+  @ApiProperty({
+    description: 'El estado actual del usuario.',
+    enum: UserStatus,
+    example: UserStatus.disconect,
+  })
+  userStatus: string;
+
+  @ApiProperty({description: 'Ordenes del usuario.'})
+  orders: Omit<Order[], 'user'>
+
+  @ApiProperty({description: 'Reservaciones del usuario.',})
+  reservations: Omit<Reservation[], 'user'>;
+
+  @ApiProperty({description: 'Actividades a las que se registro el usuario.', type: [Activity]})
+  activities: Activity[];
+}
+
+export class UserDTOResponse {
+  @ApiProperty({
+    description: 'El identificador único del usuario.',
+  })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({
+    description: 'El nombre completo del usuario.',
+    example: 'Juan Pérez',
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'El correo electrónico del usuario.',
+    example: 'usuario@ejemplo.com',
+  })
+  email: string;
+
+  @ApiProperty({
+    description: 'El número de teléfono del usuario.',
+    example: '+5215512345678',
+  })
+  phone: string;
+
+  @ApiPropertyOptional({
+    description: 'La dirección del usuario.',
+    example: 'Calle Falsa 123',
+  })
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty({
+    description: 'El número de documento del usuario (DNI).',
+    example: 12345678,
+  })
+  dni: number;
+
+  @ApiProperty({
+    description: 'El estado actual del usuario.',
+    enum: UserStatus,
+    example: UserStatus.disconect,
+  })
+  userStatus: string;
 }

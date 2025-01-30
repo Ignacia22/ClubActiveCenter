@@ -1,4 +1,5 @@
-/* eslint-disable prettier/prettier */import {
+/* eslint-disable prettier/prettier */
+import {
   Body,
   Controller,
   Delete,
@@ -15,6 +16,7 @@ import { AuthService } from './auth.service';
 import {
   RegisterUserDTO,
   SignInUserDTO,
+  UserDTOResponse,
   UserDTOResponseId,
 } from 'src/User/UserDTO/users.dto';
 import {
@@ -38,7 +40,7 @@ export class AuthController {
       'Este endpoint permite registrar un nuevo usuario en el sistema, creando su cuenta con los datos proporcionados (nombre, correo, contraseña, etc.). Se validan los datos y se crea un usuario en la base de datos.',
   })
   @SetMetadata('isPublic', true)
-  async SignUp(@Body() user: RegisterUserDTO): Promise<UserDTOResponseId> {
+  async SignUp(@Body() user: RegisterUserDTO): Promise<UserDTOResponse> {
     const { passwordConfirmation, ...partialUser } = user;
     return await this.authService.SignUp(partialUser);
   }
