@@ -1,6 +1,6 @@
 export const Products = [
     {
-      title: "Raqueta de Tenis Wilson Pro Staff",
+      name: "Raqueta de Tenis Wilson Pro Staff",
       price: 199.99,
       description: "Raqueta profesional para jugadores de alto nivel con tecnología avanzada.",
       category: "Tenis",
@@ -9,7 +9,7 @@ export const Products = [
       rate: 2.30
     },
     {
-      title: "Balón de Fútbol Adidas Predator",
+      name: "Balón de Fútbol Adidas Predator",
       price: 39.99,
       description: "Balón oficial de fútbol con materiales de alta resistencia y precisión.",
       category: "Fútbol",
@@ -18,7 +18,7 @@ export const Products = [
       rate: 4.50
     },
     {
-      title: "Bicicleta de Montaña Rockrider ST520",
+      name: "Bicicleta de Montaña Rockrider ST520",
       price: 499.99,
       description: "Bicicleta de montaña con suspensión delantera y cuadro de aluminio.",
       category: "Ciclismo",
@@ -27,7 +27,7 @@ export const Products = [
       rate: 4.80
     },
     {
-      title: "Mancuernas Ajustables 20kg",
+      name: "Mancuernas Ajustables 20kg",
       price: 89.99,
       description: "Set de mancuernas ajustables con discos de acero y agarre ergonómico.",
       category: "Gimnasio",
@@ -36,7 +36,7 @@ export const Products = [
       rate: 4.60
     },
     {
-      title: "Patineta Eléctrica Xiaomi Pro 2",
+      name: "Patineta Eléctrica Xiaomi Pro 2",
       price: 599.99,
       description: "Scooter eléctrico con autonomía de 45 km y velocidad máxima de 25 km/h.",
       category: "Movilidad",
@@ -45,7 +45,7 @@ export const Products = [
       rate: 4.90
     },
     {
-      title: "Guantes de Box Everlast Elite",
+      name: "Guantes de Box Everlast Elite",
       price: 59.99,
       description: "Guantes profesionales con ajuste seguro y acolchado de alta densidad.",
       category: "Boxeo",
@@ -54,7 +54,7 @@ export const Products = [
       rate: 4.70
     },
     {
-      title: "Casco de Ciclismo Giro Aether MIPS",
+      name: "Casco de Ciclismo Giro Aether MIPS",
       price: 249.99,
       description: "Casco de alto rendimiento con sistema de protección MIPS.",
       category: "Ciclismo",
@@ -63,7 +63,7 @@ export const Products = [
       rate: 4.85
     },
     {
-      title: "Zapatillas Running Nike Pegasus 39",
+      name: "Zapatillas Running Nike Pegasus 39",
       price: 129.99,
       description: "Zapatillas de running con amortiguación reactiva y ajuste dinámico.",
       category: "Running",
@@ -72,7 +72,7 @@ export const Products = [
       rate: 4.75
     },
     {
-      title: "Pesa Rusa de 16kg",
+      name: "Pesa Rusa de 16kg",
       price: 49.99,
       description: "Pesa rusa de hierro fundido con agarre ergonómico para entrenamientos intensos.",
       category: "Gimnasio",
@@ -81,7 +81,7 @@ export const Products = [
       rate: 4.55
     },
     {
-      title: "Pelota de Baloncesto Spalding NBA",
+      name: "Pelota de Baloncesto Spalding NBA",
       price: 34.99,
       description: "Balón de baloncesto con diseño oficial de la NBA y agarre superior.",
       category: "Baloncesto",
@@ -90,7 +90,7 @@ export const Products = [
       rate: 4.60
     },
     {
-      title: "Banda de Resistencia Set 5 Niveles",
+      name: "Banda de Resistencia Set 5 Niveles",
       price: 24.99,
       description: "Conjunto de bandas de resistencia con diferentes niveles de tensión.",
       category: "Gimnasio",
@@ -99,7 +99,7 @@ export const Products = [
       rate: 4.40
     },
     {
-      title: "Mesa de Ping Pong Plegable Stiga",
+      name: "Mesa de Ping Pong Plegable Stiga",
       price: 349.99,
       description: "Mesa de ping pong de alta calidad, resistente y fácil de plegar.",
       category: "Ping Pong",
@@ -108,7 +108,7 @@ export const Products = [
       rate: 4.80
     },
     {
-      title: "Saco de Boxeo 100kg Everlast",
+      name: "Saco de Boxeo 100kg Everlast",
       price: 199.99,
       description: "Saco de boxeo relleno de alta densidad, ideal para entrenamientos intensos.",
       category: "Boxeo",
@@ -117,7 +117,7 @@ export const Products = [
       rate: 4.65
     },
     {
-      title: "Cuerda para Saltar Profesional",
+      name: "Cuerda para Saltar Profesional",
       price: 14.99,
       description: "Cuerda de saltar con rodamientos de alta velocidad y mango ergonómico.",
       category: "Gimnasio",
@@ -126,7 +126,7 @@ export const Products = [
       rate: 4.35
     },
     {
-      title: "Reloj Deportivo Garmin Forerunner 245",
+      name: "Reloj Deportivo Garmin Forerunner 245",
       price: 299.99,
       description: "Reloj GPS con métricas avanzadas para corredores y atletas.",
       category: "Accesorios",
@@ -135,7 +135,7 @@ export const Products = [
       rate: 4.85
     },
     {
-      title: "Kit de Pesas y Barras 50kg",
+      name: "Kit de Pesas y Barras 50kg",
       price: 199.99,
       description: "Set de pesas con discos intercambiables y barra olímpica.",
       category: "Gimnasio",
@@ -144,7 +144,7 @@ export const Products = [
       rate: 4.70
     },
     {
-      title: "Mochila de Hidratación CamelBak 2L",
+      name: "Mochila de Hidratación CamelBak 2L",
       price: 79.99,
       description: "Mochila ligera con bolsa de agua de 2 litros, ideal para deportes al aire libre.",
       category: "Accesorios",
@@ -153,7 +153,7 @@ export const Products = [
       rate: 4.55
     },
     {
-      title: "Kit de Yoga Completo",
+      name: "Kit de Yoga Completo",
       price: 69.99,
       description: "Incluye esterilla antideslizante, bloques de espuma y correa de estiramiento.",
       category: "Yoga",
@@ -162,7 +162,7 @@ export const Products = [
       rate: 4.65
     },
     {
-      title: "Paleta de Pádel Adidas Adipower",
+      name: "Paleta de Pádel Adidas Adipower",
       price: 179.99,
       description: "Paleta de pádel con diseño aerodinámico y núcleo de espuma EVA.",
       category: "Pádel",
@@ -171,7 +171,7 @@ export const Products = [
       rate: 4.75
     },
     {
-      title: "Cinta de Correr Plegable",
+      name: "Cinta de Correr Plegable",
       price: 699.99,
       description: "Cinta de correr eléctrica con inclinación ajustable y pantalla digital.",
       category: "Gimnasio",

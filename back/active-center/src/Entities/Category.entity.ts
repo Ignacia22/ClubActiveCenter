@@ -8,7 +8,7 @@ export class Category {
   @PrimaryGeneratedColumn('uuid')
   id = uuid();
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   name: string;
 
   @OneToMany(() => Product, (product) => product.category)

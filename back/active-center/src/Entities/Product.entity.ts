@@ -13,22 +13,22 @@ export class Product {
   @Column({ type: 'text', nullable: false })
   img: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, unique: true})
   name: string;
 
   @Column({ type: 'text', nullable: false })
   description: string;
 
-    @ManyToOne(() => Category, (category) => category.products)
-    @JoinColumn({
-    name: 'categoryId'
-    })
-    category: Category;
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({
+  name: 'categoryId'
+  })
+  category: Category;
 
-    @Column({type: 'decimal', scale: 2, precision: 8, nullable: false})
-    price: number;
+  @Column({type: 'decimal', scale: 2, precision: 8, nullable: false})
+  price: number;
 
-  @Column({ type: 'integer', nullable: false })
+  @Column({ type: 'integer', nullable: false,  })
   stock: number;
 
   @Column({
