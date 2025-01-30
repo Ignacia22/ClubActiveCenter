@@ -9,7 +9,6 @@ import { JWTModule } from './jwt.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './Auth/Guard/auth.guard';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { ProductModule } from './Product/product.module';
 import { SendGridModule } from './SendGrid/sendGrid.module';
 import { ProductModule } from './Product/product.module';
 import { PaymentModule } from './Payment/payment.module';
