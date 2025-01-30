@@ -2,7 +2,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Category } from './Category.entity';
 import { v4 as uuid } from 'uuid';
-import { StatusProduct } from 'src/Product/productDTO/product.dto';
+import { StatusProduct } from 'src/Products/productDTO/product.dto';
 
 @Entity({ name: 'products' })
 export class Product {
