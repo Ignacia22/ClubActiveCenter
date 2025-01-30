@@ -2,7 +2,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.config';
-<<<<<<< HEAD
+import * as bodyParser from "body-parser";
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -14,13 +14,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-=======
-import * as bodyParser from "body-parser";
-
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
   app.enableCors();
->>>>>>> 9142c48 (Implemented Stripe, Moduls , RElations to Order, Entities)
   setupSwagger(app);
   app.use(
     "/payment/webhook",

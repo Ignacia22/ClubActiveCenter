@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-export enum StatusProduct {
-  Available = 'available',
-  OutOfStock = 'out of stock',
-  Retirado = 'retired',
-=======
 import { IsNotEmpty, IsNumber, IsString, IsUUID, IsEnum, IsPositive } from "class-validator";
 
 export enum StatusProduct {   
@@ -39,5 +33,5 @@ export class CreateProductDto {
 
     @IsEnum(StatusProduct)
     productStatus?: StatusProduct = StatusProduct.Available; 
->>>>>>> 19f8fe8 (implemeted products with of the juanma)
+
 }
