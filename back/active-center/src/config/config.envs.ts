@@ -22,8 +22,8 @@ const DB_ENTITIES: string[] | undefined = data.DB_ENTITIES
     ? data.DB_ENTITIES.split(',').map((path) => path.trim())
     : [data.DB_ENTITIES.trim()]
   : ['./dist/**/*.entity{.ts, .js}'];
-const DB_DROPSCHEMA: boolean | undefined = data.DB_DROP_SCHEMA
-  ? data.DB_DROP_SCHEMA=== 'true'
+const DB_DROPSCHEMA: boolean | undefined = data.DB_DROPSCHEMA
+  ? data.DB_DROPSCHEMA === 'true'
   : false;
 const DB_MIGRATION: string[] | undefined = data.DB_MIGRATION
   ? !data.DB_MIGRATION.includes(', .')

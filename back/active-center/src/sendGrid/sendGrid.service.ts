@@ -21,9 +21,28 @@ export class SendGridService {
             console.log('Email enviado correctamente');
           } catch (error) {
             console.error('Error enviando email:', error.response.body.errors);
-            throw new Error('Error sending email');
           }
-          
     }
+
+    // async Inquiry(inquiryObject: InquieyDTO): Promise<string>{
+
+    //     const {from, subject, text} = inquiryObject
+
+    //     const msg = {
+    //         to: 'jumicjv@gmail.com', 
+    //         from: from, 
+    //         subject: subject,
+    //         text: text,
+    //     }
+
+    //     try{
+    //         sgMail.send(msg)
+    //         console.log ("Consulta enviada con éxito")
+    //         return "Consulta enviada con éxito"
+        
+    //     }catch(err){
+    //         console.log(`Error al enviar mail ${err.message}`)
+    //     }
+    // }
     
 }

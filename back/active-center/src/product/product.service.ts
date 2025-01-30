@@ -6,6 +6,7 @@ import { Product } from 'src/Entities/Product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDTO, pagedProducts, ProductCategory, ProductState } from './productsDTO/createProduct.dto';
 import * as data from '../../data.json';
+import { Category } from 'src/Entities/Category.entity';
 
 @Injectable()
 export class ProductService implements OnModuleInit {
@@ -14,7 +15,9 @@ export class ProductService implements OnModuleInit {
         private readonly productRepository: Repository<Product>,
         @InjectRepository(Item)
         private readonly itemRspository: Repository<Item>,
-        private readonly cloudinaryService: CloudinaryService
+        private readonly cloudinaryService: CloudinaryService,
+        @InjectRepository(Category)
+        private readonly categoryRepository: Repository<Category>
     ){}
     async onModuleInit() {
             console.log('Cargando productos...');
@@ -23,20 +26,29 @@ export class ProductService implements OnModuleInit {
 
     async CreateProduct(newProduct: CreateProductDTO): Promise<Product | null>{
 
-        const { img, stock, } = newProduct;
+        const { img, stock, category } = newProduct;
         
         const newState = stock === 0 ? ProductState.SINSTOCK : ProductState.DISPONIBLE;
 
         const img_url = await this.cloudinaryService.uploadImageFromUrl(img);
 
         try{
-            const addedProduct = Object.assign({
-                ...newProduct,
-                state: newState,
-                img: img_url
-            })
+            let existingCategory = await this.categoryRepository.findOne({ where: { name: category } });
 
-            return await this.productRepository.save(addedProduct);
+            if (!existingCategory) {
+                existingCategory = new Category();
+                existingCategory.name = category;
+                await this.categoryRepository.save(existingCategory);
+            }
+
+        const addedProduct = Object.assign({
+            ...newProduct,
+            state: newState,
+            img: img_url,
+            category: existingCategory
+        });
+
+        return await this.productRepository.save(addedProduct);
         
         }catch(err){
             throw new InternalServerErrorException(`Ocurrió un error al cargar el producto ${err.message}`)
@@ -47,6 +59,8 @@ export class ProductService implements OnModuleInit {
         for (const productData of data) {
             const { title, price, description, img, stock, category, rate } = productData;
 
+            const productExist = await this.productRepository.findOneBy({title: title})
+                if(productExist) console.log("Producto ya cargado")
             const newState: ProductState = stock === 0 ? ProductState.SINSTOCK : ProductState.DISPONIBLE;
 
             try {

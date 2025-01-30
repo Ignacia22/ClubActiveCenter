@@ -21,9 +21,6 @@ export class Product {
     @Column({type: 'text', nullable: false})
     description: string;
     
-    @Column({type: "enum", enum: ProductCategory})
-    category: ProductCategory;
-    
     @Column({type: 'text', nullable: false})
     img: string;
 
@@ -38,5 +35,8 @@ export class Product {
 
     @ManyToOne(() => Item, (item) => item.product)
     item: Item;
+
+    @ManyToOne(() => Category, (category) => category.products)
+    category: Category;
 }
 
