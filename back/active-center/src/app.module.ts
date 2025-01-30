@@ -8,20 +8,12 @@ import { AuthModule } from './Auth/auth.module';
 import { JWTModule } from './jwt.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './Auth/Guard/auth.guard';
-import { SendGridModule } from './SendGrid/sendGrid.module';
-import { ProductModule } from './Product/product.module';
+import { SendGridModule } from './sendGrid/sendGrid.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
-  imports: [
-    configModule,
-    UserModule,
-    ReservationModule,
-    OrderModule,
-    AuthModule,
-    JWTModule,
-    SendGridModule,
-    ProductModule,
-  ],
+  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, CloudinaryModule, ProductModule],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
