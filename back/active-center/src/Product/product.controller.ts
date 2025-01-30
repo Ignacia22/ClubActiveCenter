@@ -45,8 +45,6 @@ export class ProductController {
     }
   }
 
-
-
   @Put(':id')
   async updateProductById(
     @Param('id', ParseUUIDPipe) id: string,

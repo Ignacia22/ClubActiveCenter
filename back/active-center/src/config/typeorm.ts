@@ -16,7 +16,7 @@ const config: DataSourceOptions = {
   entities: dbConfig.entities,
   migrations: dbConfig.migration,
   // ssl: {
-  //   rejectUnauthorized: true,
+  //   rejectUnauthorized: false,
   // },
 };
 
