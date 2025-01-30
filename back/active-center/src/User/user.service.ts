@@ -62,7 +62,7 @@ export class UserService {
 
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
-      const user: User | null = await this.userRepository.findOneBy({ id });
+      const user: User | null = await this.userRepository.findOne({where: {id}, relations: ['orders', 'reservations', 'activities']},);
       if (!user) throw new NotFoundException('El usuario buscado no existe.');
       const { password, updateUser, isAdmin, createUser, ...partialUser } =
         user;
