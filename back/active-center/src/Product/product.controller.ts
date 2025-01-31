@@ -27,7 +27,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
-  @SetMetadata('isAdmin', true)
+  @SetMetadata('isPublic', true)
   async getProduct(@Query('page') page: number, @Query('limit') limit: number) {
     try {
       const pageNumber = page || 1;
@@ -62,7 +62,7 @@ export class ProductController {
   }
 
   @Get(':id')
-  @SetMetadata('isAdmin', true)
+  @SetMetadata('isPublic', true)
   async getProductById(@Param('id', ParseUUIDPipe) id: string) {
     try {
       const product = await this.productService.getProductById(id);
