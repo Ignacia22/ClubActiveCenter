@@ -1,7 +1,14 @@
-import { IProducts } from "@/interface/IProducts";
-import axios from "axios";
+import { IProducts } from "@/interface/IProducts"
+import axios from "axios"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
 export const getProducts = async (): Promise<IProducts[]> => {
-  const fetch = await axios.get(`${process.env.API_URL}/products`);
-  return fetch.data;
-};
+  try {
+    const response = await axios.get(`${API_URL}/product/`);
+    return response.data
+  } catch (error) {
+    console.error("Error fetching products:", error)
+    return [] // Retorna un array vacío en caso de error
+  }
+}

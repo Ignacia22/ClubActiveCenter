@@ -24,7 +24,7 @@ export default function ProductContainer({ products }: ProductContainerProps) {
     <div className="p-18 m-14 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-2">
       {products.map((product: IProducts) => (
         <div key={product.id} className="relative">
-          <Link href={`product/${product.id}`}>
+          <Link href={`product/:${product.id}`}>
             <Card
               product={product}
               onAddToCart={(e: React.MouseEvent<HTMLButtonElement>) => {

@@ -50,7 +50,7 @@ export default function Card({ product, onAddToCart, disabled }: CardProps) {
 
             {/* Botón de "Ver más Detalles" con Link para redirigir */}
             <div className="mt-4">
-              <Link href={`/products/${product.id}`} passHref>
+              <Link href={`/product/:${product.id}`} passHref>
                 <button
                   className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition"
                   onClick={onAddToCart}
