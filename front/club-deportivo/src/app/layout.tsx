@@ -31,8 +31,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          {" "}
-          {/* Envuelve tu aplicación con el UserProvider */}
           <Nav />
           {children}
           <Footer />
