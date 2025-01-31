@@ -111,9 +111,11 @@ export class AuthService {
         orders,
         password,
         updateUser,
-        isAdmin,
+            isAdmin,
         reservations,
         createUser,
+        activities,
+        payments,
         ...extra
       } = validate;
       return {
@@ -222,5 +224,34 @@ export class AuthService {
     if(!user) throw new NotFoundException('El usuario no existe.');
     !user.isAdmin ? await this.userRepository.save({...user, isAdmin: true}) : await this.userRepository.save({...user, isAdmin: false});
     return !user.isAdmin ? {user: {id}, message: `El usuario "${user.name}" ahora es administrador.`} : {user: {id}, message: `El usuario "${user.name}" ya no es administrador.`};
+  }
+
+  async login(email: string) {
+    const user: User | null = await this.userService.getUserByEmail(email);
+    if(!user || user.userStatus === UserStatus.delete) throw new NotFoundException('No existe el usuario.');
+    const token: string = this.jwtService.sign({
+      sub: user.id,
+      id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      userStatus: user.userStatus,
+    });
+    this.userRepository.save({ ...user, userStatus: UserStatus.active });
+    const {
+      dni,
+      orders,
+      password,
+      updateUser,
+          isAdmin,
+      reservations,
+      createUser,
+      activities,
+      payments,
+      ...extra
+    } = user;
+    return {
+      userInfo: {...extra, userStatus: UserStatus.active},
+      token,
+    };
   }
 }

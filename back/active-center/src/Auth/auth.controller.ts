@@ -100,4 +100,11 @@ export class AuthController {
   async isAdmin(@Param('id', ParseUUIDPipe) id: string): Promise<BanDTOResponse> {
     return await this.authService.isAdmin(id);
   }
+
+  @Post('login')
+  @SetMetadata('isPublic', true)
+  @ApiOperation({description: 'Este endpoint permite validar a un usuario solo por email. Esta ruta esta hecha para el uso de auth0.', summary: 'sign in con auth0.'})
+  async login(@Body() email:string): Promise<SingInDTOResponse> {
+    return await this.authService.login(email);
+  }
 }
