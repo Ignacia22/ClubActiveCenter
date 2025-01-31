@@ -1,4 +1,11 @@
-import { IsArray, IsString, IsNotEmpty, ValidateNested, IsNumber, Min } from 'class-validator';
+import {
+  IsArray,
+  IsString,
+  IsNotEmpty,
+  ValidateNested,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OrderItemDto {
@@ -23,12 +30,11 @@ export class CreatePaymentDto {
 
   @IsString()
   @IsNotEmpty()
-  currency: string; 
+  currency: string;
 }
 
-
 export enum PaymentStatus {
-  PENDING = "pending",
-  PAID = "paid",
-  FAILED = "failed",
+  PENDING = 'pending',
+  PAID = 'paid',
+  FAILED = 'failed',
 }

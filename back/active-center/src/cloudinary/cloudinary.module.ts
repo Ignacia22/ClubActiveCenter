@@ -3,12 +3,7 @@ import { CloudinaryService } from './cloudinary.service';
 import { CloudinaryConfig } from 'src/config/cloudinary';
 
 @Module({
-  providers: [
-    CloudinaryService,
-    CloudinaryConfig
-  ],
-  exports:[
-    CloudinaryService
-  ]
+  providers: [CloudinaryService, CloudinaryConfig],
+  exports: [CloudinaryService],
 })
 export class CloudinaryModule {}
