@@ -189,7 +189,7 @@ export class RegisterUserDTO {
     },
   )
   password: string;
-  
+
   @IsNotEmpty({
     message: 'El campo confirmación de contraseña no debe estar vacío.',
   })
@@ -197,7 +197,7 @@ export class RegisterUserDTO {
     description: 'Debe contener la misma contraseña que el input contraseña',
     example: 'ContraseñaSegura123!',
   })
-  @Validate(Confirmation, ['password'], {always: true})
+  @Validate(Confirmation, ['password'], { always: true })
   passwordConfirmation: string;
 
   @ApiProperty({
@@ -279,7 +279,9 @@ export class SignInUserDTO {
 
 export class UpdateUserDTO {
   @ApiHideProperty()
-  @IsEmpty({ message: 'No se puede modificar el identificador único del usuario.' })
+  @IsEmpty({
+    message: 'No se puede modificar el identificador único del usuario.',
+  })
   id: string;
 
   @ApiPropertyOptional({
@@ -287,9 +289,14 @@ export class UpdateUserDTO {
     example: 'Pena Almendra',
   })
   @IsOptional()
-  @IsString({ message: 'El nombre debe ser un texto válido, sin incluir números ni caracteres especiales.' })
+  @IsString({
+    message:
+      'El nombre debe ser un texto válido, sin incluir números ni caracteres especiales.',
+  })
   @IsNotEmpty({ message: 'El nombre es obligatorio y no puede estar vacío.' })
-  @Length(2, 50, { message: 'El nombre debe tener entre 2 y 50 caracteres para ser válido.' })
+  @Length(2, 50, {
+    message: 'El nombre debe tener entre 2 y 50 caracteres para ser válido.',
+  })
   name: string;
 
   @ApiHideProperty()
@@ -311,20 +318,28 @@ export class UpdateUserDTO {
       minLowercase: 1,
       minSymbols: 1,
     },
-    { message: 'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un símbolo especial.' }
+    {
+      message:
+        'La contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, una minúscula, un número y un símbolo especial.',
+    },
   )
   password: string;
 
   @ApiPropertyOptional({
-    description: 'El número de teléfono del usuario, incluyendo el código del país. Puede ser modificado.',
+    description:
+      'El número de teléfono del usuario, incluyendo el código del país. Puede ser modificado.',
     example: '+5215512345678',
   })
   @IsOptional()
-  @IsPhoneNumber(undefined, { message: 'El número de teléfono debe ser válido según el estándar internacional e incluir el código de país (ejemplo: +52 para México).' })
+  @IsPhoneNumber(undefined, {
+    message:
+      'El número de teléfono debe ser válido según el estándar internacional e incluir el código de país (ejemplo: +52 para México).',
+  })
   phone: string;
 
   @ApiPropertyOptional({
-    description: 'La dirección física del usuario, que puede ser utilizada para el envío de correspondencia. Puede ser modificada.',
+    description:
+      'La dirección física del usuario, que puede ser utilizada para el envío de correspondencia. Puede ser modificada.',
     example: 'Calle Falsa 123, Ciudad Ficticia',
   })
   @IsOptional()
@@ -332,7 +347,8 @@ export class UpdateUserDTO {
   address?: string;
 
   @ApiPropertyOptional({
-    description: 'El Documento Nacional de Identidad (DNI) del usuario, utilizado como identificación oficial.',
+    description:
+      'El Documento Nacional de Identidad (DNI) del usuario, utilizado como identificación oficial.',
     example: 12345678,
   })
   @IsOptional()
@@ -341,7 +357,10 @@ export class UpdateUserDTO {
   dni: number;
 
   @ApiHideProperty()
-  @IsEmpty({ message: 'No se permite incluir el estado del usuario en la solicitud. Este valor se asigna automáticamente.' })
+  @IsEmpty({
+    message:
+      'No se permite incluir el estado del usuario en la solicitud. Este valor se asigna automáticamente.',
+  })
   userStatus?: string;
 
   @ApiHideProperty()
@@ -349,19 +368,29 @@ export class UpdateUserDTO {
   isAdmin?: boolean;
 
   @ApiHideProperty()
-  @IsEmpty({ message: 'No se permite incluir la fecha de creación del usuario en la solicitud. Este valor se asigna automáticamente.' })
+  @IsEmpty({
+    message:
+      'No se permite incluir la fecha de creación del usuario en la solicitud. Este valor se asigna automáticamente.',
+  })
   createUser?: Date;
 
   @ApiHideProperty()
-  @IsEmpty({ message: 'No se permite incluir la fecha de actualización del usuario en la solicitud. Este valor se asigna automáticamente.' })
+  @IsEmpty({
+    message:
+      'No se permite incluir la fecha de actualización del usuario en la solicitud. Este valor se asigna automáticamente.',
+  })
   updateUser?: Date;
 
   @ApiHideProperty()
-  @IsEmpty({ message: 'No pueden ser modificadas las actividades del usuario.' })
+  @IsEmpty({
+    message: 'No pueden ser modificadas las actividades del usuario.',
+  })
   activities: Activity[];
 
   @ApiHideProperty()
-  @IsEmpty({ message: 'No pueden ser modificadas las reservaciones del usuario.' })
+  @IsEmpty({
+    message: 'No pueden ser modificadas las reservaciones del usuario.',
+  })
   reservations: Reservation[];
 
   @ApiHideProperty()
@@ -414,13 +443,16 @@ export class UserDTOResponseId {
   })
   userStatus: string;
 
-  @ApiProperty({description: 'Ordenes del usuario.'})
-  orders: Omit<Order[], 'user'>
+  @ApiProperty({ description: 'Ordenes del usuario.' })
+  orders: Omit<Order[], 'user'>;
 
-  @ApiProperty({description: 'Reservaciones del usuario.',})
+  @ApiProperty({ description: 'Reservaciones del usuario.' })
   reservations: Omit<Reservation[], 'user'>;
 
-  @ApiProperty({description: 'Actividades a las que se registro el usuario.', type: [Activity]})
+  @ApiProperty({
+    description: 'Actividades a las que se registro el usuario.',
+    type: [Activity],
+  })
   activities: Activity[];
 }
 

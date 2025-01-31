@@ -80,31 +80,48 @@ export class AuthController {
   @ApiOperation({
     summary: 'Banear o desbanear un usuario',
     description:
-    'Este endpoint permite banear a un usuario, buscando al usuaurio por su id y luego baneandolo y en caso que ya lo este, poder desbanearlo.'})
-  async isBan(@Param('id', ParseUUIDPipe) id: string): Promise<BanDTOResponse>{
+      'Este endpoint permite banear a un usuario, buscando al usuaurio por su id y luego baneandolo y en caso que ya lo este, poder desbanearlo.',
+  })
+  async isBan(@Param('id', ParseUUIDPipe) id: string): Promise<BanDTOResponse> {
     return await this.authService.isBan(id);
   }
 
   @Put('Log-out/:id')
   @ApiBearerAuth()
-  @ApiOperation({description: 'Este endpoint actauliza el estado de un usuario a desconectado.', summary: 'Desconectar a un usuario.'})
-  async LogOut(@Param('id', ParseUUIDPipe) id:string): Promise<'Te has desconectado.'> {
+  @ApiOperation({
+    description:
+      'Este endpoint actauliza el estado de un usuario a desconectado.',
+    summary: 'Desconectar a un usuario.',
+  })
+  async LogOut(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<'Te has desconectado.'> {
     return await this.authService.LogOut(id);
   }
 
   @Put(':id')
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
-  @ApiOperation({description: 'Este endpoint actualiza el rol del usurio, convirtiendolo en administrador o quitandole el administrador.', summary: 'Dar o quitar administrador'})
+  @ApiOperation({
+    description:
+      'Este endpoint actualiza el rol del usurio, convirtiendolo en administrador o quitandole el administrador.',
+    summary: 'Dar o quitar administrador',
+  })
   @ApiBearerAuth()
-  async isAdmin(@Param('id', ParseUUIDPipe) id: string): Promise<BanDTOResponse> {
+  async isAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<BanDTOResponse> {
     return await this.authService.isAdmin(id);
   }
 
   @Post('login')
   @SetMetadata('isPublic', true)
-  @ApiOperation({description: 'Este endpoint permite validar a un usuario solo por email. Esta ruta esta hecha para el uso de auth0.', summary: 'sign in con auth0.'})
-  async login(@Body() email:string): Promise<SingInDTOResponse> {
+  @ApiOperation({
+    description:
+      'Este endpoint permite validar a un usuario solo por email. Esta ruta esta hecha para el uso de auth0.',
+    summary: 'sign in con auth0.',
+  })
+  async login(@Body() email: string): Promise<SingInDTOResponse> {
     return await this.authService.login(email);
   }
 }

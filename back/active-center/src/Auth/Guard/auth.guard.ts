@@ -42,9 +42,15 @@ export class AuthGuard implements CanActivate {
         { secret: SECRET_SECRET_WORD },
       );
 
-      if(payload.userStatus === UserStatus.ban) throw new UnauthorizedException('Tu cuenta ha sido baneada. Ya no tienes acceso al sistema.');
+      if (payload.userStatus === UserStatus.ban)
+        throw new UnauthorizedException(
+          'Tu cuenta ha sido baneada. Ya no tienes acceso al sistema.',
+        );
 
-      if(payload.userStatus === UserStatus.delete) throw new UnauthorizedException('Esta cuenta no existe. No tienes acceso al sistema crea un usuario por favor.');
+      if (payload.userStatus === UserStatus.delete)
+        throw new UnauthorizedException(
+          'Esta cuenta no existe. No tienes acceso al sistema crea un usuario por favor.',
+        );
 
       if (payload.isAdmin) payload.roles = [Role.admin];
       else payload.roles = [Role.user];

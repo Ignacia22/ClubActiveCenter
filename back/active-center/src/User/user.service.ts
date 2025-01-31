@@ -18,12 +18,12 @@ import {
   UserStatus,
 } from './UserDTO/users.dto';
 import { SALT } from 'src/config/config.envs';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>
+    @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
   async getAllUsers(page: number, limit: number): Promise<UserDTOPage> {
@@ -62,7 +62,10 @@ export class UserService {
 
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
-      const user: User | null = await this.userRepository.findOne({where: {id}, relations: ['orders', 'reservations', 'activities']},);
+      const user: User | null = await this.userRepository.findOne({
+        where: { id },
+        relations: ['orders', 'reservations', 'activities'],
+      });
       if (!user) throw new NotFoundException('El usuario buscado no existe.');
       const { password, updateUser, isAdmin, createUser, ...partialUser } =
         user;
@@ -105,7 +108,7 @@ export class UserService {
     try {
       const oldUser: User | null = await this.userRepository.findOneBy({ id });
       if (!oldUser) throw new BadRequestException('No existe el usuario.');
-      if(editUser.password) {
+      if (editUser.password) {
         const password: string = await this.hashPassword(editUser.password);
         await this.userRepository.save({
           ...oldUser,
@@ -113,7 +116,7 @@ export class UserService {
           password,
           updateUser: new Date(),
         });
-        return 'Se actualizo el perfil correctamente'
+        return 'Se actualizo el perfil correctamente';
       }
       await this.userRepository.save({
         ...oldUser,
@@ -127,15 +130,15 @@ export class UserService {
   }
 
   async hashPassword(password: string): Promise<string> {
-      try {
-        if (!SALT || isNaN(SALT))
-          throw new BadRequestException('El salto de hasheo debe ser un numero');
-        const salt: string = await bcrypt.genSalt(SALT);
-        return await bcrypt.hash(password, salt);
-      } catch (error) {
-        const errorMessage: string =
-          error instanceof Error ? error.message : 'Hubo un error desconocido.';
-        throw new InternalServerErrorException(errorMessage);
-      }
+    try {
+      if (!SALT || isNaN(SALT))
+        throw new BadRequestException('El salto de hasheo debe ser un numero');
+      const salt: string = await bcrypt.genSalt(SALT);
+      return await bcrypt.hash(password, salt);
+    } catch (error) {
+      const errorMessage: string =
+        error instanceof Error ? error.message : 'Hubo un error desconocido.';
+      throw new InternalServerErrorException(errorMessage);
+    }
   }
 }
