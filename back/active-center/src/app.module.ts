@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { configModule } from './config.module';
 import { UserModule } from './User/user.module';
 import { ReservationModule } from './Reservation/reservation.module';
@@ -31,6 +31,7 @@ import { SeederModule } from './Seeder/seeder.module';
     ConfigModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [{provide: APP_GUARD, useClass: AuthGuard}],
 })
 export class AppModule {}
+

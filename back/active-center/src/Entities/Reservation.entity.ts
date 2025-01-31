@@ -12,8 +12,8 @@ export class Reservation {
   @Column({ type: 'date', nullable: false, default: new Date() })
   date: Date;
 
-  @Column({ type: 'boolean', default: true })
-  status: boolean;
+  @Column({type: 'boolean', default: true})
+  status: boolean; 
 
   @Column({ type: 'decimal', precision: 8, scale: 2, nullable: false })
   price: number;
@@ -22,8 +22,13 @@ export class Reservation {
   user: User;
 
   @ManyToOne(() => Space, (space) => space.reservation)
-  spaces: Space[];
+  spaces: Space;
 
-  @Column({ type: 'integer', nullable: false })
-  hours: number;
+  @Column()
+  startTime: string;
+
+  @Column()
+  endTime: string;
+
 }
+
