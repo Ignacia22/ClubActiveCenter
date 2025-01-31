@@ -12,12 +12,12 @@ const config: DataSourceOptions = {
   database: dbConfig.database,
   synchronize: dbConfig.synchronize,
   logging: dbConfig.logging,
-  dropSchema: dbConfig.dropSchema,
+  dropSchema: true,
   entities: dbConfig.entities,
   migrations: dbConfig.migration,
-  // ssl: {
-  //   rejectUnauthorized: false,
-  // },
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };
 
 export default registerAs('typeorm', () => config);

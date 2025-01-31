@@ -64,5 +64,5 @@ export class User {
 
   @UpdateDateColumn()
   updateUser?: Date;
-    payments: any;
+  payments: any;
 }

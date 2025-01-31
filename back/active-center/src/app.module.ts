@@ -11,11 +11,25 @@ import { AuthGuard } from './Auth/Guard/auth.guard';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SendGridModule } from './SendGrid/sendGrid.module';
 import { ProductModule } from './Product/product.module';
-import { SpaceModule } from './Space/space.module';
-
+import { PaymentModule } from './Payment/payment.module';
+import { ConfigModule } from '@nestjs/config';
+import { SeederModule } from './Seeder/seeder.module';
 
 @Module({
-  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, ProductModule,SpaceModule],
+  imports: [
+    configModule,
+    UserModule,
+    ReservationModule,
+    OrderModule,
+    AuthModule,
+    JWTModule,
+    SendGridModule,
+    CloudinaryModule,
+    ProductModule,
+    SeederModule,
+    PaymentModule,
+    ConfigModule,
+  ],
   controllers: [],
   providers: [{provide: APP_GUARD, useClass: AuthGuard}],
 })

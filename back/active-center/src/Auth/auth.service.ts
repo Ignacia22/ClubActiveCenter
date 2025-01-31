@@ -43,7 +43,7 @@ export class AuthService {
     try {
       user.password = await this.userService.hashPassword(user.password);
       const exist: User | null = await this.userDeleted(user);
-      if(exist) return await this.saveUser({...exist, ...user});
+      if (exist) return await this.saveUser({ ...exist, ...user });
       const registerUser: User = await this.userRepository.save(user);
       const {
         updateUser,
@@ -58,13 +58,19 @@ export class AuthService {
       await this.sendGridService.wellcomeMail(email);
       return partialUser;
     } catch (error) {
-      if(error.detail) throw new ConflictException(`Hubo un error al registrar al usuario: ${error.detail}`);
+      if (error.detail)
+        throw new ConflictException(
+          `Hubo un error al registrar al usuario: ${error.detail}`,
+        );
       throw new InternalServerErrorException(error.message);
     }
   }
 
   async saveUser(user: User): Promise<UserDTOResponse> {
-    const registerUser: User = await this.userRepository.save({...user, userStatus: UserStatus.disconect});
+    const registerUser: User = await this.userRepository.save({
+      ...user,
+      userStatus: UserStatus.disconect,
+    });
     const {
       updateUser,
       isAdmin,
@@ -86,12 +92,11 @@ export class AuthService {
       const userDeleted: User | null = await this.userService.getUserByEmail(
         user.email,
       );
-      if (!userDeleted || userDeleted.userStatus !== UserStatus.delete) return null;
+      if (!userDeleted || userDeleted.userStatus !== UserStatus.delete)
+        return null;
       return userDeleted;
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Error desconocido.'
-      );
+      throw new InternalServerErrorException('Error desconocido.');
     }
   }
 
@@ -114,24 +119,36 @@ export class AuthService {
         isAdmin,
         reservations,
         createUser,
+        activities,
+        payments,
         ...extra
       } = validate;
       return {
-        userInfo: {...extra, userStatus: UserStatus.active},
+        userInfo: { ...extra, userStatus: UserStatus.active },
         token,
       };
     } catch (error) {
       throw new BadRequestException(
-        `Hubo un error al iniciar sesión. Vuelva intentarlo. ${error.message}`
+        `Hubo un error al iniciar sesión. Vuelva intentarlo. ${error.message}`,
       );
     }
   }
 
   async validate(user: SignInUserDTO): Promise<User> {
     try {
-      const exist: User | null = await this.userService.getUserByEmail(user.email);
-      if (!exist || !(await bcrypt.compare(user.password, exist.password) || exist.userStatus === UserStatus.delete))throw new NotFoundException('Mail o contraseña incorrecta.');      
-      if(exist && exist.userStatus === UserStatus.delete) throw new NotFoundException('Mail o contraseña incorrecta.');
+      const exist: User | null = await this.userService.getUserByEmail(
+        user.email,
+      );
+      if (
+        !exist ||
+        !(
+          (await bcrypt.compare(user.password, exist.password)) ||
+          exist.userStatus === UserStatus.delete
+        )
+      )
+        throw new NotFoundException('Mail o contraseña incorrecta.');
+      if (exist && exist.userStatus === UserStatus.delete)
+        throw new NotFoundException('Mail o contraseña incorrecta.');
       return exist;
     } catch (error) {
       throw new NotFoundException('Mail o contraseña incorrecta.');
@@ -158,17 +175,17 @@ export class AuthService {
       );
     }
   }
-  
+
   async isBan(id: string): Promise<BanDTOResponse> {
     try {
       const user: User | null = await this.userRepository.findOneBy({ id });
-      if(!user) throw new BadRequestException('No existe el usuario.');
-      if(user.userStatus === UserStatus.delete) {
+      if (!user) throw new BadRequestException('No existe el usuario.');
+      if (user.userStatus === UserStatus.delete) {
         throw new ConflictException(
           'No se puede banear a un usuario que fue eliminado.',
         );
       }
-      if(user.userStatus === UserStatus.ban) {
+      if (user.userStatus === UserStatus.ban) {
         await this.userRepository.save({
           ...user,
           userStatus: UserStatus.disconect,
@@ -194,8 +211,8 @@ export class AuthService {
       );
     }
   }
-  
-  async LogOut(id: string): Promise<"Te has desconectado."> {
+
+  async LogOut(id: string): Promise<'Te has desconectado.'> {
     try {
       const user: User | null = await this.userRepository.findOneBy({ id });
       if (!user) throw new BadRequestException('El usuario no existe');
@@ -210,17 +227,57 @@ export class AuthService {
       });
       return 'Te has desconectado.';
     } catch (error) {
-      if(error.message) throw new NotFoundException(error.message);
+      if (error.message) throw new NotFoundException(error.message);
       throw new InternalServerErrorException(
-        'Error al procesar la desconexión del usuario.'
+        'Error al procesar la desconexión del usuario.',
       );
     }
   }
 
   async isAdmin(id: string): Promise<BanDTOResponse> {
-    const user: null | User = await this.userRepository.findOneBy({id});
-    if(!user) throw new NotFoundException('El usuario no existe.');
-    !user.isAdmin ? await this.userRepository.save({...user, isAdmin: true}) : await this.userRepository.save({...user, isAdmin: false});
-    return !user.isAdmin ? {user: {id}, message: `El usuario "${user.name}" ahora es administrador.`} : {user: {id}, message: `El usuario "${user.name}" ya no es administrador.`};
+    const user: null | User = await this.userRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException('El usuario no existe.');
+    !user.isAdmin
+      ? await this.userRepository.save({ ...user, isAdmin: true })
+      : await this.userRepository.save({ ...user, isAdmin: false });
+    return !user.isAdmin
+      ? {
+          user: { id },
+          message: `El usuario "${user.name}" ahora es administrador.`,
+        }
+      : {
+          user: { id },
+          message: `El usuario "${user.name}" ya no es administrador.`,
+        };
+  }
+
+  async login(email: string) {
+    const user: User | null = await this.userService.getUserByEmail(email);
+    if (!user || user.userStatus === UserStatus.delete)
+      throw new NotFoundException('No existe el usuario.');
+    const token: string = this.jwtService.sign({
+      sub: user.id,
+      id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      userStatus: user.userStatus,
+    });
+    this.userRepository.save({ ...user, userStatus: UserStatus.active });
+    const {
+      dni,
+      orders,
+      password,
+      updateUser,
+      isAdmin,
+      reservations,
+      createUser,
+      activities,
+      payments,
+      ...extra
+    } = user;
+    return {
+      userInfo: { ...extra, userStatus: UserStatus.active },
+      token,
+    };
   }
 }

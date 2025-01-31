@@ -8,12 +8,7 @@ import { UserMenu } from "./IconosMenu/UserMenu";
 
 
 export default function Nav() {
-  const isAuthenticated = false; // Esto vendría de tu sistema de autenticación
-
-  const handleLogout = () => {
-    // Tu lógica de logout aquí
-    console.log('Logout');
-  };
+  
 
   return (
     <nav className="sticky top-0 z-50 bg-navbarDefault shadow-navbar">
@@ -68,8 +63,6 @@ export default function Nav() {
           <div className="flex items-center gap-1">
             <CartButton />
             <UserMenu 
-              isAuthenticated={isAuthenticated}
-              onLogout={handleLogout}
             />
             {/* Menu hamburguesa solo visible hasta lg */}
             <div className="lg:hidden ml-1">
