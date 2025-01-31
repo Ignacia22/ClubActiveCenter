@@ -9,6 +9,13 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
+  
+  @Get()
+  @ApiBearerAuth()
+  allReservation(){
+    return this.reservationService.allReservations()
+  }
+
 
   @Get(":id")
   @ApiBearerAuth()
@@ -17,11 +24,11 @@ export class ReservationController {
 
   }
 
-
   @Post("create")
   @ApiBearerAuth()
   CreateReservation(@Request() req:any , @Body() createReservationDto:CreateReservationDto){
-    const userId = req.user.id;
+    const userId = req.access.id;
+    console.log(userId)
     
     return this.reservationService.createReservation(createReservationDto,userId)
     

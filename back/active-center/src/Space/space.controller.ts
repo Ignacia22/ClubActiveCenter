@@ -1,7 +1,6 @@
-import { Controller, Get, Param, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, SetMetadata} from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
-import { UpdateSpaceDto } from './dto/update-space.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('space')
@@ -13,6 +12,14 @@ export class SpaceController {
   getSpaceById(@Param("id", ParseUUIDPipe) id:string){
 
     return this.spaceService.getSpaceById(id)
+
+  }
+
+  @Get()
+  @ApiBearerAuth()
+  getSpaceByName(@Body() name:string){
+
+    return this.spaceService.getSpaceByName(name)
 
   }
 

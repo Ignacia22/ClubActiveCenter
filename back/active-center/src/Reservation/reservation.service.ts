@@ -30,9 +30,10 @@ export class ReservationService {
 
     async createReservation(createReservationDto:CreateReservationDto, userId:string){
         
-        const {date , startTime , endTime , spaceId , status} = createReservationDto
+        const {date , startTime , endTime , spaceName , status} = createReservationDto
 
         const user = await this.userService.getUserById(userId)
+        
         if(!user){
             throw new NotFoundException("Usuario no encontrado")
         }
@@ -44,21 +45,20 @@ export class ReservationService {
         if(end > start){
             throw new BadRequestException('End time must be after start time')
         }
+    
 
         //buscar si existe el espacio
-        const space = await this.spaceService.getSpaceById(spaceId)
+        const space = await this.spaceService.getSpaceByName(spaceName)
         const price = space?.price_hour;
-
+        console.log(space)
         if(!space){
             throw new NotFoundException("el espacio no existe")
-        }else{
-            space.id = spaceId;
         }
-        
+
         // Validar si el espacio está disponible en el rango horario
 
         const existingReservation = await this.reservationRepository.findOne({
-            where:{spaces:{id:spaceId} , date ,startTime}
+            where:{spaces:{title:spaceName} , date ,startTime}
         })
         
 
@@ -66,23 +66,27 @@ export class ReservationService {
             throw new ConflictException("El espacio ya está reservado en ese horario")
         }
         
-        const newReservation = new CreateReservationDto();
-        newReservation.date = date;
-        newReservation.startTime = startTime;
-        newReservation.endTime = endTime;
-        newReservation.price = space.price_hour;
-        newReservation.spaceId = spaceId;
-        newReservation.userId = user.id;
+        const newReservation = this.reservationRepository.create({
+            date,
+            startTime,
+            endTime,
+            price: space.price_hour,
+            status,
+            user,
+            spaces:space
 
-        await this.reservationRepository.save(newReservation);
-  
+        })
+
+        await this.reservationRepository.save(newReservation)
+
         return {
+            space:space.title,
             date,
             startTime,
             endTime,
             status,
             price,
-            user,
+            user:user.name
         };
     }
 }

@@ -3,7 +3,7 @@ import { CreateSpaceDto } from './dto/create-space.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Space } from 'src/Entities/Space.entity';
-import espacios from 'src/Reservation/DB-ESPACIOS';
+import espacios from 'src/Reservation/Espacios';
 
 @Injectable()
 export class SpaceService {
@@ -15,6 +15,12 @@ export class SpaceService {
     return space;
   }
 
+  async getSpaceByName(name:string){
+    const spaceName = await this.spaceRepository.findOne({where:{title:name}})
+    return spaceName;
+  }
+
+
   async addSpace(){
 
       const existSpace = (await this.spaceRepository.find()).map((space) => space.title)
@@ -25,6 +31,8 @@ export class SpaceService {
              title : spaceData.title,
              description : spaceData.descripcion,
              price_hour : spaceData.price_hours,
+             details: spaceData.details,
+             characteristics: spaceData.characteristics,
              status : spaceData.status,
            })
             await this.spaceRepository.save(newSpace)

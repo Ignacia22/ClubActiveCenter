@@ -11,24 +11,13 @@ import { AuthGuard } from './Auth/Guard/auth.guard';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SendGridModule } from './SendGrid/sendGrid.module';
 import { ProductModule } from './Product/product.module';
-import { SpaceService } from './Space/space.service';
+import { SpaceModule } from './Space/space.module';
+
 
 @Module({
-  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, ProductModule],
+  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, ProductModule,SpaceModule],
   controllers: [],
-  providers: [{provide: APP_GUARD, useClass: AuthGuard},SpaceService],
+  providers: [{provide: APP_GUARD, useClass: AuthGuard}],
 })
-export class AppModule implements OnModuleInit{
+export class AppModule {}
 
-  constructor(private spaceService:SpaceService){}
-
-  async onModuleInit() {
-    try{
-      await this.spaceService.addSpace();
-
-    }catch{
-      throw new Error('Method not implemented.');
-    }
-  }
-
-}
