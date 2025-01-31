@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -97,37 +98,30 @@ export class ProductService {
       });
       if (!product) throw new NotFoundException('No existe el producto.');
 
+      let newStatus: StatusProduct;
+      let message: string;
+  
       if (product.productStatus === StatusProduct.Available) {
-        await this.productsRepository.save({
-          ...product,
-          productStatus: StatusProduct.Retired,
-        });
-        return {
-          product: {id},
-          message: 'Se retiro el producto.'
-        };
+        newStatus = StatusProduct.Retired;
+        message = 'Se retiró el producto.';
       } else if (product.productStatus === StatusProduct.Retired) {
-        await this.productsRepository.save({
-          ...product,
-          productStatus: StatusProduct.Available,
-        });
-        return {
-          product: {id},
-          message: 'Se habilito el producto.'
-        };
-      } else if (
-        product.productStatus === StatusProduct.Retired &&
-        product.stock === 0
-      ) {
-        await this.productsRepository.save({
-          ...product,
-          productStatus: StatusProduct.OutOfStock,
-        });
-        return {
-          product: {id},
-          message: 'Se habilito el producto pero no hay en stock.'
-        };
+        if (product.stock === 0) {
+          newStatus = StatusProduct.OutOfStock;
+          message = 'El producto fue retirado y no hay stock.';
+        } else {
+          newStatus = StatusProduct.Available;
+          message = 'Se habilitó el producto.';
+        }
+      } else {
+        throw new BadRequestException('El estado del producto no permite esta acción.');
       }
+  
+      await this.productsRepository.save({ ...product, productStatus: newStatus });
+  
+      return {
+        product: { id },
+        message,
+      };
     } catch (error) {
       throw new InternalServerErrorException('Hubo un error al intentar hacer la petición.', error.message || error);
     };
