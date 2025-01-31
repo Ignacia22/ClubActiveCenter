@@ -4,12 +4,11 @@ import { UserModule } from 'src/User/user.module';
 
 @Module({
   providers: [SeeederDB],
-  imports: [UserModule]
+  imports: [UserModule],
 })
-export class SeederModule implements OnApplicationBootstrap{
-  constructor(private readonly seeder: SeeederDB){}
+export class SeederModule implements OnApplicationBootstrap {
+  constructor(private readonly seeder: SeeederDB) {}
   async onApplicationBootstrap(): Promise<void> {
     await this.seeder.seederDB();
-  };
-  
+  }
 }

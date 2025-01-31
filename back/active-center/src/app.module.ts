@@ -15,9 +15,21 @@ import { PaymentModule } from './Payment/payment.module';
 import { ConfigModule } from '@nestjs/config';
 import { SeederModule } from './Seeder/seeder.module';
 
-
 @Module({
-  imports: [configModule, UserModule, ReservationModule, OrderModule, AuthModule, JWTModule, SendGridModule, CloudinaryModule, ProductModule, SeederModule, PaymentModule, ConfigModule],
+  imports: [
+    configModule,
+    UserModule,
+    ReservationModule,
+    OrderModule,
+    AuthModule,
+    JWTModule,
+    SendGridModule,
+    CloudinaryModule,
+    ProductModule,
+    SeederModule,
+    PaymentModule,
+    ConfigModule,
+  ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })

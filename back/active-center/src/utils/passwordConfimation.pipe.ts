@@ -13,7 +13,6 @@ export class Confirmation implements ValidatorConstraintInterface {
     password: string,
     args: ValidationArguments,
   ): Promise<boolean> | boolean {
-
     const obj = args.object as { [key: string]: any };
     if (password !== obj[args.constraints[0]]) return false;
     return true;
