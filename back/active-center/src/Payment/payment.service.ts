@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,20 +8,7 @@ import { User } from 'src/Entities/User.entity';
 import { Order } from 'src/Entities/Order.entity';
 import { PaymentStatus } from './PaymentDTO/payment.dto';
 import { StatusOrder } from 'src/Order/OrderDTO/orders.dto';
-=======
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import Stripe from "stripe";
-import { Payment } from "src/Entities/Payment.entity";
-import { User } from "src/Entities/User.entity";
-import { Order } from "src/Entities/Order.entity";
-import { PaymentStatus } from "./PaymentDTO/payment.dto";
-// En el archivo `payment.service.ts`
 
-
-
->>>>>>> Stashed changes
 
 @Injectable()
 export class PaymentService {
@@ -33,13 +20,10 @@ export class PaymentService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Order)
-<<<<<<< Updated upstream
     private orderRepository: Repository<Order>,
   ) {
-=======
-    private  orderRepository: Repository<Order>,
-  ){
->>>>>>> Stashed changes
+
+
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
       throw new Error(
@@ -102,23 +86,12 @@ export class PaymentService {
     let event: Stripe.Event;
 
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-<<<<<<< Updated upstream
 
     if (!webhookSecret) {
-      console.error(
-        'STRIPE_WEBHOOK_SECRET no está definido en las variables de entorno',
-      );
-      throw new Error(
-        'Webhook no puede ser validado debido a la configuración del entorno',
-      );
-=======
-    if (!webhookSecret) {
       throw new Error('Webhook secret no está definido');
->>>>>>> Stashed changes
     }
 
     try {
-<<<<<<< Updated upstream
       event = this.stripe.webhooks.constructEvent(
         req.body as Buffer,
         sig,
@@ -153,53 +126,20 @@ export class PaymentService {
           throw new Error('Usuario u orden no encontrados');
         }
 
-=======
-      event = this.stripe.webhooks.constructEvent(req.body as Buffer, sig, webhookSecret);
-    } catch (err) {
-      throw new Error('Webhook no válido');
-    }
-  
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
-  
-      if (!session.metadata || !session.metadata.orderId || !session.metadata.userId) {
-        throw new Error("Metadata faltante en el webhook.");
-      }
-  
-      const orderId = session.metadata.orderId;
-      const userId = session.metadata.userId;
-  
-      try {
->>>>>>> Stashed changes
         const payment = this.paymentRepository.create({
           amount: session.amount_total ? session.amount_total / 100 : 0,
           currency: session.currency || 'usd',
           paymentStatus: PaymentStatus.PAID,
-<<<<<<< Updated upstream
-          user,
-          order,
-=======
           user: { id: userId },
           order: { id: orderId },
->>>>>>> Stashed changes
+
         });
 
         await this.paymentRepository.save(payment);
-<<<<<<< Updated upstream
-
         order.status = StatusOrder.complete;
         await this.orderRepository.save(order);
 
-        console.log('Pago registrado y orden completada');
-      } catch (err) {
-        console.error('Error procesando el evento de webhook:', err.message);
-        throw new Error('Error al procesar el evento de webhook');
-      }
-    }
-  }
-}
-=======
-  
+
         console.log('Pago registrado correctamente');
       } catch (err) {
         console.error('Error procesando el evento:', err.message);
@@ -207,7 +147,4 @@ export class PaymentService {
       }
     }
   }
-  
-
 }
->>>>>>> Stashed changes
