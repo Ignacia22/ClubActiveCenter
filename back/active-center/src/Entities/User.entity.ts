@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,6 +15,7 @@ import { Order } from './Order.entity';
 import { UserStatus } from 'src/User/UserDTO/users.dto';
 import { v4 as uuid } from 'uuid';
 import { Activity } from './Activity.entity';
+import { Cart } from './Cart.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -64,5 +66,14 @@ export class User {
 
   @UpdateDateColumn()
   updateUser?: Date;
+<<<<<<< Updated upstream
   payments: any;
+=======
+    payments: any;
+    
+
+  @OneToOne(() => Cart, (cart) => cart.user)
+  cart: Cart;
+
+>>>>>>> Stashed changes
 }

@@ -14,6 +14,7 @@ import { ProductModule } from './Product/product.module';
 import { PaymentModule } from './Payment/payment.module';
 import { ConfigModule } from '@nestjs/config';
 import { SeederModule } from './Seeder/seeder.module';
+import { CartModule } from './Cart/cart.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SeederModule } from './Seeder/seeder.module';
     SeederModule,
     PaymentModule,
     ConfigModule,
+    CartModule
   ],
   controllers: [],
   providers: [{provide: APP_GUARD, useClass: AuthGuard}],
