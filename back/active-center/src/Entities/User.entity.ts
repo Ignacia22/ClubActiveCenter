@@ -66,14 +66,10 @@ export class User {
 
   @UpdateDateColumn()
   updateUser?: Date;
-<<<<<<< Updated upstream
-  payments: any;
-=======
     payments: any;
     
 
   @OneToOne(() => Cart, (cart) => cart.user)
   cart: Cart;
 
->>>>>>> Stashed changes
 }
