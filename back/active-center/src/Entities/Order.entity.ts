@@ -15,7 +15,7 @@ export class Order {
   user: User;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { eager: true })
-  orderItems: OrderItem[]; // ✅ Nombre corregido
+  orderItems: OrderItem[]; 
 
 
   @Column({ type: 'decimal', scale: 2, nullable: false })

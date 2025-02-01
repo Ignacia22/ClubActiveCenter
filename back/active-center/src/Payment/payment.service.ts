@@ -36,7 +36,7 @@ export class PaymentService {
     });
   }
   async createCheckoutSession(orderId: string, userId: string): Promise<string> {
-    // Obtener la orden con los productos, cantidades y usuario
+    
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
       relations: ["orderItems", "orderItems.product", "user"],
@@ -47,21 +47,21 @@ export class PaymentService {
       throw new Error("La orden no tiene productos asociados.");
     }
   
-    // URLs de redirección
+    
     const successUrl = 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}';
     const cancelUrl = 'http://localhost:3000/cancel';
   
-    // Mapear los productos con cantidades correctas
+    
     const lineItems = order.orderItems.map((item) => ({
       price_data: {
         currency: 'usd',
         product_data: { name: item.product.name },
-        unit_amount: Math.round(item.product.price * 100), // Convertir a centavos
+        unit_amount: Math.round(item.product.price * 100), 
       },
       quantity: item.quantity,
     }));
   
-    // Crear la sesión de pago en Stripe
+    
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
@@ -81,7 +81,7 @@ export class PaymentService {
     return session.url;
   }
   
-  // Manejo del Webhook de Stripe
+  
   async handleWebhook(req: any, sig: string) {
     let event: Stripe.Event;
 

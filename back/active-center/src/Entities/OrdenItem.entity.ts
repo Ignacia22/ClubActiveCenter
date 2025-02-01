@@ -7,7 +7,7 @@ export class OrderItem {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => Order, (order) => order.orderItems) // ✅ Ahora coincide con Order
+  @ManyToOne(() => Order, (order) => order.orderItems)
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
@@ -18,6 +18,6 @@ export class OrderItem {
   @Column()
   quantity: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 })  // Definir decimal correctamente
+  @Column({ type: "decimal", precision: 10, scale: 2 }) 
   price: number;
 }
