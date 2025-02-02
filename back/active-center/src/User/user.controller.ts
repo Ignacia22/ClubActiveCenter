@@ -17,6 +17,7 @@ import {
   UpdateUserDTO,
   UserDTOPage,
   UserDTOResponseId,
+  UserFilters,
 } from './UserDTO/users.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from './UserDTO/Role.enum';
@@ -26,23 +27,41 @@ import { RolesGuard } from 'src/Auth/Guard/roles.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
-  @ApiOperation({
-    summary: 'Obtiene todos los usuarios',
-    description:
-      'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos.',
-  })
-  @ApiBearerAuth()
-  async getAllUsers(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-  ): Promise<UserDTOPage> {
-    if (isNaN(page) || page <= 0) page = 1;
-    if (isNaN(limit) || limit <= 0) limit = 5;
-    return await this.userService.getAllUsers(page, limit);
-  }
+@Get()
+@Roles(Role.admin)
+@UseGuards(RolesGuard)
+@ApiOperation({
+  summary: 'Obtiene todos los usuarios',
+  description:
+    'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos.',
+})
+@ApiBearerAuth()
+async getAllUsers(
+  @Query('page') page: number,
+  @Query('limit') limit: number,
+  @Query('name') name?: string,
+  @Query('email') email?: string,
+  @Query('phone') phone?: string,
+  @Query('address') address?: string,
+  @Query('dni') dni?: number,
+  @Query('userStatus') userStatus?: string,
+  @Query('isAdmin') isAdmin?: string,
+): Promise<UserDTOPage> {
+  if (isNaN(page) || page <= 0) page = 1;
+  if (isNaN(limit) || limit <= 0) limit = 5;
+
+  const filters: UserFilters = {
+    name,
+    email,
+    phone,
+    address,
+    dni,
+    userStatus,
+    isAdmin,
+  };
+
+  return await this.userService.getAllUsers(page, limit, filters);
+}
 
   @Get(':id')
   @ApiOperation({

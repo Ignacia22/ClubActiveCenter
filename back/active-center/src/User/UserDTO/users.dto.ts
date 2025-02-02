@@ -501,3 +501,14 @@ export class UserDTOResponse {
   })
   userStatus: string;
 }
+
+export interface UserFilters {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  dni?: number;
+  userStatus?: string;
+  isAdmin?: string;
+}
+
