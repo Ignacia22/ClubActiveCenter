@@ -49,10 +49,16 @@ export function UserMenu() {
                   Iniciar sesión
                 </Link>
                 <Link
-                  href="/register"
+                  href="/registro"
                   className="block px-3 py-2 hover:bg-gray-700 rounded"
                 >
                   Registrarse
+                </Link>
+                <Link
+                  href="/home "
+                  className="block px-3 py-2 hover:bg-gray-700 rounded"
+                >
+                  Cerrar sesion
                 </Link>
               </>
             )}

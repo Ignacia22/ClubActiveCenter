@@ -1,18 +1,17 @@
-import { IRegisterData } from "@/interface/IRegisterData";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-const BASE_URL = "https://active-center-db.onrender.com";
+const BASE_URL = "http://localhost:3001";
 
 export const AuthService = {
-  async register(data: IRegisterData): Promise<void> {
+  async register(data: any): Promise<void> {
     try {
       const response = await axios.post(`${BASE_URL}/auth/SignUp`, data, {
         headers: { "Content-Type": "application/json" },
       });
 
       console.log("✅ Respuesta completa:", response);
-      console.log("📌 Data recibida:", response.data); // Ver qué está devolviendo la API
+      console.log("📌 Data recibida:", response.data);
 
       if (response.status === 200) {
         Swal.fire({
