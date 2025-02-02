@@ -75,7 +75,7 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address || null,
+        address: formData.address || " ",
         dni: Number(formData.dni),
         password: formData.password,
         passwordConfirmation: formData.passwordConfirmation,
