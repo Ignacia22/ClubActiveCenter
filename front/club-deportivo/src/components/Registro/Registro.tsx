@@ -61,6 +61,7 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Formulario enviado con datos:", formData); // 🛠 Depuración
 
     if (!validateForm()) return;
 
@@ -88,7 +89,8 @@ const Register = () => {
         dni: "",
         password: "",
       });
-    } catch {
+    } catch (error) {
+      console.error("Error en el registro:", error);
       Swal.fire({
         icon: "error",
         title: "Error al registrar usuario",
@@ -109,81 +111,23 @@ const Register = () => {
 
         {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
 
-        <div className="mb-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nombre:"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Correo electrónico:"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            name="phone"
-            placeholder="Número de teléfono:"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            name="address"
-            placeholder="Dirección:"
-            value={formData.address}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            name="dni"
-            placeholder="DNI/Documento:"
-            value={formData.dni}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="password"
-            name="password"
-            placeholder="Contraseña:"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
+        {Object.keys(formData).map((field) => (
+          <div className="mb-4" key={field}>
+            <input
+              type={field === "password" ? "password" : "text"}
+              name={field}
+              placeholder={`${field.charAt(0).toUpperCase() + field.slice(1)}:`}
+              value={formData[field as keyof typeof formData]}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+              required
+            />
+          </div>
+        ))}
 
         <button
           type="submit"
-          className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-700 transition font-bold"
+          className="w-full bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600 transition font-bold"
         >
           REGÍSTRATE
         </button>
