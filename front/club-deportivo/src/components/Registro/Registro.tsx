@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { AuthService } from "@/service/AuthService.ts";
+import { AuthService } from "@/service/AuthServiceRegistro.ts";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation"; // ✅ Importa el router para la redirección
 
