@@ -1,7 +1,6 @@
 import {
   Injectable,
   InternalServerErrorException,
-  OnApplicationShutdown,
 } from '@nestjs/common';
 import { Category } from 'src/Entities/Category.entity';
 import { Product } from 'src/Entities/Product.entity';

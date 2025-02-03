@@ -28,8 +28,7 @@ export class ReservationController {
   @ApiBearerAuth()
   CreateReservation(@Request() req:any , @Body() createReservationDto:CreateReservationDto){
     const userId = req.access.id;
-    console.log(userId)
-    
+       
     return this.reservationService.createReservation(createReservationDto,userId)
     
   }

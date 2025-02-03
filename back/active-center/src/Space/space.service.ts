@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,6 +20,21 @@ export class SpaceService {
     return spaceName;
   }
 
+  async getAllSpace(page: number, limit: number): Promise<Space[]> {
+    try {
+      const spaces: Space[] = await this.spaceRepository.find({});
+
+      const start = (page - 1) * limit;
+      const end = start + limit;
+
+      return spaces.slice(start, end);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Hubo un error al obtener los espacios.',
+      );
+    }
+  }
+  
 
   async addSpace(){
 
