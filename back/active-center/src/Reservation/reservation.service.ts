@@ -6,6 +6,7 @@ import { CreateReservationDto } from './ReservationDTO/reservations.dto';
 import { UserService } from 'src/User/user.service';
 import { Space } from 'src/Entities/Space.entity';
 import { SpaceService } from 'src/Space/space.service';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 
 
 @Injectable()
@@ -13,7 +14,8 @@ export class ReservationService {
     constructor(@InjectRepository(Reservation) private reservationRepository:Repository<Reservation>,
     @InjectRepository(Space) private spaceRepository:Repository<Space>,
     private userService:UserService,
-    private spaceService:SpaceService,){}
+    private spaceService:SpaceService,
+    private readonly sendgridService: SendGridService){}
 
 
     async allReservations(){
@@ -42,8 +44,8 @@ export class ReservationService {
         const start = new Date(`${date}T${startTime}:00Z`);
         const end = new Date(`${date}T${endTime}:00Z`);
 
-        if(end > start){
-            throw new BadRequestException('End time must be after start time')
+        if(end < start){
+            throw new BadRequestException('La hora de finalización de la reserva debe ser mayor a la de inicio')
         }
     
 
@@ -78,6 +80,16 @@ export class ReservationService {
         })
 
         await this.reservationRepository.save(newReservation)
+        
+        await this.sendgridService.reservationMail(
+            user.email, 
+            date, 
+            startTime, 
+            endTime, 
+            price, 
+            space.title, 
+            user.name
+        )
 
         return {
             space:space.title,

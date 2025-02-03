@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Put,
   Query,
+  SetMetadata,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -28,8 +29,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
 @Get()
-@Roles(Role.admin)
-@UseGuards(RolesGuard)
+//@Roles(Role.admin)
+//@UseGuards(RolesGuard)
+@SetMetadata("isPublic", true)
 @ApiOperation({
   summary: 'Obtiene todos los usuarios',
   description:
