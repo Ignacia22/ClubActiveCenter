@@ -6,9 +6,10 @@ import { Order } from 'src/Entities/Order.entity';
 import { User } from 'src/Entities/User.entity';
 import { Payment } from 'src/Entities/Payment.entity';
 import { OrderModule } from 'src/Order/order.module';
+import { Reservation } from 'src/Entities/Reservation.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, User, Payment]),forwardRef(() => OrderModule)],
+  imports: [TypeOrmModule.forFeature([Order, User, Payment,Reservation]),forwardRef(() => OrderModule)],
   providers: [PaymentService],
   controllers: [PaymentController],
   exports:[PaymentService]

@@ -6,14 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Reservation } from 'src/Entities/Reservation.entity';
 import { UserService } from 'src/User/user.service';
 import { Space } from 'src/Entities/Space.entity';
-import { SpaceModule } from 'src/Space/space.module';
 import { User } from 'src/Entities/User.entity';
 import { SpaceService } from 'src/Space/space.service';
+import { PaymentService } from 'src/Payment/payment.service';
+import { PaymentModule } from 'src/Payment/payment.module';
 
 
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Reservation,Space,User])],
+  imports:[TypeOrmModule.forFeature([Reservation,Space,User]),PaymentModule],
   controllers: [ReservationController],
   providers: [ReservationService,UserService,SpaceService],
 })

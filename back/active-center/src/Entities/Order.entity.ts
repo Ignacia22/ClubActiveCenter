@@ -1,9 +1,13 @@
 import { Column, Entity, OneToMany, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from "typeorm";
 import { User } from "./User.entity";
 import { Payment } from "./Payment.entity";
-import { StatusOrder } from "src/Order/OrderDTO/orders.dto";
 import { OrderItem } from "./OrdenItem.entity";
 
+export enum StatusOrder {
+  pending = 'Pending',
+  complete = 'Complete',
+  cancel = 'Canceled',
+}
 
 @Entity({ name: 'orders' })
 export class Order {

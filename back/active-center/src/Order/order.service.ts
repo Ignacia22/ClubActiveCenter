@@ -135,5 +135,21 @@ console.log(cart);
   
     return total;
   }
+
+
+  async getAllOrder(): Promise<Order[]> {
+    return await this.orderRepository.find({ relations: ['user', 'orderItems', 'orderItems.product'] });
+  }
+
+  async getOrderById(orderId: string): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['user', 'orderItems', 'orderItems.product'],
+    });
+    if (!order) {
+      throw new Error('Orden no encontrada');
+    }
+    return order;
+  }
 }
   

@@ -49,6 +49,9 @@ export class CartService {
       if (cartItem) {
         cartItem.quantity += quantity;
       } else {
+        if (quantity > product.stock) {
+          throw new Error(`No hay suficiente stock para el producto ${product.name}. Disponible: ${product.stock}`);
+      }
         cartItem = this.cartItemRepository.create({ cart, product, quantity });
       }
       await this.cartItemRepository.save(cartItem);

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, Res, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Req, Res, Headers, SetMetadata } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Request, Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -16,15 +16,22 @@ export class PaymentController {
     return this.paymentService.createCheckoutSession(body.orderId, body.userId);
   }
 
-  @ApiBearerAuth()
+ 
   @Post('webhook')
+  @SetMetadata('isPublic', true)
   async handleWebhook(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Headers('stripe-signature') sig: string,
+    @Req() req: any, 
+    @Headers('stripe-signature') sig: string, 
+    @Res() res: Response
   ) {
     try {
-      await this.paymentService.handleWebhook(req as any, sig);
+      const rawBody = req.rawBody;
+      console.log('Firma recibida:', sig);
+      console.log('Cuerpo del evento recibido:', rawBody);
+
+
+      await this.paymentService.handleWebhook(rawBody, sig);
+
       res.status(200).send('Webhook recibido');
     } catch (err) {
       console.error('Error en webhook:', err.message);

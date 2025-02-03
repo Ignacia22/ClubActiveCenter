@@ -15,6 +15,7 @@ import { PaymentModule } from './Payment/payment.module';
 import { ConfigModule } from '@nestjs/config';
 import { SeederModule } from './Seeder/seeder.module';
 import { CartModule } from './Cart/cart.module';
+import { SpaceModule } from './Space/space.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { CartModule } from './Cart/cart.module';
     SeederModule,
     PaymentModule,
     ConfigModule,
-    CartModule
+    CartModule,
+    SpaceModule,
   ],
   controllers: [],
   providers: [{provide: APP_GUARD, useClass: AuthGuard}],
