@@ -1,7 +1,7 @@
 import axios from "axios";
 import { IUser } from "../interface/IUser";
 
-const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL || "http://localhost:3001";
+const BACK_URL = "http://localhost:3001";
 
 export const getUserById = async (userId: string): Promise<IUser | null> => {
   const token = localStorage.getItem("token");
@@ -16,6 +16,8 @@ export const getUserById = async (userId: string): Promise<IUser | null> => {
     const response = await axios.get<IUser>(`${BACK_URL}/user/${userId}`, {
       headers,
     });
+
+    console.log("User data fetched:", response.data); // Log para depuración
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

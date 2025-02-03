@@ -11,6 +11,7 @@ import {
 import { getUserById } from "../../service/user";
 import { IUser } from "../../interface/IUser";
 import { IReservasUser } from "../../interface/IReservasUser";
+import Swal from "sweetalert2"; // Importar SweetAlert
 
 interface UserDashboardProps {
   userId: string;
@@ -31,6 +32,22 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
     };
     fetchUser();
   }, [userId]);
+
+  const handleSignOut = () => {
+    // Elimina el usuario del localStorage
+    localStorage.removeItem("user");
+
+    // Muestra el mensaje de éxito con SweetAlert
+    Swal.fire({
+      title: "Sesión cerrada",
+      text: "Se ha cerrado la sesión con éxito.",
+      icon: "success",
+      confirmButtonText: "Aceptar",
+    }).then(() => {
+      // Redirige al home después de la alerta
+      window.location.href = "/home";
+    });
+  };
 
   if (!user) return <div className="text-white">Cargando...</div>;
 
@@ -75,7 +92,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
               </div>
               <FaChevronRight className="text-lg" />
             </li>
-            <li className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
+            <li
+              className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200"
+              onClick={handleSignOut} // Llamar la función al hacer clic
+            >
               <div className="flex items-center gap-4">
                 <FaSignOutAlt className="text-lg" />
                 <span className="font-medium">Cerrar sesión</span>
