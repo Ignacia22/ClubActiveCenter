@@ -10,6 +10,7 @@ export interface IUser {
 }
 
 export interface IActivity {
+  title: string;
   id: string;
   name: string;
   price: number;

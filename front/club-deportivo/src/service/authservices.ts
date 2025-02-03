@@ -1,36 +1,27 @@
-import { ILogin } from "@/interface/ILogin";
 import axios from "axios";
 
-const BASE_URL = "https://active-center-db.onrender.com";
+const API_URL = "http://localhost:3001/auth/SignIn"; // Cambia esta URL si es necesario
 
 export const AuthService = {
-  async login(data: ILogin): Promise<void> {
+  async login(credentials: { email: string; password: string }) {
     try {
-      const response = await axios.post(`${BASE_URL}/auth/SignIn`, data, {
+      const response = await axios.post(API_URL, credentials, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      return response.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          "Error al iniciar sesión:",
-          error.response?.data?.message || error.message
-        );
-
-        if (error.response) {
-          const errorMessage =
-            error.response.data?.message || "Error desconocido";
-          alert(`Error al iniciar sesión: ${errorMessage}`);
-        } else {
-          alert("Hubo un error al iniciar sesión. Intenta nuevamente.");
-        }
+      if (response.data && response.data.token && response.data.userInfo) {
+        return {
+          token: response.data.token,
+          userInfo: response.data.userInfo,
+        };
       } else {
-        console.error("Error inesperado:", error);
-        alert("Ocurrió un error inesperado. Intenta nuevamente.");
+        throw new Error("No se recibieron los datos correctos.");
       }
+    } catch (error) {
+      console.error("Error en la llamada de login:", error);
+      throw error;
     }
   },
 };

@@ -3,10 +3,10 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useUserCheck } from "@/context/UserCheckContext"; // Importa el nuevo hook
 
 export default function UserCheck() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useUserCheck(); // Usando el nuevo hook
 
   return isAuthenticated ? (
     <div className="flex items-center justify-between gap-4 text-white">
@@ -27,7 +27,7 @@ export default function UserCheck() {
           LOGIN
         </button>
       </Link>
-      <Link href="/api/auth/login">
+      <Link href="/api/auth/signup">
         <button className="text-lg font-medium text-gray-600 hover:text-green-500 transition-colors duration-200">
           SIGNUP
         </button>
