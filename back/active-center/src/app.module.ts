@@ -14,7 +14,10 @@ import { ProductModule } from './Product/product.module';
 import { PaymentModule } from './Payment/payment.module';
 import { ConfigModule } from '@nestjs/config';
 import { SeederModule } from './Seeder/seeder.module';
+import { CartModule } from './Cart/cart.module';
+import { SpaceModule } from './Space/space.module';
 import { ActivityModule } from './Activity/activity.module';
+
 
 @Module({
   imports: [
@@ -30,6 +33,8 @@ import { ActivityModule } from './Activity/activity.module';
     SeederModule,
     PaymentModule,
     ConfigModule,
+    CartModule,
+    SpaceModule,
     ActivityModule,
   ],
   controllers: [],

@@ -4,6 +4,9 @@ import {
   IsString,
   IsEnum,
   IsPositive,
+  IsOptional,
+  IsInt,
+  IsNumberString,
 } from 'class-validator';
 
 export enum StatusProduct {
@@ -39,4 +42,12 @@ export class CreateProductDto {
 
   @IsEnum(StatusProduct)
   productStatus?: StatusProduct = StatusProduct.Available;
+}
+
+export interface ProductFilters {
+  name?: string;
+  category?: string;
+  stock?: number;
+  minPrice?: number;
+  maxPrice?: number;
 }

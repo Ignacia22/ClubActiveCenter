@@ -1,12 +1,16 @@
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { Payment } from 'src/Entities/Payment.entity';
 import { User } from 'src/Entities/User.entity';
 import { Order } from 'src/Entities/Order.entity';
 import { PaymentStatus } from './PaymentDTO/payment.dto';
 import { StatusOrder } from 'src/Order/OrderDTO/orders.dto';
+import { Reservation, ReservationStatus } from 'src/Entities/Reservation.entity';
+
+
 
 @Injectable()
 export class PaymentService {
@@ -19,7 +23,11 @@ export class PaymentService {
     private userRepository: Repository<User>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(Reservation)
+    private reservationRepository: Repository<Reservation>
   ) {
+
+
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
       throw new Error(
@@ -31,33 +39,34 @@ export class PaymentService {
       apiVersion: '2025-01-27.acacia',
     });
   }
-
-  async createCheckoutSession(
-    orderId: string,
-    userId: string,
-  ): Promise<string> {
+  async createCheckoutSession(orderId: string, userId: string): Promise<string> {
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
-      relations: ['products', 'user'],
+      relations: ['orderItems', 'orderItems.product', 'user'],
     });
 
     if (!order) throw new Error('Orden no encontrada');
+    if (!order.orderItems || order.orderItems.length === 0) {
+      throw new Error('La orden no tiene productos asociados.');
+    }
+
+    const lineItems = order.orderItems.map((item) => ({
+      price_data: {
+        currency: 'usd',
+        product_data: { name: item.product.name },
+        unit_amount: Math.round(item.product.price * 100),
+      },
+      quantity: item.quantity,
+    }));
 
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: order.products.map((product) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: { name: product.name },
-          unit_amount: Math.round(product.price * 100),
-        },
-        quantity: 1,
-      })),
+      line_items: lineItems,
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+      success_url: 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'http://localhost:3000/cancel',
       metadata: {
-        orderId: order.id,
+        orderId: orderId,
         userId: userId,
       },
     });
@@ -69,73 +78,156 @@ export class PaymentService {
     return session.url;
   }
 
-  async handleWebhook(req: any, sig: string) {
-    let event: Stripe.Event;
-
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    if (!webhookSecret) {
-      console.error(
-        'STRIPE_WEBHOOK_SECRET no está definido en las variables de entorno',
-      );
-      throw new Error(
-        'Webhook no puede ser validado debido a la configuración del entorno',
-      );
+  async createCheckoutSessionForReservation(reservationId: string): Promise<Stripe.Checkout.Session> {
+    const reservation = await this.reservationRepository.findOne({
+      where: { id: reservationId },
+      relations: ['spaces','user'],
+    });
+  
+    if (!reservation) {
+      throw new Error('Reserva no encontrada');
     }
+  
+    const user = reservation.user;
+    if (!user) {
+      throw new Error('Usuario no encontrado en la reserva');
+    }
+  
+  
+    const successUrl = 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = 'http://localhost:3000/cancel';
+  
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Reserva en ${reservation.spaces.title}`,
+              description: `Fecha: ${reservation.date} | Horario: ${reservation.startTime} - ${reservation.endTime}`,
+            },
+            unit_amount: reservation.price * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: successUrl,  
+      cancel_url: cancelUrl,  
+      metadata: {
+        reservationId: reservation.id,
+        userId: reservation.user.id,
+      },
+    });
+  
+    return session; 
+  }
+  
 
+  async handleWebhook(rawBody: string, sig: string) {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  
+    if (!webhookSecret) {
+      throw new Error('Webhook secret no está definido');
+    }
+  
+    let event: Stripe.Event;
+  
     try {
-      event = this.stripe.webhooks.constructEvent(
-        req.body as Buffer,
-        sig,
-        webhookSecret,
-      );
+      event = this.stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
     } catch (err) {
       console.error('Error validando el webhook:', err.message);
       throw new Error('Webhook no válido');
     }
-
+  
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-
-      const orderId = session.metadata?.orderId ?? '';
-      const userId = session.metadata?.userId ?? '';
-
-      if (!orderId || !userId) {
-        console.error('Metadata faltante en el webhook');
-        throw new Error('Orden o usuario no especificados en el webhook');
-      }
-
+  
+      const orderId = session.metadata?.orderId;
+      const userId = session.metadata?.userId;
+      const reservationId = session.metadata?.reservationId;
+  
       try {
-        const user = await this.userRepository.findOne({
-          where: { id: userId },
-        });
-        const order = await this.orderRepository.findOne({
-          where: { id: orderId },
-        });
-
-        if (!user || !order) {
-          console.error('Usuario u orden no encontrados en el webhook');
-          throw new Error('Usuario u orden no encontrados');
+        if (orderId && userId) {
+          await this.processOrderPayment(session, orderId, userId);
+        } else if (reservationId) {
+          await this.processReservationPayment(session, reservationId);
+        } else {
+          console.error('Metadata faltante en el webhook');
+          throw new Error('Orden, usuario o reserva no especificados en el webhook');
         }
-
-        const payment = this.paymentRepository.create({
-          amount: session.amount_total ? session.amount_total / 100 : 0,
-          currency: session.currency || 'usd',
-          paymentStatus: PaymentStatus.PAID,
-          user,
-          order,
-        });
-
-        await this.paymentRepository.save(payment);
-
-        order.status = StatusOrder.complete;
-        await this.orderRepository.save(order);
-
-        console.log('Pago registrado y orden completada');
       } catch (err) {
-        console.error('Error procesando el evento de webhook:', err.message);
-        throw new Error('Error al procesar el evento de webhook');
+        console.error('Error procesando el evento:', err.message);
+        throw new Error('Error procesando el evento');
       }
     }
   }
+  
+  private async processOrderPayment(session: Stripe.Checkout.Session, orderId: string, userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const order = await this.orderRepository.findOne({ where: { id: orderId } });
+  
+    if (!user || !order) {
+      console.error('Usuario u orden no encontrados en el webhook');
+      throw new Error('Usuario u orden no encontrados');
+    }
+  
+    const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : '';
+  
+    if (!paymentIntentId) {
+      console.error('Payment intent no disponible en el webhook');
+      throw new Error('Payment intent no disponible');
+    }
+  
+    const payment = this.paymentRepository.create({
+      amount: session.amount_total ? session.amount_total / 100 : 0,
+      currency: session.currency || 'usd',
+      paymentStatus: PaymentStatus.PAID,
+      user: { id: userId },
+      order: { id: orderId },
+      paymentIntentId: paymentIntentId,
+      reservationId: session.metadata?.reservationId || null,  
+    });
+  
+    await this.paymentRepository.save(payment);
+    order.status = StatusOrder.complete;
+    await this.orderRepository.save(order);
+  }
+  
+  private async processReservationPayment(session: Stripe.Checkout.Session, reservationId: string) {
+   
+    const reservation = await this.reservationRepository.findOne({
+      where: { id: reservationId },
+      relations: ['user'],
+    });
+  
+    if (!reservation) {
+      console.error('Reserva no encontrada en el webhook');
+      throw new Error('Reserva no encontrada');
+    }
+  
+    const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : '';
+  
+    if (!paymentIntentId) {
+      console.error('Payment intent no disponible en el webhook');
+      throw new Error('Payment intent no disponible');
+    }
+  
+    const payment = this.paymentRepository.create({
+      amount: session.amount_total ? session.amount_total / 100 : 0,
+      currency: session.currency || 'usd',
+      paymentStatus: PaymentStatus.PAID,
+      reservation: reservation,
+      user: reservation.user,
+      paymentIntentId: paymentIntentId,
+      reservationId: reservationId, 
+    });
+  
+    await this.paymentRepository.save(payment);
+    reservation.status = ReservationStatus.CONFIRMED;
+    await this.reservationRepository.save(reservation);
+  }
+  
+  
 }

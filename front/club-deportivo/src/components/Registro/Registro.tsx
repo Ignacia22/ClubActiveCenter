@@ -1,16 +1,20 @@
 "use client";
 import React, { useState } from "react";
-import { AuthService } from "@/service/auth";
+import { AuthService } from "@/service/AuthService.ts";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation"; // ✅ Importa el router para la redirección
 
 const Register = () => {
+  const router = useRouter(); // ✅ Inicializa el router
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    phone: "+549",
     address: "",
     dni: "",
     password: "",
+    passwordConfirmation: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -24,35 +28,39 @@ const Register = () => {
   };
 
   const validateForm = () => {
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.address ||
-      !formData.dni ||
-      !formData.password
-    ) {
+    if (Object.values(formData).some((value) => !value)) {
       setError("Todos los campos son obligatorios.");
       return false;
     }
-    if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
-      setError("El nombre solo debe contener letras.");
+    if (!/^[a-zA-ZÀ-ÿ\s']+$/.test(formData.name)) {
+      setError("El nombre solo debe contener letras, espacios o apóstrofes.");
       return false;
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
       setError("Por favor, ingresa un correo electrónico válido.");
       return false;
     }
-    if (!/^\d{10}$/.test(formData.phone)) {
-      setError("El número de teléfono debe tener 10 dígitos.");
+    if (
+      !/^\+?\d{1,4}[-\s]?\(?\d{1,5}\)?[-\s]?\d{4,9}$/.test(formData.phone) ||
+      formData.phone.length > 20
+    ) {
+      setError(
+        "El número de teléfono no es válido o excede los 20 caracteres."
+      );
       return false;
     }
-    if (isNaN(Number(formData.dni)) || formData.dni.length < 7) {
-      setError("El DNI debe ser un número válido con al menos 7 dígitos.");
+    if (!/^\d{7,10}$/.test(formData.dni)) {
+      setError("El DNI debe tener entre 7 y 10 dígitos.");
       return false;
     }
-    if (formData.password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+    if (!/(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}/.test(formData.password)) {
+      setError(
+        "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial."
+      );
+      return false;
+    }
+    if (formData.password !== formData.passwordConfirmation) {
+      setError("Las contraseñas no coinciden.");
       return false;
     }
     setError(null);
@@ -65,30 +73,46 @@ const Register = () => {
     if (!validateForm()) return;
 
     try {
-      await AuthService.register({
+      const response = await AuthService.register({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address,
+        address: formData.address || " ",
         dni: Number(formData.dni),
         password: formData.password,
+        passwordConfirmation: formData.passwordConfirmation,
       });
 
-      Swal.fire({
-        icon: "success",
-        title: "Registro exitoso",
-        text: "¡Bienvenido a nuestra comunidad!",
-      });
+      console.log("✅ Usuario registrado con éxito:", response);
 
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        dni: "",
-        password: "",
-      });
-    } catch {
+      if (response?.id) {
+        Swal.fire({
+          icon: "success",
+          title: "Registro exitoso",
+          text: "¡Bienvenido a nuestra comunidad!",
+          confirmButtonText: "Ir al Login",
+        }).then(() => {
+          router.push("/Login2"); // ✅ Redirige a /Login2 después de cerrar la alerta
+        });
+
+        setFormData({
+          name: "",
+          email: "",
+          phone: "+549",
+          address: "",
+          dni: "",
+          password: "",
+          passwordConfirmation: "",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error en el registro",
+          text: "El servidor no creó el usuario. Revisa los datos ingresados.",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Error en el registro:", error);
       Swal.fire({
         icon: "error",
         title: "Error al registrar usuario",
@@ -109,81 +133,27 @@ const Register = () => {
 
         {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
 
-        <div className="mb-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nombre:"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Correo electrónico:"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            name="phone"
-            placeholder="Número de teléfono:"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            name="address"
-            placeholder="Dirección:"
-            value={formData.address}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="text"
-            name="dni"
-            placeholder="DNI/Documento:"
-            value={formData.dni}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="password"
-            name="password"
-            placeholder="Contraseña:"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
-        </div>
+        {Object.keys(formData).map((field) => (
+          <div className="mb-4" key={field}>
+            <input
+              type={field.includes("password") ? "password" : "text"}
+              name={field}
+              placeholder={
+                field === "passwordConfirmation"
+                  ? "passwordConfirmation:"
+                  : field.charAt(0).toUpperCase() + field.slice(1) + ":"
+              }
+              value={formData[field as keyof typeof formData]}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-black text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+              required
+            />
+          </div>
+        ))}
 
         <button
           type="submit"
-          className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-700 transition font-bold"
+          className="w-full bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600 transition font-bold"
         >
           REGÍSTRATE
         </button>

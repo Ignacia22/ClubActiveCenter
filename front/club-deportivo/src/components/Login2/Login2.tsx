@@ -1,9 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthService } from "@/service/authservices";
+import { AuthService } from "@/service/authservices"; // Asegúrate de que esté correctamente importado
 import Swal from "sweetalert2";
-
 import Link from "next/link";
 
 const Login = () => {
@@ -30,14 +29,27 @@ const Login = () => {
       return;
     }
     try {
-      await AuthService.login(formData);
-      Swal.fire({
-        icon: "success",
-        title: "Inicio de sesión exitoso",
-        text: "Bienvenido de nuevo!",
-      });
-      router.push("/home");
-    } catch {
+      // Llamamos al servicio de login
+      const response = await AuthService.login(formData);
+
+      if (response && response.userInfo && response.token) {
+        // Guardamos los datos del usuario y el token en localStorage
+        localStorage.setItem("user", JSON.stringify(response.userInfo));
+        localStorage.setItem("token", response.token);
+
+        Swal.fire({
+          icon: "success",
+          title: "Inicio de sesión exitoso",
+          text: "Bienvenido de nuevo!",
+        });
+
+        // Redirigimos al usuario a la página principal
+        router.push("/home");
+      } else {
+        setError("Hubo un problema con la autenticación.");
+      }
+    } catch (error) {
+      console.error("Error en el login:", error); // Muestra el error en la consola (solo para desarrolladores)
       Swal.fire({
         icon: "error",
         title: "Error al iniciar sesión",
@@ -48,16 +60,9 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <Link
-        href="/api/auth/login"
-        className="block px-3 py-2 hover:bg-gray-700 rounded"
-      >
-        Iniciar sesión
-      </Link>
-
       <form
         onSubmit={handleSubmit}
-        className="bg-black bg-opacity-80 p-8 rounded-lg shadow-md w-full max-w-md"
+        className="bg-black bg-opacity-80 p-8 rounded-lg shadow-md w-full max-w-lg"
       >
         <h2 className="text-3xl font-bold mb-6 text-white text-center">
           Iniciar Sesión
@@ -96,7 +101,15 @@ const Login = () => {
           INICIAR SESIÓN
         </button>
 
-        {/* UserMenu con estilos ajustados */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-400">O inicia sesión con tu cuenta Gmail:</p>
+          <Link
+            href="/api/auth/login"
+            className="inline-block mt-2 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition"
+          >
+            Iniciar sesión con Gmail
+          </Link>
+        </div>
       </form>
     </div>
   );
