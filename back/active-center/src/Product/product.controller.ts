@@ -34,7 +34,6 @@ export class ProductController {
       const limitNumber = limit || 5;
       return await this.productService.getProduct(pageNumber, limitNumber);
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al obtener los productos.',
         error.message || error,
@@ -53,7 +52,6 @@ export class ProductController {
       const product = await this.productService.createProduct(createProductDto);
       return product;
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al crear el producto.',
         error.message || error,
@@ -71,7 +69,6 @@ export class ProductController {
       }
       return product;
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al obtener el producto.',
         error.message || error,
@@ -97,7 +94,6 @@ export class ProductController {
       }
       return updatedProduct;
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al actualizar el producto.',
         error.message || error,
