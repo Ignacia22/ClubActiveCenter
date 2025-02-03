@@ -28,7 +28,7 @@ export function UserMenu() {
             {user ? (
               <>
                 <Link
-                  href="/profile"
+                  href="/userDashboard"
                   className="block px-3 py-2 hover:bg-gray-700 rounded"
                 >
                   Perfil
@@ -43,16 +43,22 @@ export function UserMenu() {
             ) : (
               <>
                 <Link
-                  href="/api/auth/login"
+                  href="/Login2"
                   className="block px-3 py-2 hover:bg-gray-700 rounded"
                 >
                   Iniciar sesión
                 </Link>
                 <Link
-                  href="/register"
+                  href="/registro"
                   className="block px-3 py-2 hover:bg-gray-700 rounded"
                 >
                   Registrarse
+                </Link>
+                <Link
+                  href="/home "
+                  className="block px-3 py-2 hover:bg-gray-700 rounded"
+                >
+                  Cerrar sesion
                 </Link>
               </>
             )}

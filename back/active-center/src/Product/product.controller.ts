@@ -70,7 +70,6 @@ async getProduct(
       const product = await this.productService.createProduct(createProductDto);
       return product;
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al crear el producto.',
         error.message || error,
@@ -88,7 +87,6 @@ async getProduct(
       }
       return product;
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al obtener el producto.',
         error.message || error,
@@ -114,7 +112,6 @@ async getProduct(
       }
       return updatedProduct;
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Error al actualizar el producto.',
         error.message || error,

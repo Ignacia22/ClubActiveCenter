@@ -1,79 +1,73 @@
 "use client";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
 
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { IUser } from "../interface/IUser";
-import { ILogin } from "../interface/ILogin";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+// Interfaz de usuario
+interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
+}
 
 interface AuthContextType {
   user: IUser | null;
-  isAuthenticated: boolean;
-  login: (form: ILogin) => void;
+  login: (data: IUser) => void;
   logout: () => void;
-  token: string | null;
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  login: () => {},
-  logout: () => {},
-  isAuthenticated: false,
-  token: null,
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<IUser | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
 
+  // Verificar si hay datos guardados en localStorage al cargar el componente
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-    if (user && token) {
-      setUser(JSON.parse(user));
-      setToken(token);
-      setIsAuthenticated(true);
-    } else {
-      setUser(null);
-      setIsAuthenticated(false);
-      setToken(null);
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedUser && storedToken) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser); // Cargar usuario desde localStorage
+      } catch (error) {
+        console.error("Error al parsear el usuario desde localStorage:", error);
+        // Eliminar datos corruptos de localStorage si no se puede parsear
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
   }, []);
 
-  const login = async (form: ILogin) => {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/login`,
-      form
-    );
-    setUser(response.data.user);
-    setToken(response.data.token);
-
-    setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(response.data.user));
-    localStorage.setItem("token", response.data.token);
-    router.push("/Home");
+  // Función de login
+  const login = (data: IUser) => {
+    setUser(data); // Actualiza el estado del usuario
+    localStorage.setItem("user", JSON.stringify(data)); // Guarda el usuario en localStorage
+    localStorage.setItem("token", data.token); // Guarda el token si es necesario
   };
 
-  const logout = async () => {
-    setUser(null);
-    setIsAuthenticated(false);
+  // Función de logout
+  const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    router.push("/Home");
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated, token }}
-    >
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
+// Hook para acceder al contexto
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
+  }
   return context;
 };
