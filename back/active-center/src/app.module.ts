@@ -16,6 +16,8 @@ import { ConfigModule } from '@nestjs/config';
 import { SeederModule } from './Seeder/seeder.module';
 import { CartModule } from './Cart/cart.module';
 import { SpaceModule } from './Space/space.module';
+import { ActivityModule } from './Activity/activity.module';
+
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { SpaceModule } from './Space/space.module';
     ConfigModule,
     CartModule,
     SpaceModule,
+    ActivityModule,
   ],
   controllers: [],
   providers: [{provide: APP_GUARD, useClass: AuthGuard}],

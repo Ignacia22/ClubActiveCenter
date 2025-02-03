@@ -7,6 +7,7 @@ import { UserService } from 'src/User/user.service';
 import { Space } from 'src/Entities/Space.entity';
 import { SpaceService } from 'src/Space/space.service';
 import { PaymentService } from 'src/Payment/payment.service';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 
 
 @Injectable()
@@ -15,7 +16,8 @@ export class ReservationService {
     @InjectRepository(Space) private spaceRepository:Repository<Space>,
     private paymentService: PaymentService,
     private userService:UserService,
-    private spaceService:SpaceService,){}
+    private spaceService:SpaceService,
+    private readonly sendgridService: SendGridService){}
 
 
     async allReservations() {
@@ -74,6 +76,8 @@ export class ReservationService {
       });
     
       await this.reservationRepository.save(newReservation);
+
+      
     
       const paymentSession = await this.paymentService.createCheckoutSessionForReservation(newReservation.id);
     
@@ -91,6 +95,9 @@ export class ReservationService {
         price: newReservation.price,
         user: user.name,
         paymentLink: paymentSession.url,
-      };
-    }
+      }
+     
+      
+        
   }
+}

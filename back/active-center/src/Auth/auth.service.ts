@@ -22,6 +22,7 @@ import {
 } from 'src/User/UserDTO/users.dto';
 import {
   BanDTOResponse,
+  LoginDTO,
   RefreshTokenDTO,
   SingInDTOResponse,
   TokenRefreshPayloadDTO,
@@ -251,7 +252,7 @@ export class AuthService {
         };
   }
 
-  async login(email: string) {
+  async login({ email } : LoginDTO) {
     const user: User | null = await this.userService.getUserByEmail(email);
     if (!user || user.userStatus === UserStatus.delete)
       throw new NotFoundException('No existe el usuario.');

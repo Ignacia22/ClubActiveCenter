@@ -226,7 +226,7 @@ export class RegisterUserDTO {
   @ApiProperty({
     description:
       'El Documento Nacional de Identidad (DNI) del usuario, utilizado como identificación oficial.',
-    example: 12345678,
+    example: 12345778,
   })
   @IsNumber({}, { message: 'El DNI debe ser un número entero válido.' })
   @IsNotEmpty({ message: 'El DNI es obligatorio y no puede estar vacío.' })
@@ -501,3 +501,14 @@ export class UserDTOResponse {
   })
   userStatus: string;
 }
+
+export interface UserFilters {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  dni?: number;
+  userStatus?: string;
+  isAdmin?: string;
+}
+

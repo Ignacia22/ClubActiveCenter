@@ -15,6 +15,7 @@ import {
   UserDTOPage,
   UserDTOREsponseGet,
   UserDTOResponseId,
+  UserFilters,
   UserStatus,
 } from './UserDTO/users.dto';
 import { SALT } from 'src/config/config.envs';
@@ -26,24 +27,48 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async getAllUsers(page: number, limit: number): Promise<UserDTOPage> {
+  async getAllUsers(page: number, limit: number, filters: UserFilters): Promise<UserDTOPage> {
     try {
-      const users: User[] = await this.userRepository.find();
-
-      if (!users) throw new NotFoundException('No sé encontro ningún usuario');
-
+      const query = this.userRepository.createQueryBuilder('user');
+  
+      if (filters?.name) {
+        query.andWhere('user.name LIKE :name', { name: `%${filters.name}%` });
+      }
+      if (filters?.email) {
+        query.andWhere('user.email LIKE :email', { email: `%${filters.email}%` });
+      }
+      if (filters?.phone) {
+        query.andWhere('user.phone LIKE :phone', { phone: `%${filters.phone}%` });
+      }
+      if (filters?.address) {
+        query.andWhere('user.address LIKE :address', { address: `%${filters.address}%` });
+      }
+      if (filters?.dni) {
+        query.andWhere('user.dni = :dni', { dni: filters.dni });
+      }
+      if (filters?.userStatus) {
+        query.andWhere('user.userStatus = :userStatus', { userStatus: filters.userStatus });
+      }
+      if (filters?.isAdmin !== undefined) {
+        query.andWhere('user.isAdmin = :isAdmin', { isAdmin: filters.isAdmin });
+      }
+  
+      const users: User[] = await query.getMany();
+  
+      if (!users) throw new NotFoundException('No se encontró ningún usuario');
+  
       const partialUsers: UserDTOREsponseGet[] = users.map((user) => {
         const { password, ...partialUser } = user;
         return partialUser;
       });
-
+  
       const totalItems: number = users.length;
       const maxPages: number = Math.ceil(totalItems / limit);
       const currentPage: number = Math.min(Math.max(1, page), maxPages);
       const init: number = (currentPage - 1) * limit;
       const end: number = Math.min(currentPage * limit, totalItems);
       const getUsers: UserDTOREsponseGet[] = partialUsers.slice(init, end);
-
+  
       const Page: UserDTOPage = {
         infoPage: {
           totalItems,
@@ -53,13 +78,12 @@ export class UserService {
         },
         users: getUsers,
       };
-
+  
       return Page;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
-
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
       const user: User | null = await this.userRepository.findOne({

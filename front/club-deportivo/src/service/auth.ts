@@ -1,46 +1,50 @@
-import { IRegisterData } from "@/interface/IRegisterData";
-import axios from "axios";
+import Swal from "sweetalert2";
 
-const BASE_URL = "https://active-center-db.onrender.com";
+const BASE_URL = "http://localhost:3001";
+
+interface RegisterData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  dni: number;
+  password: string;
+  passwordConfirmation: string;
+}
 
 export const AuthService = {
-  async register(data: IRegisterData): Promise<void> {
+  async register(data: RegisterData): Promise<void> {
     try {
-      const response = await axios.post(`${BASE_URL}/auth/SignUp`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await fetch(`${BASE_URL}/auth/SignUp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
-      return response.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          "Error al registrar usuario:",
-          error.response?.data?.message || error.message
-        );
+      const result = await response.json();
 
-        if (error.response) {
-          const errorMessage =
-            error.response.data?.message || "Error desconocido";
-          if (errorMessage.includes("duplicate key")) {
-            if (errorMessage.includes("email")) {
-              alert("El correo electrónico ya está registrado.");
-            } else if (errorMessage.includes("dni")) {
-              alert("El DNI ya está registrado.");
-            } else {
-              alert("El correo electrónico o el DNI ya están registrados.");
-            }
-          } else {
-            alert(`Error al registrar el usuario: ${errorMessage}`);
-          }
-        } else {
-          alert("Hubo un error al registrar el usuario. Intenta nuevamente.");
-        }
+      console.log("✅ Respuesta completa:", result);
+
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Registro exitoso",
+          text: "¡Bienvenido a nuestra comunidad!",
+        });
       } else {
-        console.error("Error inesperado:", error);
-        alert("Ocurrió un error inesperado. Intenta nuevamente.");
+        Swal.fire({
+          icon: "error",
+          title: "Error en el registro",
+          text: result.message || "Hubo un problema. Inténtalo más tarde.",
+        });
       }
+    } catch (error) {
+      console.error("❌ Error en la API:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error desconocido",
+        text: "Hubo un error al conectar con el servidor.",
+      });
     }
   },
 };

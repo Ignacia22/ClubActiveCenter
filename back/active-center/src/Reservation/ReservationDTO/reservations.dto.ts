@@ -14,11 +14,6 @@ export class CreateReservationDto {
         example: "cancha de futbol"
     })
     spaceName: string;
-    
-    @IsUUID()
-    @IsString()
-    userId:string;
-
 
     @IsInt()
     @ApiProperty({
