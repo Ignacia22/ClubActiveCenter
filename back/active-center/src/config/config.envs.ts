@@ -47,3 +47,19 @@ export const dbConfig = {
 
 export const SALT: number = data.SALT ? parseInt(data.SALT, 10) : 10;
 export const SECRET_SECRET_WORD: string | undefined = data.SECRET_WORD;
+
+const AUTHREQUIRED: boolean = Boolean(data.AUTHREQUIRED);
+const AUTH0LOGOUT: boolean = Boolean(data.AUTH0LOGOUT)
+const SECRET: string | undefined = data.SECRET;
+const BASEURL: string | undefined = data.BASEURL;
+const CLIENTID: string | undefined = data.CLIENTID;
+const ISSUERBASEURL: string | undefined = data.ISSUERBASEURL;
+
+export const config0 = {
+  authRequired: AUTHREQUIRED,
+  auth0Logout: AUTH0LOGOUT,
+  secret: SECRET,
+  baseURL: BASEURL,
+  clientID: CLIENTID,
+  issuerBaseURL: ISSUERBASEURL
+};
