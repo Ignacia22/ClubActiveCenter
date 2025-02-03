@@ -7,7 +7,7 @@ import { UserService } from 'src/User/user.service';
 import { Space } from 'src/Entities/Space.entity';
 import { SpaceService } from 'src/Space/space.service';
 import { PaymentService } from 'src/Payment/payment.service';
-import { SendGridService } from 'src/SendGrid/sendGrid.service';
+
 
 
 @Injectable()
@@ -17,7 +17,7 @@ export class ReservationService {
     private paymentService: PaymentService,
     private userService:UserService,
     private spaceService:SpaceService,
-    private readonly sendgridService: SendGridService){}
+    ){}
 
 
     async allReservations() {
