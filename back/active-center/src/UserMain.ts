@@ -1,3 +1,5 @@
+import { Role } from "./User/UserDTO/Role.enum";
+
 export const userMAin = {
   name: 'Main',
   email: 'main.12321@gmail.com',
@@ -5,4 +7,5 @@ export const userMAin = {
   phone: '+549197750879',
   address: 'Calle Falsa 123, Ciudad Ficticia',
   dni: 12345678,
+  userStatus: Role.admin
 };
