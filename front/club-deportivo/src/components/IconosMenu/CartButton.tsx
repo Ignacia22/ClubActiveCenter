@@ -1,6 +1,5 @@
-'use client';
+"use client"
 
-import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ShoppingCart, X } from 'lucide-react';
 import Link from 'next/link';
@@ -8,11 +7,10 @@ import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 
 export function CartButton() {
-  const [open, setOpen] = useState(false);
-  const { items, itemCount, getCartTotal } = useCart();
+  const { items, itemCount, getCartTotal, setIsOpen, isOpen } = useCart();
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <Dialog.Trigger asChild>
         <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
           <ShoppingCart className="h-6 w-6 text-white" />
@@ -33,10 +31,10 @@ export function CartButton() {
                 Tu Carrito ({itemCount})
               </Dialog.Title>
               <div className="flex items-center gap-4">
-                <Link 
+                <Link
                   href="/cart"
                   className="text-sm text-white hover:text-white/80 transition-colors"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setIsOpen(false)}
                 >
                   Ver carrito
                 </Link>
@@ -57,8 +55,8 @@ export function CartButton() {
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4 bg-white/5 p-4 rounded-lg">
                       <div className="relative w-16 h-16">
-                        <Image 
-                          src={item.image} 
+                        <Image
+                          src={item.image}
                           alt={item.name}
                           fill
                           className="object-cover rounded"
@@ -90,7 +88,7 @@ export function CartButton() {
                 <Link
                   href="/checkout"
                   className="block w-full text-center bg-white text-black py-2 px-4 rounded-md hover:bg-white/90 transition-colors"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setIsOpen(false)}
                 >
                   Proceder al pago
                 </Link>
