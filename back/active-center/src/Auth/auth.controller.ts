@@ -21,6 +21,7 @@ import {
 } from 'src/User/UserDTO/users.dto';
 import {
   BanDTOResponse,
+  LoginDTO,
   RefreshTokenDTO,
   SingInDTOResponse,
 } from './AuthDTO/auths.dto';
@@ -121,7 +122,7 @@ export class AuthController {
       'Este endpoint permite validar a un usuario solo por email. Esta ruta esta hecha para el uso de auth0.',
     summary: 'sign in con auth0.',
   })
-  async login(@Body() email: string): Promise<SingInDTOResponse> {
+  async login(@Body() email: LoginDTO): Promise<SingInDTOResponse> {
     return await this.authService.login(email);
   }
 }
