@@ -253,10 +253,7 @@ export class AuthService {
   }
 
   async login({ email } : LoginDTO) {
-    console.log(email);
     const user: User | null = await this.userService.getUserByEmail(email);
-    console.log(user);
-    
     if (!user || user.userStatus === UserStatus.delete)
       throw new NotFoundException('No existe el usuario.');
     const token: string = this.jwtService.sign({
