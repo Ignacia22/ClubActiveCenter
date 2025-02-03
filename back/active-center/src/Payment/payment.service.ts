@@ -1,7 +1,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import {Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { Payment } from 'src/Entities/Payment.entity';
 import { User } from 'src/Entities/User.entity';
@@ -9,7 +9,7 @@ import { Order } from 'src/Entities/Order.entity';
 import { PaymentStatus } from './PaymentDTO/payment.dto';
 import { StatusOrder } from 'src/Order/OrderDTO/orders.dto';
 import { Reservation, ReservationStatus } from 'src/Entities/Reservation.entity';
-import stripe from 'stripe';
+
 
 
 @Injectable()
@@ -88,7 +88,6 @@ export class PaymentService {
       throw new Error('Reserva no encontrada');
     }
   
-    // Asegúrate de que el usuario esté presente
     const user = reservation.user;
     if (!user) {
       throw new Error('Usuario no encontrado en la reserva');
@@ -144,7 +143,6 @@ export class PaymentService {
   
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      console.log('Pago completado', session);
   
       const orderId = session.metadata?.orderId;
       const userId = session.metadata?.userId;
@@ -159,8 +157,6 @@ export class PaymentService {
           console.error('Metadata faltante en el webhook');
           throw new Error('Orden, usuario o reserva no especificados en el webhook');
         }
-  
-        console.log('Pago registrado correctamente');
       } catch (err) {
         console.error('Error procesando el evento:', err.message);
         throw new Error('Error procesando el evento');
@@ -200,8 +196,7 @@ export class PaymentService {
   }
   
   private async processReservationPayment(session: Stripe.Checkout.Session, reservationId: string) {
-    console.log('Buscando reserva con ID:', reservationId);
-  
+   
     const reservation = await this.reservationRepository.findOne({
       where: { id: reservationId },
       relations: ['user'],
@@ -226,7 +221,7 @@ export class PaymentService {
       reservation: reservation,
       user: reservation.user,
       paymentIntentId: paymentIntentId,
-      reservationId: reservationId,  // Solo asignamos reservationId si está disponible
+      reservationId: reservationId, 
     });
   
     await this.paymentRepository.save(payment);

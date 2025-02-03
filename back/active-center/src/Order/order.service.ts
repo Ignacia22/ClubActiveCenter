@@ -28,7 +28,6 @@ export class OrderService {
 async convertCartToOrder(userId: string): Promise<{ order: Order, checkoutUrl: string }> {
     
   const cart = await this.cartService.getCart(userId);
-  console.log(cart);
   
   
   if (!cart || cart.items.length === 0) {
@@ -109,8 +108,6 @@ await this.cartItemRepository.delete({ cart: cart });
 
 
 await this.cartRepository.save(cart);
-console.log(cart);
-
 
   return {
       order,

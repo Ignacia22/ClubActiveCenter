@@ -26,15 +26,10 @@ export class PaymentController {
   ) {
     try {
       const rawBody = req.rawBody;
-      console.log('Firma recibida:', sig);
-      console.log('Cuerpo del evento recibido:', rawBody);
-
-
       await this.paymentService.handleWebhook(rawBody, sig);
 
       res.status(200).send('Webhook recibido');
     } catch (err) {
-      console.error('Error en webhook:', err.message);
       res.status(400).send(`Webhook Error: ${err.message}`);
     }
   }
