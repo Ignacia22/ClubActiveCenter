@@ -20,11 +20,9 @@ export class Payment {
     nullable: false,
   })
   user: User;
-  
+
   @Column()
   userId: string;
-
-
 
   @ManyToOne(() => Order, (order) => order.payments, {
     eager: true,
@@ -53,4 +51,3 @@ export class Payment {
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
   paymentStatus: PaymentStatus;
 }
-

@@ -139,7 +139,6 @@ export class BanDTOResponse {
 }
 
 export class LoginDTO {
-
   @ApiProperty({
     description:
       'La dirección de correo electrónico única del usuario, utilizada para el inicio de sesión y notificaciones.',

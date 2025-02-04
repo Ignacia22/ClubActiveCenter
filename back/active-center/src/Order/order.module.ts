@@ -13,9 +13,13 @@ import { CartItem } from 'src/Entities/CartItem.entity';
 import { Cart } from 'src/Entities/Cart.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order,Product,User,OrderItem,CartItem,Cart]),CartModule,forwardRef(() => PaymentModule)],
+  imports: [
+    TypeOrmModule.forFeature([Order, Product, User, OrderItem, CartItem, Cart]),
+    CartModule,
+    forwardRef(() => PaymentModule),
+  ],
   controllers: [OrderController],
   providers: [OrderService],
-  exports:[OrderService]
+  exports: [OrderService],
 })
 export class OrderModule {}

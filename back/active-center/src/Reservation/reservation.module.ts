@@ -10,11 +10,12 @@ import { User } from 'src/Entities/User.entity';
 import { SpaceService } from 'src/Space/space.service';
 import { PaymentModule } from 'src/Payment/payment.module';
 
-
-
 @Module({
-  imports:[TypeOrmModule.forFeature([Reservation,Space,User]),PaymentModule],
+  imports: [
+    TypeOrmModule.forFeature([Reservation, Space, User]),
+    PaymentModule,
+  ],
   controllers: [ReservationController],
-  providers: [ReservationService,UserService,SpaceService,],
+  providers: [ReservationService, UserService, SpaceService],
 })
 export class ReservationModule {}
