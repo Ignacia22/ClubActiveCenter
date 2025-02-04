@@ -1,14 +1,16 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/auth/SignIn"; // URL del backend local
-
 export const AuthService = {
   async login(credentials: { email: string; password: string }) {
     try {
       // Realizamos la solicitud POST al backend con las credenciales
-      const response = await axios.post(API_URL, credentials, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, // Ruta corregida
+        credentials,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       // Verificamos si la respuesta contiene el token y la información del usuario
       if (response.data?.token && response.data?.userInfo) {
