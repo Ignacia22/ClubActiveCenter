@@ -6,6 +6,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+
 export function UserMenu() {
   const router = useRouter();
   const [localUser, setLocalUser] = useState<boolean>(false);
