@@ -114,10 +114,10 @@ export class AuthService {
       this.userRepository.save({ ...validate, userStatus: UserStatus.active });
       const {
         dni,
+        cart,
         orders,
         password,
         updateUser,
-        isAdmin,
         reservations,
         createUser,
         activities,
@@ -252,7 +252,7 @@ export class AuthService {
         };
   }
 
-  async login({ email }: LoginDTO) {
+  async login({ email }: LoginDTO): Promise<SingInDTOResponse> {
     const user: User | null = await this.userService.getUserByEmail(email);
     if (!user || user.userStatus === UserStatus.delete)
       throw new NotFoundException('No existe el usuario.');
@@ -266,10 +266,10 @@ export class AuthService {
     this.userRepository.save({ ...user, userStatus: UserStatus.active });
     const {
       dni,
+      cart,
       orders,
       password,
       updateUser,
-      isAdmin,
       reservations,
       createUser,
       activities,

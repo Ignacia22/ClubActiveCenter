@@ -38,6 +38,12 @@ class UserInfoDTO {
   address?: string;
 
   @ApiProperty({
+    description: 'Indica si el usuario es Administrador.',
+    example: false,
+  })
+  isAdmin?: boolean;
+
+  @ApiProperty({
     description:
       'Estado actual del usuario dentro del sistema. Los valores posibles incluyen "active" (activo), "inactive" (inactivo), "banned" (prohibido), entre otros. Este estado determina el nivel de acceso del usuario.',
     example: 'active',
