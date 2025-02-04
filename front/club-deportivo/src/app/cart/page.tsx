@@ -43,7 +43,7 @@ export default function CartPage() {
               className="flex items-center justify-between p-4 bg-white rounded-lg shadow"
             >
               <div className="flex items-center space-x-4">
-                <div className="relative w-24 h-24">
+                <div className="relative w-24 h-24 text-black">
                   <Image 
                     src={item.image} 
                     alt={item.name}
@@ -52,8 +52,8 @@ export default function CartPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-medium">{item.name}</h3>
-                  <p className="text-gray-600">${item.price.toFixed(2)}</p>
+                  <h3 className="font-medium text-black">{item.name}</h3>
+                  <p className="text-gray-600">${Number(item.price).toFixed(2)}</p>
                   {item.quantity >= item.stock && (
                     <p className="text-yellow-500 text-xs mt-1">
                       Stock máximo: {item.stock}
@@ -99,21 +99,21 @@ export default function CartPage() {
         {/* Resumen del pedido */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow p-6 sticky top-24">
-            <h2 className="text-lg font-bold mb-4">Resumen del pedido</h2>
+            <h2 className="text-lg font-bold mb-4 text-black">Resumen del pedido</h2>
             
             <div className="space-y-2 mb-4">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span>{item.name} (x{item.quantity})</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className='text-black'>{item.name} (x{item.quantity})</span>
+                  <span className='text-black'>${Number(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
 
             <div className="border-t pt-4 mb-6">
               <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>${getCartTotal().toFixed(2)}</span>
+                <span className='text-black'>Total</span>
+                <span>${Number(getCartTotal()).toFixed(2)}</span>
               </div>
             </div>
 
@@ -125,7 +125,7 @@ export default function CartPage() {
             </Link>
             
             <Link
-              href="/"
+              href="/tienda"
               className="block w-full text-center mt-4 text-sm text-gray-600 hover:text-black"
             >
               Continuar comprando
