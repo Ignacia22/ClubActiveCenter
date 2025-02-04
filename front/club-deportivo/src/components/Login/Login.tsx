@@ -9,24 +9,24 @@ export default function Login() {
   useEffect(() => {
     // Este código solo se ejecutará en el cliente
     const handleLogout = () => {
-      window.location.href = '/api/auth/logout';
+      window.location.href = "/api/auth/logout";
     };
 
     const handleLogin = () => {
-      window.location.href = '/api/auth/login';
+      window.location.href = "/api/auth/login";
     };
 
     // Añade event listeners a los botones
-    const logoutButton = document.getElementById('logoutButton');
-    const loginButton = document.getElementById('loginButton');
+    const logoutButton = document.getElementById("logoutButton");
+    const loginButton = document.getElementById("loginButton");
 
-    if (logoutButton) logoutButton.addEventListener('click', handleLogout);
-    if (loginButton) loginButton.addEventListener('click', handleLogin);
+    if (logoutButton) logoutButton.addEventListener("click", handleLogout);
+    if (loginButton) loginButton.addEventListener("click", handleLogin);
 
     // Limpieza
     return () => {
-      if (logoutButton) logoutButton.removeEventListener('click', handleLogout);
-      if (loginButton) loginButton.removeEventListener('click', handleLogin);
+      if (logoutButton) logoutButton.removeEventListener("click", handleLogout);
+      if (loginButton) loginButton.removeEventListener("click", handleLogin);
     };
   }, []);
 
