@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function UserMenu() {
-  const { user, error, isLoading } = useUser();
   const router = useRouter();
   const [localUser, setLocalUser] = useState<boolean>(false);
 
@@ -17,7 +16,10 @@ export function UserMenu() {
     setLocalUser(!!storedUser);
   }, []);
 
-  if (isLoading) return <div className="text-white">Cargando...</div>;
+  const { user, error } = useUser();
+
+
+ 
   if (error) return <div className="text-red-500">{error.message}</div>;
 
   const handleLogout = () => {
