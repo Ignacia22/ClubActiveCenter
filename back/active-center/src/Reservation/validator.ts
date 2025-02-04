@@ -21,13 +21,37 @@ export class MinTwoHoursDifference implements ValidatorConstraintInterface {
           const startTotalMinutes = startH * 60 + startM;
           const endTotalMinutes = endH * 60 + endM;
       
-          return endTotalMinutes - startTotalMinutes >= 120;
+         return endTotalMinutes - startTotalMinutes >= 120;
 
         }
         
         defaultMessage(validationArguments:ValidationArguments) {
-          return `el horario minimo de reserva es de al menos 2 horas`;
+          return `el horario minimo de reserva es de 2 horas`;
         }
 
 
 }
+
+@ValidatorConstraint({name:  'isEndTimeGreater', async:false})
+export class IsEndTimeGreaterThanStartTime implements ValidatorConstraintInterface{
+  validate(endTime: any, validationArguments: ValidationArguments): Promise<boolean> | boolean {
+
+        const { startTime } = validationArguments.object as any;
+        if(!startTime || !endTime)return false;
+
+        const [startH, startM] = startTime.split(':').map(Number);
+          const [endH, endM] = endTime.split(':').map(Number);
+
+          const startTotalMinutes = startH * 60 + startM;
+          const endTotalMinutes = endH * 60 + endM;
+
+          return endTotalMinutes >= startTotalMinutes;
+
+  }
+
+  defaultMessage(validationArguments: ValidationArguments): string {
+    return "el tiempo final debe ser mayor"
+  }
+  
+}
+
