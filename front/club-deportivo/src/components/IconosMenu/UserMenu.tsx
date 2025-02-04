@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useUser } from "@auth0/nextjs-auth0/client";
 
 export function UserMenu() {
-  const { user, error, isLoading } = useUser();
+  const { user, error } = useUser();
 
-  if (isLoading) return <div className="text-white">Cargando...</div>;
+ 
   if (error) return <div className="text-red-500">{error.message}</div>;
 
   const handleLogout = () => {
@@ -18,9 +18,9 @@ export function UserMenu() {
     <div className="relative flex items-center justify-center">
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <button className="p-2 bg-blue-600 rounded-full transition hover:bg-blue-700">
-            <User className="h-6 w-6 text-white" />
-          </button>
+        <button className="p-2 rounded-full transition hover:bg-white/10">
+        <User className="h-6 w-6 text-white" />
+        </button>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Content className="absolute right-0 mt-2 w-48 bg-gray-800 text-white rounded-lg shadow-lg border border-gray-700">

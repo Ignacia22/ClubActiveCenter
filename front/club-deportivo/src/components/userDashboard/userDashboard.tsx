@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   FaUser,
-  FaCreditCard,
   FaShoppingCart,
   FaCalendarAlt,
   FaSignOutAlt,
@@ -10,8 +9,14 @@ import {
 } from "react-icons/fa";
 import { getUserById } from "../../service/user";
 import { IUser } from "../../interface/IUser";
-import { IReservasUser } from "../../interface/IReservasUser";
-import Swal from "sweetalert2"; // Importar SweetAlert
+import Swal from "sweetalert2";
+
+const menuOptions = [
+  { id: "profile", label: "Datos personales", icon: <FaUser /> },
+  { id: "activities", label: "Actividades", icon: <FaBasketballBall /> },
+  { id: "orders", label: "Productos comprados", icon: <FaShoppingCart /> },
+  { id: "reservations", label: "Reservas", icon: <FaCalendarAlt /> },
+];
 
 interface UserDashboardProps {
   userId: string;
@@ -19,10 +24,11 @@ interface UserDashboardProps {
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
   const [user, setUser] = useState<IUser | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string>("reservations");
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) return; // Evitar llamadas si no hay userId
+      if (!userId) return;
       try {
         const userData = await getUserById(userId);
         setUser(userData);
@@ -34,17 +40,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
   }, [userId]);
 
   const handleSignOut = () => {
-    // Elimina el usuario del localStorage
     localStorage.removeItem("user");
-
-    // Muestra el mensaje de éxito con SweetAlert
     Swal.fire({
       title: "Sesión cerrada",
       text: "Se ha cerrado la sesión con éxito.",
       icon: "success",
       confirmButtonText: "Aceptar",
     }).then(() => {
-      // Redirige al home después de la alerta
       window.location.href = "/home";
     });
   };
@@ -57,44 +59,24 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
         <aside className="w-full lg:w-1/4 bg-white text-black rounded-xl p-6 shadow-md mb-8 lg:mb-0">
           <h2 className="text-2xl font-bold mb-10">Hola, {user.name}</h2>
           <ul className="space-y-6">
-            <li className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-              <div className="flex items-center gap-4">
-                <FaUser className="text-lg" />
-                <span className="font-medium">Datos personales</span>
-              </div>
-              <FaChevronRight className="text-lg" />
-            </li>
-            <li className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-              <div className="flex items-center gap-4">
-                <FaBasketballBall className="text-lg" />
-                <span className="font-medium">Planes contratados</span>
-              </div>
-              <FaChevronRight className="text-lg" />
-            </li>
-            <li className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-              <div className="flex items-center gap-4">
-                <FaCreditCard className="text-lg" />
-                <span className="font-medium">Métodos de Pago</span>
-              </div>
-              <FaChevronRight className="text-lg" />
-            </li>
-            <li className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-              <div className="flex items-center gap-4">
-                <FaShoppingCart className="text-lg" />
-                <span className="font-medium">Productos comprados</span>
-              </div>
-              <FaChevronRight className="text-lg" />
-            </li>
-            <li className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-              <div className="flex items-center gap-4">
-                <FaCalendarAlt className="text-lg" />
-                <span className="font-medium">Reservas</span>
-              </div>
-              <FaChevronRight className="text-lg" />
-            </li>
+            {menuOptions.map(({ id, label, icon }) => (
+              <li
+                key={id}
+                className={`flex items-center justify-between p-4 rounded-lg cursor-pointer hover:bg-gray-200 transition ${
+                  selectedOption === id ? "bg-gray-300" : "bg-gray-100"
+                }`}
+                onClick={() => setSelectedOption(id)}
+              >
+                <div className="flex items-center gap-4">
+                  {icon}
+                  <span className="font-medium">{label}</span>
+                </div>
+                <FaChevronRight className="text-lg" />
+              </li>
+            ))}
             <li
               className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200"
-              onClick={handleSignOut} // Llamar la función al hacer clic
+              onClick={handleSignOut}
             >
               <div className="flex items-center gap-4">
                 <FaSignOutAlt className="text-lg" />
@@ -106,45 +88,90 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
         </aside>
 
         <main className="w-full lg:w-3/4 bg-gray-200 text-black rounded-xl p-8 shadow-md">
-          <h2 className="text-2xl font-bold mb-8">Reservas</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {user.reservations && user.reservations.length > 0 ? (
-              user.reservations.map(
-                (reservation: IReservasUser, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-6 bg-white p-6 rounded-lg shadow"
-                  >
-                    <div className="w-24 h-24 bg-gray-300 rounded"></div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-2">
-                        Reserva {index + 1}
-                      </h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        Actividad:{" "}
-                        {reservation.activities
-                          ?.map((activity) => activity.title || "Sin título")
-                          .join(", ")}
-                      </p>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        Fecha: {reservation.date}
-                      </p>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        Estado:{" "}
-                        {reservation.status ? "Confirmada" : "Pendiente"}
-                      </p>
-                    </div>
-                  </div>
-                )
-              )
-            ) : (
-              <p className="text-gray-600">No tienes reservas disponibles.</p>
-            )}
-          </div>
+          {selectedOption === "profile" && <UserProfile user={user} />}
+          {selectedOption === "activities" && (
+            <UserActivities activities={user.activities} />
+          )}
+          {selectedOption === "orders" && <UserOrders orders={user.orders} />}
+          {selectedOption === "reservations" && (
+            <UserReservations reservations={user.reservations} />
+          )}
         </main>
       </div>
     </div>
   );
 };
+
+const UserProfile = ({ user }: { user: IUser }) => (
+  <div>
+    <h2 className="text-2xl font-bold mb-6 text-primary">Datos Personales</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p className="font-medium text-lg">Nombre: {user.name}</p>
+      <p className="font-medium text-lg">Email: {user.email}</p>
+      <p className="font-medium text-lg">Teléfono: {user.phone}</p>
+      <p className="font-medium text-lg">Dirección: {user.address}</p>
+    </div>
+  </div>
+);
+
+const UserActivities = ({ activities }: { activities: string[] }) => (
+  <div>
+    <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
+    {activities.length > 0 ? (
+      <ul className="space-y-4">
+        {activities.map((activity, index) => (
+          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+            <p>{activity}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No tienes actividades registradas.</p>
+    )}
+  </div>
+);
+
+const UserOrders = ({ orders }: { orders: string[] }) => (
+  <div>
+    <h2 className="text-2xl font-bold mb-6 text-primary">
+      Productos Comprados
+    </h2>
+    {orders.length > 0 ? (
+      <ul className="space-y-4">
+        {orders.map((order, index) => (
+          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+            <p>{order}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No tienes productos comprados.</p>
+    )}
+  </div>
+);
+
+const UserReservations = ({
+  reservations,
+}: {
+  reservations: { date: string; status: boolean }[];
+}) => (
+  <div>
+    <h2 className="text-2xl font-bold mb-6 text-primary">Reservas</h2>
+    {reservations.length > 0 ? (
+      <ul className="space-y-4">
+        {reservations.map((reservation, index) => (
+          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+            <p>
+              Fecha: {reservation.date} - Estado:{" "}
+              {reservation.status ? "Confirmada" : "Pendiente"}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No tienes reservas disponibles.</p>
+    )}
+  </div>
+);
 
 export default UserDashboard;

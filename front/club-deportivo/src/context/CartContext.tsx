@@ -1,9 +1,7 @@
-'use client';
+"use client"
 
 import { IProducts, ProductState } from "@/interface/IProducts";
 import { createContext, useContext, useState, useEffect } from "react";
-
-
 
 interface CartItem extends IProducts {
   quantity: number;
@@ -47,37 +45,35 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const addItemToCart = (item: IProducts) => {
-    if (item.State !== ProductState.Disponible) {
-      console.warn('Producto no disponible');
-      return;
-    }
+    console.log('addItemToCart called with item:', item);
+  if (item.State !== ProductState.Disponible) {
+    console.log('Item not available, State:', item.State);
+    return;
+  }
 
     setItems(currentItems => {
-      const existingItem = currentItems.find(i => i.id === item.id);
-      
-      if (existingItem) {
-        // Verificar stock antes de incrementar
-        if (existingItem.quantity >= item.stock) {
-          console.warn('No hay suficiente stock');
-          return currentItems;
+        console.log('Current items:', currentItems);
+        const existingItem = currentItems.find(i => i.id === item.id);
+        if (existingItem && existingItem.quantity < item.stock) {
+            console.log('Updating existing item');
+            const newItems = currentItems.map(i => 
+                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+            );
+            console.log('New items after update:', newItems);
+            localStorage.setItem("cart", JSON.stringify(newItems));
+            return newItems;
         }
-        
-        const newItems = currentItems.map(i => 
-          i.id === item.id 
-            ? { ...i, quantity: i.quantity + 1 }
-            : i
-        );
+
+        console.log('Adding new item');
+        const newItems = [...currentItems, { ...item, quantity: 1 }];
+        console.log('New items after addition:', newItems);
         localStorage.setItem("cart", JSON.stringify(newItems));
         return newItems;
-      }
-
-      const newItems = [...currentItems, { ...item, quantity: 1 }];
-      localStorage.setItem("cart", JSON.stringify(newItems));
-      return newItems;
     });
     
     setIsOpen(true);
-  };
+    console.log('Cart opened');
+};
 
   const removeItemFromCart = (id: string) => {
     const filtered = items.filter(item => item.id !== id);
@@ -90,13 +86,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const newItems = currentItems.map(item => {
         if (item.id === id) {
           const newQuantity = Math.max(0, item.quantity + delta);
-          
-          // Verificar stock antes de actualizar
-          if (delta > 0 && newQuantity > item.stock) {
-            console.warn('No hay suficiente stock');
-            return item;
-          }
-          
+          if (delta > 0 && newQuantity > item.stock) return item;
           return newQuantity === 0 ? null : { ...item, quantity: newQuantity };
         }
         return item;
@@ -112,29 +102,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("cart");
   };
 
-  const countItems = (id: string) => {
-    const item = items.find(item => item.id === id);
-    return item ? item.quantity : 0;
-  };
-
-  const getCartTotal = () => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
-
+  const countItems = (id: string) => items.find(item => item.id === id)?.quantity || 0;
+  const getCartTotal = () => items.reduce((total, item) => total + item.price * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <CartContext.Provider value={{
-      items,
-      addItemToCart,
-      removeItemFromCart,
-      updateItemQuantity,
-      emptyCart,
-      countItems,
-      getCartTotal,
-      itemCount,
-      isOpen,
-      setIsOpen
+      items, addItemToCart, removeItemFromCart, updateItemQuantity, emptyCart,
+      countItems, getCartTotal, itemCount, isOpen, setIsOpen
     }}>
       {children}
     </CartContext.Provider>
