@@ -3,12 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from 'src/Entities/Activity.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { ActivitiesPageDTO, CreateActivityDTO } from './activitiesDTO/Activity.dto';
-import { UserService } from 'src/User/user.service';
 import { User } from 'src/Entities/User.entity';
 
 @Injectable()
 export class ActivityService {
-    constructor(@InjectRepository(Activity) private activityRepository: Repository<Activity>, private readonly userService: UserService, private dataSource: DataSource){}
+    constructor(@InjectRepository(Activity) private activityRepository: Repository<Activity>, private dataSource: DataSource){}
 
     async getActivities(page: number, limit: number): Promise<ActivitiesPageDTO>{
         try {
@@ -47,10 +46,11 @@ export class ActivityService {
     async createActivity(activity: CreateActivityDTO): Promise<Activity>{
         try {
             const exist: null | Activity = await this.activityRepository.findOneBy({ title: activity.title });
-            if(exist) throw new ConflictException('Ya existe una actividad con el mismo nombre, cambia el titulo pot favor.');
+            if(exist) throw new ConflictException('Ya existe una actividad con el mismo nombre, cambia el titulo por favor.');
             return await this.activityRepository.save(activity);
         } catch (error) {
-            throw new InternalServerErrorException('Hubo un error al agregar la actividad.', error.message || error);
+            if(error.message) throw error
+                else throw new InternalServerErrorException('Hubo algun error al crear la actividad.', error);
         };
     };
 
@@ -59,9 +59,8 @@ export class ActivityService {
             return await this.dataSource.transaction(async (entityManger:EntityManager): Promise<string> => {
                 const activity: Activity | null = await entityManger.findOne(Activity, {where: {id: activityId}, relations: ['users'] });
                 if(!activity) throw new NotFoundException('No existe la actividad.');
-                const user: User | null = await this.userService.getUserByEmail(email);
+                const user: User | null = await entityManger.findOneBy(User, {email});
                 if(!user) throw new NotFoundException('No existe el usuario.');
-    
                 const messageCancel: null | string = await this.cancelRegister(entityManger, user, activity);
                 if(messageCancel) return messageCancel;
     
@@ -77,7 +76,7 @@ export class ActivityService {
                     status: updatedRegisteredPeople < activity.maxPeople, 
                 };
                 
-               await entityManger.save(updatedActivity);
+               await entityManger.save(Activity ,updatedActivity);
                return `Te has registrado con exito a ${activity.title}.`;
             })
             
@@ -92,13 +91,13 @@ export class ActivityService {
             if(!exist) return null;
             const updatedUsers: User[] = activity.users.filter(userActivity => userActivity.id !== user.id); 
             const updatedRegisteredPeople: number = activity.registeredPeople - 1;  
-            const newUser: Activity = {
+            const updateActivity: Activity = {
                 ...activity,
                 users: updatedUsers,
                 registeredPeople: updatedRegisteredPeople,
                 status: updatedRegisteredPeople < activity.maxPeople, 
             };
-            await entityManger.save(newUser);
+            await entityManger.save(Activity, updateActivity);
             return `Has cancelo el registro a ${activity.title}.`;
         } catch (error) {
             throw new InternalServerErrorException(error.message || error);

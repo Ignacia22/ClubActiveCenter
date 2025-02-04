@@ -2,6 +2,7 @@
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -16,6 +17,7 @@ export class Activity {
   id = uuid();
 
   @ManyToMany(() => User)
+  @JoinTable()
   users: User[];
 
   @Column({ type: 'varchar', length: 90, nullable: false })
@@ -30,6 +32,9 @@ export class Activity {
 
   @Column({type: 'date', nullable: false})
   date: Date;
+
+  @Column({type: 'varchar', length: 5, nullable: false})
+  hour: string;
 
   @Column({type: 'text', nullable: true})
   description?: string;
