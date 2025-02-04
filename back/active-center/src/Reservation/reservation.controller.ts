@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Request, SetMetadata} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Request, SetMetadata} from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './ReservationDTO/reservations.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { updateReservationDto } from './ReservationDTO/update-reservation.dto';
 
 
 
@@ -12,6 +13,9 @@ export class ReservationController {
   
   @Get()
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: "todas las reservas"
+  })
   allReservation(){
     return this.reservationService.allReservations()
   }
@@ -19,6 +23,9 @@ export class ReservationController {
 
   @Get(":id")
   @ApiBearerAuth()
+  @ApiOperation({
+    summary:"busca una reserva por id"
+  })
   getReservationById(@Param("id",ParseUUIDPipe) id:string){
     return this.reservationService.getReservationById(id)
 
@@ -26,11 +33,38 @@ export class ReservationController {
 
   @Post("create")
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: "crea una reserva"
+  })
   CreateReservation(@Request() req:any , @Body() createReservationDto:CreateReservationDto){
     const userId = req.access.id;
        
     return this.reservationService.createReservation(createReservationDto,userId)
     
+  }
+
+  @Patch()
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:"actualiza una reserva"
+  })
+  updateReservation(@Body() updateReservationDto:updateReservationDto , @Request() req:any){
+
+    const userId = req.access.id;
+    return this.reservationService.updateReservation(userId,updateReservationDto);
+
+  }
+
+  @Delete()
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:"cancela una reserva"
+  })
+  cancelReservation(@Request() req:any){
+    
+    const userId = req.access.id;
+    return this.reservationService.cancelReservation(userId)
+
   }
 
 }
