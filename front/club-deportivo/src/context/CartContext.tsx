@@ -75,11 +75,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('Cart opened');
 };
 
-  const removeItemFromCart = (id: string) => {
-    const filtered = items.filter(item => item.id !== id);
-    setItems(filtered);
-    localStorage.setItem("cart", JSON.stringify(filtered));
-  };
+const removeItemFromCart = (id: string) => {
+  const filtered = items.filter(item => item.id !== id);
+  setItems(filtered);
+  localStorage.setItem("cart", JSON.stringify(filtered));
+
+  if (filtered.length === 0) {
+    localStorage.removeItem("cart");
+  }
+};
 
   const updateItemQuantity = (id: string, delta: number) => {
     setItems(currentItems => {
