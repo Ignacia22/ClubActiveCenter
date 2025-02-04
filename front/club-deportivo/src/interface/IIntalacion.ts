@@ -1,8 +1,12 @@
 export interface Instalacion {
     id: number | string;
-    name: string;
+    title: string;
     description: string;
-    image?: string;
-    capacity?: number;
-    schedule?: string;
+    characteristics: string[]; 
+    image?: string[];
+    status: boolean;
+    price: number;
 }
+
+
+
