@@ -11,6 +11,7 @@ import { PaymentService } from "src/Payment/payment.service";
 import { OrderItem } from "src/Entities/OrdenItem.entity";
 import { Cart } from "src/Entities/Cart.entity";
 import { CartItem } from "src/Entities/CartItem.entity";
+import { SendGridService } from "src/SendGrid/sendGrid.service";
 
 @Injectable()
 export class OrderService {
@@ -22,7 +23,8 @@ export class OrderService {
     @InjectRepository(Cart) private cartRepository: Repository<Cart>,
     @InjectRepository(CartItem) private cartItemRepository: Repository<CartItem>,
     private readonly cartService: CartService,
-    private readonly paymentService: PaymentService, 
+    private readonly paymentService: PaymentService,
+    private readonly sendGrid: SendGridService 
   ) {}
 
 async convertCartToOrder(userId: string): Promise<{ order: Order, checkoutUrl: string }> {
@@ -86,7 +88,6 @@ const orderItems = cart.items.map((cartItem) => {
 
 await this.orderItemRepository.save(orderItems);
 await this.productRepository.save(products); 
-
   
     
   const totalPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
@@ -97,7 +98,14 @@ await this.productRepository.save(products);
     
     await this.orderRepository.save(order);
   
-    
+    await this.sendGrid.orderEmail(
+      order.id,
+      order.date, 
+      user.email, 
+      user.name, 
+      orderItems, 
+      order.totalPrice 
+    )    
   const checkoutUrl = await this.paymentService.createCheckoutSession(order.id, userId);
   
   

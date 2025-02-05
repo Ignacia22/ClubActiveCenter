@@ -7,6 +7,7 @@ import { UserService } from 'src/User/user.service';
 import { Space } from 'src/Entities/Space.entity';
 import { SpaceService } from 'src/Space/space.service';
 import { PaymentService } from 'src/Payment/payment.service';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 
 
 
@@ -17,6 +18,7 @@ export class ReservationService {
     private paymentService: PaymentService,
     private userService:UserService,
     private spaceService:SpaceService,
+    private readonly sendGrid: SendGridService
     ){}
 
 
@@ -85,7 +87,18 @@ export class ReservationService {
       if (!paymentSession || !paymentSession.url) {
         throw new Error('No se pudo generar el enlace de pago');
       }
-    
+
+      await this.sendGrid.reservationMail(
+        newReservation.id, 
+        user.email, 
+        date, 
+        startTime, 
+        endTime, 
+        price, 
+        space.title, 
+        user.name 
+      )
+      
       return {
         space: space.title,
         date,
