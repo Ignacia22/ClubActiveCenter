@@ -5,13 +5,15 @@ import Link from "next/link";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+
 
 
 export function UserMenu() {
   const router = useRouter();
   const [localUser, setLocalUser] = useState<boolean>(false);
+  const { isAdmin } = useAuth();
 
-  // Sincronizar el estado con localStorage cuando el componente se monta
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     setLocalUser(!!storedUser);
@@ -19,22 +21,25 @@ export function UserMenu() {
 
   const { user, error } = useUser();
 
-
- 
-  if (error) return <div className="text-red-500">{error.message}</div>;
-
   const handleLogout = () => {
     if (localStorage.getItem("user")) {
-      // Si hay un usuario local, eliminamos los datos y redirigimos
       localStorage.removeItem("user");
       localStorage.removeItem("token");
-      setLocalUser(false); // Actualizar estado
-      router.push("/"); // Redirigir a la página de inicio
+      setLocalUser(false);
+      router.push("/");
     } else {
-      // Si no hay usuario local, cerramos sesión con Auth0
       window.location.href = "/api/auth/logout";
     }
   };
+
+
+  // Simplificamos handleDashboardClick
+  const handleDashboardClick = () => {
+    const route = isAdmin ? "/adminDashboard" : "/userDashboard";
+    router.push(route);
+  };
+
+  if (error) return <div className="text-red-500">{error.message}</div>;
 
   return (
     <div className="relative flex items-center justify-center">
@@ -47,14 +52,14 @@ export function UserMenu() {
 
         <DropdownMenu.Content className="absolute right-0 mt-2 w-48 bg-gray-800 text-white rounded-lg shadow-lg border border-gray-700">
           <div className="p-2 flex flex-col gap-2">
-            {user || localUser ? (
+            {(user || localUser) ? (
               <>
-                <Link
-                  href="/userDashboard"
-                  className="block px-3 py-2 hover:bg-gray-700 rounded"
+                <button
+                  onClick={handleDashboardClick}
+                  className="block w-full text-left px-3 py-2 hover:bg-gray-700 rounded"
                 >
-                  Perfil
-                </Link>
+                  {isAdmin ? 'Panel de Admin' : 'Mi Perfil'}
+                </button>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-3 py-2 hover:text-red-600 rounded transition duration-200"

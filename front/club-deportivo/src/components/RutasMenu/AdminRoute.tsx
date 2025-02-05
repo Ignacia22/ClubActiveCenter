@@ -7,10 +7,10 @@ interface AdminRouteProps {
 }
 
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { user } = useAuth();
+  const { isAdmin } = useAuth();
   const router = useRouter();
 
-  if (user?.isAdmin) {
+  if (isAdmin) {
     return <>{children}</>;
   } else {
     router.push("/userDashboard");
