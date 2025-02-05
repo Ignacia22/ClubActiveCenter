@@ -1,11 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany, Column } from "typeorm";
-import { User } from "./User.entity";
-import { CartItem } from "./CartItem.entity";
-
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+  Column,
+} from 'typeorm';
+import { User } from './User.entity';
+import { CartItem } from './CartItem.entity';
 
 @Entity()
 export class Cart {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => User, (user) => user.cart, { nullable: false })
@@ -14,8 +19,6 @@ export class Cart {
   @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { cascade: true })
   items: CartItem[];
 
-  
-
-  @Column({ default: true }) 
+  @Column({ default: true })
   isActive: boolean;
 }

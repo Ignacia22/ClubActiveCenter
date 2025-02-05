@@ -1,4 +1,13 @@
-import { Body, Controller, Get, InternalServerErrorException, Param, ParseUUIDPipe, Query, SetMetadata} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Param,
+  ParseUUIDPipe,
+  Query,
+  SetMetadata,
+} from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -15,7 +24,7 @@ export class SpaceController {
     @Query('limit') limit: number,
   ): Promise<Space[]> {
     try {
-      const pageNumber =page || 1;
+      const pageNumber = page || 1;
       const limitNumber = limit || 5;
       return await this.spaceService.getAllSpace(pageNumber, limitNumber);
     } catch (error) {
@@ -27,25 +36,15 @@ export class SpaceController {
     }
   }
 
-  @Get(":id")
+  @Get(':id')
   @ApiBearerAuth()
-  getSpaceById(@Param("id", ParseUUIDPipe) id:string){
-
-    return this.spaceService.getSpaceById(id)
-
+  getSpaceById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.spaceService.getSpaceById(id);
   }
 
   @Get()
   @ApiBearerAuth()
-  getSpaceByName(@Body() name:string){
-
-    return this.spaceService.getSpaceByName(name)
-
+  getSpaceByName(@Body() name: string) {
+    return this.spaceService.getSpaceByName(name);
   }
-
-  
-
- 
-
-  
 }

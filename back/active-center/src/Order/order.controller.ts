@@ -17,7 +17,7 @@ export class OrderController {
     const result = await this.orderService.convertCartToOrder(userId);
     return {
       order: result.order,
-      checkoutUrl: result.checkoutUrl, 
+      checkoutUrl: result.checkoutUrl,
     };
   }
 
@@ -34,5 +34,4 @@ export class OrderController {
   async getOrderById(@Param('id') orderId: string): Promise<Order> {
     return await this.orderService.getOrderById(orderId);
   }
-
 }

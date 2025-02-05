@@ -70,9 +70,7 @@ export class User {
 
   @OneToMany(() => Payment, (payment) => payment.user)
   payments: Payment[];
-    
 
   @OneToOne(() => Cart, (cart) => cart.user)
   cart: Cart;
-
 }

@@ -10,7 +10,7 @@ import { updateReservationDto } from './ReservationDTO/update-reservation.dto';
 @Controller('reservation')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
-  
+
   @Get()
   @ApiBearerAuth()
   @ApiOperation({
@@ -20,8 +20,7 @@ export class ReservationController {
     return this.reservationService.allReservations()
   }
 
-
-  @Get(":id")
+  @Get(':id')
   @ApiBearerAuth()
   @ApiOperation({
     summary:"busca una reserva por id"
@@ -31,7 +30,7 @@ export class ReservationController {
 
   }
 
-  @Post("create")
+  @Post('create')
   @ApiBearerAuth()
   @ApiOperation({
     summary: "crea una reserva"
@@ -66,5 +65,4 @@ export class ReservationController {
     return this.reservationService.cancelReservation(userId)
 
   }
-
 }

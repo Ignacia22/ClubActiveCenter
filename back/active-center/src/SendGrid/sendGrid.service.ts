@@ -25,15 +25,16 @@ export class SendGridService {
   }
 
   async reservationMail(
-    user: string, date: 
-    Date, startTime: string, 
-    endTime: string, 
-    price?: number, 
-    spaces?: string, 
-    name?: string
-  ){
+    user: string,
+    date: Date,
+    startTime: string,
+    endTime: string,
+    price?: number,
+    spaces?: string,
+    name?: string,
+  ) {
     const templateId = 'd-0d06ebcfc395429588eaaee2f1b1b724';
-    const senderMail = "jumi.rc@hotmail.com"
+    const senderMail = 'jumi.rc@hotmail.com';
 
     const mail = {
       to: user,
@@ -41,21 +42,20 @@ export class SendGridService {
       templateId: templateId,
       dynamic_template_data: {
         date: date,
-        startTime: startTime, 
+        startTime: startTime,
         endTime: endTime,
         price: price,
         spaces: spaces,
-        userName: name
+        userName: name,
       },
     };
-      try {
-        await this.sgMail.send(mail);
-        console.log('Email enviado correctamente');
-      } catch (error) {
-        console.error('Error enviando email:', error.response.body.errors);
+    try {
+      await this.sgMail.send(mail);
+      console.log('Email enviado correctamente');
+    } catch (error) {
+      console.error('Error enviando email:', error.response.body.errors);
+    }
   }
-  
-}
   // async Inquiry(inquiryObject: InquieyDTO): Promise<string>{
 
   //     const {from, subject, text} = inquiryObject

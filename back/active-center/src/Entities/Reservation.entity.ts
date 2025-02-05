@@ -1,5 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from './User.entity';
 import { Space } from './Space.entity';
 import { Payment } from './Payment.entity';
@@ -22,7 +29,7 @@ export class Reservation {
   @Column({ type: 'decimal', precision: 8, scale: 2, nullable: false })
   price: number;
 
-  @ManyToOne(() => User, (user) => user.reservations, { eager: true }) 
+  @ManyToOne(() => User, (user) => user.reservations, { eager: true })
   @JoinColumn({ name: 'userId' })
   user: User;
 
@@ -45,6 +52,3 @@ export class Reservation {
   @OneToMany(() => Payment, (payment) => payment.reservation)
   payments: Payment[];
 }
-
-
-

@@ -1,22 +1,27 @@
-import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
+import {
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 const TIME_REGEX = /^(0[7-9]|1\d|2[0-3]):[0-5]\d$/;
 
-@ValidatorConstraint({name: "MinTwoHoursDifference",async:true})
+@ValidatorConstraint({ name: 'MinTwoHoursDifference', async: true })
 export class MinTwoHoursDifference implements ValidatorConstraintInterface {
+  validate(
+    value: string,
+    validationArguments?: ValidationArguments,
+  ): Promise<boolean> | boolean {
+    const dto = validationArguments?.object as any;
+    const startTime = dto.startTime;
+    const endTime = value;
 
-    validate(value: string , validationArguments?: ValidationArguments): Promise<boolean> | boolean {
-        const dto = validationArguments?.object as any
-        const startTime = dto.startTime;
-        const endTime = value;
+    if (!TIME_REGEX.test(startTime) || !TIME_REGEX.test(endTime)) {
+      return false; // Si los formatos no son válidos, no seguir con la validación
+    }
 
-
-        if (!TIME_REGEX.test(startTime) || !TIME_REGEX.test(endTime)) {
-            return false; // Si los formatos no son válidos, no seguir con la validación
-          }
-
-          const [startH, startM] = startTime.split(':').map(Number);
-          const [endH, endM] = endTime.split(':').map(Number);
+    const [startH, startM] = startTime.split(':').map(Number);
+    const [endH, endM] = endTime.split(':').map(Number);
 
           const startTotalMinutes = startH * 60 + startM;
           const endTotalMinutes = endH * 60 + endM;
