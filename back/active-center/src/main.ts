@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.config';
 import { ValidationPipe } from '@nestjs/common';
-import { auth } from 'express-openid-connect';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
