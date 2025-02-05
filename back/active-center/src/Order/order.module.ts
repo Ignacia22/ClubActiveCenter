@@ -17,6 +17,6 @@ import { SendGridModule } from 'src/SendGrid/sendGrid.module';
   imports: [TypeOrmModule.forFeature([Order,Product,User,OrderItem,CartItem,Cart]),CartModule,forwardRef(() => PaymentModule), SendGridModule],
   controllers: [OrderController],
   providers: [OrderService],
-  exports:[OrderService]
+  exports: [OrderService],
 })
 export class OrderModule {}

@@ -9,9 +9,12 @@ import { OrderModule } from 'src/Order/order.module';
 import { Reservation } from 'src/Entities/Reservation.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, User, Payment,Reservation]),forwardRef(() => OrderModule)],
+  imports: [
+    TypeOrmModule.forFeature([Order, User, Payment, Reservation]),
+    forwardRef(() => OrderModule),
+  ],
   providers: [PaymentService],
   controllers: [PaymentController],
-  exports:[PaymentService]
+  exports: [PaymentService],
 })
 export class PaymentModule {}

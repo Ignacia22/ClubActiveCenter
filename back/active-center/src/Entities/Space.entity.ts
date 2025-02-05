@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Activity } from "./Activity.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Activity } from './Activity.entity';
 import { v4 as uuid } from 'uuid';
 import { Reservation } from './Reservation.entity';
 
@@ -18,13 +18,13 @@ export class Space {
   @Column({ type: 'text', nullable: false })
   description: string;
 
-  @Column({type: 'simple-array', nullable: false})
+  @Column({ type: 'simple-array', nullable: false })
   details: string[];
 
-  @Column({type: 'simple-array', nullable: false})
+  @Column({ type: 'simple-array', nullable: false })
   characteristics: string[];
 
-  @Column({type: 'decimal', nullable: false, scale: 2, precision: 8})
+  @Column({ type: 'decimal', nullable: false, scale: 2, precision: 8 })
   price_hour: number;
 
   @Column({ type: 'boolean', default: false })

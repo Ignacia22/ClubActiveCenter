@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Req, Res, Headers, SetMetadata } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  Res,
+  Headers,
+  SetMetadata,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Request, Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -16,13 +24,12 @@ export class PaymentController {
     return this.paymentService.createCheckoutSession(body.orderId, body.userId);
   }
 
- 
   @Post('webhook')
   @SetMetadata('isPublic', true)
   async handleWebhook(
-    @Req() req: any, 
-    @Headers('stripe-signature') sig: string, 
-    @Res() res: Response
+    @Req() req: any,
+    @Headers('stripe-signature') sig: string,
+    @Res() res: Response,
   ) {
     try {
       const rawBody = req.rawBody;

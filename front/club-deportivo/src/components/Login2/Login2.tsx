@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/service/authservices"; // Asegúrate de que esté correctamente importado
 import Swal from "sweetalert2";
-import Link from "next/link";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -58,8 +57,12 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/login";
+  };
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+    <div className="flex justify-center items-center min-h-screen bg-[url('https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg')] bg-cover bg-center">
       <form
         onSubmit={handleSubmit}
         className="bg-black bg-opacity-80 p-8 rounded-lg shadow-md w-full max-w-lg"
@@ -96,19 +99,19 @@ const Login = () => {
 
         <button
           type="submit"
-          className="w-full bg-yellow-500 text-black py-2 px-4 rounded hover:bg-yellow-600 transition font-bold"
+          className="w-full bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600 transition font-bold"
         >
           INICIAR SESIÓN
         </button>
 
         <div className="mt-6 text-center">
           <p className="text-gray-400">O inicia sesión con tu cuenta Gmail:</p>
-          <Link
-            href="/api/auth/login"
-            className="inline-block mt-2 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition"
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition font-bold"
           >
-            Iniciar sesión con Gmail
-          </Link>
+            Iniciar sesión con Google
+          </button>
         </div>
       </form>
     </div>

@@ -18,7 +18,6 @@ import { CartModule } from './Cart/cart.module';
 import { SpaceModule } from './Space/space.module';
 import { ActivityModule } from './Activity/activity.module';
 
-
 @Module({
   imports: [
     configModule,
@@ -38,7 +37,6 @@ import { ActivityModule } from './Activity/activity.module';
     ActivityModule,
   ],
   controllers: [],
-  providers: [{provide: APP_GUARD, useClass: AuthGuard}],
+  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}
-

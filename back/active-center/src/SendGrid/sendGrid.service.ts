@@ -41,8 +41,9 @@ export class SendGridService {
     name?: string,
     linkStatus?:string
   ){
+
     const templateId = 'd-0d06ebcfc395429588eaaee2f1b1b724';
-    const senderMail = "jumi.rc@hotmail.com"
+    const senderMail = 'jumi.rc@hotmail.com';
 
     const mail = {
       to: user,
@@ -51,21 +52,22 @@ export class SendGridService {
       dynamic_template_data: {
         id: id,
         date: date,
-        startTime: startTime, 
+        startTime: startTime,
         endTime: endTime,
         price: price,
         spaces: spaces,
         userName: name,
         linkStatus:linkStatus || "Acá iría el link para obtener el estado de la reserva mediante su id"
+
       },
     };
-      try {
-        await this.sgMail.send(mail);
-        console.log('Email enviado correctamente');
-      } catch (error) {
-        console.error('Error enviando email:', error.response.body.errors);
+    try {
+      await this.sgMail.send(mail);
+      console.log('Email enviado correctamente');
+    } catch (error) {
+      console.error('Error enviando email:', error.response.body.errors);
+    }
   }
-  
 }
 
   async orderEmail(
@@ -114,6 +116,7 @@ export class SendGridService {
 
 
   }
+
   // async Inquiry(inquiryObject: InquieyDTO): Promise<string>{
 
   //     const {from, subject, text} = inquiryObject

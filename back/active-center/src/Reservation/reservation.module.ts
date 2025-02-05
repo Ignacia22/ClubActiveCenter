@@ -11,11 +11,9 @@ import { SpaceService } from 'src/Space/space.service';
 import { PaymentModule } from 'src/Payment/payment.module';
 import { SendGridModule } from 'src/SendGrid/sendGrid.module';
 
-
-
 @Module({
   imports:[TypeOrmModule.forFeature([Reservation,Space,User]),PaymentModule, SendGridModule],
   controllers: [ReservationController],
-  providers: [ReservationService,UserService,SpaceService,],
+  providers: [ReservationService, UserService, SpaceService],
 })
 export class ReservationModule {}
