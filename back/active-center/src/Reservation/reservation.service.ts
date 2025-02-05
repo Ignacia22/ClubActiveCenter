@@ -1,6 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Reservation, ReservationStatus } from 'src/Entities/Reservation.entity';
+import {
+  Reservation,
+  ReservationStatus,
+} from 'src/Entities/Reservation.entity';
 import { Repository } from 'typeorm';
 import { CreateReservationDto } from './ReservationDTO/reservations.dto';
 import { UserService } from 'src/User/user.service';
@@ -15,10 +18,9 @@ import { updateReservationDto } from "src/Reservation/ReservationDTO/update-rese
 export class ReservationService {
     constructor(@InjectRepository(Reservation) private reservationRepository:Repository<Reservation>,
     private paymentService: PaymentService,
-    private userService:UserService,
-    private spaceService:SpaceService,
-    ){}
-
+    private userService: UserService,
+    private spaceService: SpaceService,
+  ) {}
 
     async allReservations() {
       const reservations = await this.reservationRepository.find({
@@ -29,11 +31,12 @@ export class ReservationService {
     }
 
 
-    async getReservationById(id:string){
-
-        const reservation = await this.reservationRepository.findOne({where:{id}})
-        return reservation;
-    }
+  async getReservationById(id: string) {
+    const reservation = await this.reservationRepository.findOne({
+      where: { id },
+    });
+    return reservation;
+  }
 
     async createReservation(createReservationDto: CreateReservationDto, userId: string) {
       const { date, startTime, endTime, spaceName } = createReservationDto;

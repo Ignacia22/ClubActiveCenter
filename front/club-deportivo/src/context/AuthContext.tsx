@@ -59,7 +59,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
 
     const login = async (form: ILogin) => {
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, form);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, form);
             const userData = response.data.user as IUser;
             const tokenData = response.data.token;
             const isAdminData = userData.isAdmin;
@@ -81,9 +81,6 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     }
 
     const logout = async () => {
-        if (user) {
-           localStorage.removeItem("favorites");
-        }
         setUser(null)
         setIsAuthenticated(false)
         setIsAdmin(false)

@@ -1,25 +1,29 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional,IsString } from "class-validator";
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateSpaceDto {
+  @IsString()
+  title: string;
 
-    @IsString()
-    title: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  imgUrl: string[];
 
-    @IsArray()
-    @ArrayNotEmpty()
-    imgUrl: string[];
+  @IsString()
+  descripcion: string;
 
-    @IsString()
-    descripcion: string;
-    
-    @IsNumber()
-    @IsNotEmpty()
-    price_hours: number;
+  @IsNumber()
+  @IsNotEmpty()
+  price_hours: number;
 
-
-    @IsBoolean()
-    @IsOptional()
-    status:boolean;
-
-
+  @IsBoolean()
+  @IsOptional()
+  status: boolean;
 }

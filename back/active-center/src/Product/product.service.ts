@@ -64,33 +64,44 @@ export class ProductService {
   
   async getProduct(page: number, limit: number, filters?: ProductFilters) {
     try {
-      const query = this.productsRepository.createQueryBuilder('product')
+      const query = this.productsRepository
+        .createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category');
-  
+
       if (filters?.stock) {
         query.andWhere('product.stock = :stock', { stock: filters.stock });
       }
 
       if (filters?.category) {
-        query.andWhere('category.name = :category', { category: filters.category });
+        query.andWhere('category.name = :category', {
+          category: filters.category,
+        });
       }
       if (filters?.minPrice) {
-        query.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
+        query.andWhere('product.price >= :minPrice', {
+          minPrice: filters.minPrice,
+        });
       }
       if (filters?.maxPrice) {
-        query.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+        query.andWhere('product.price <= :maxPrice', {
+          maxPrice: filters.maxPrice,
+        });
       }
       if (filters?.name) {
-        query.andWhere('product.name ILIKE :name', { name: `%${filters.name}%` });
+        query.andWhere('product.name ILIKE :name', {
+          name: `%${filters.name}%`,
+        });
       }
-  
+
       const products = await query.getMany();
-  
+
       const start = (+page - 1) * +limit;
       const end = start + +limit;
       return products.slice(start, end);
     } catch (error) {
-      throw new InternalServerErrorException('Hubo un error al obtener los productos.');
+      throw new InternalServerErrorException(
+        'Hubo un error al obtener los productos.',
+      );
     }
   }
 
@@ -131,7 +142,7 @@ export class ProductService {
 
       let newStatus: StatusProduct;
       let message: string;
-  
+
       if (product.productStatus === StatusProduct.Available) {
         newStatus = StatusProduct.Retired;
         message = 'Se retiró el producto.';
@@ -144,17 +155,25 @@ export class ProductService {
           message = 'Se habilitó el producto.';
         }
       } else {
-        throw new BadRequestException('El estado del producto no permite esta acción.');
+        throw new BadRequestException(
+          'El estado del producto no permite esta acción.',
+        );
       }
-  
-      await this.productsRepository.save({ ...product, productStatus: newStatus });
-  
+
+      await this.productsRepository.save({
+        ...product,
+        productStatus: newStatus,
+      });
+
       return {
         product: { id },
         message,
       };
     } catch (error) {
-      throw new InternalServerErrorException('Hubo un error al intentar hacer la petición.', error.message || error);
-    };
+      throw new InternalServerErrorException(
+        'Hubo un error al intentar hacer la petición.',
+        error.message || error,
+      );
+    }
   }
 }

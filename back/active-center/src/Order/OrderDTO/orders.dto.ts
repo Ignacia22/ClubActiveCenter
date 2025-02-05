@@ -1,7 +1,12 @@
 // src/Order/OrderDTO/orders.dto.ts
 
-import { IsArray, IsDecimal, IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
-
+import {
+  IsArray,
+  IsDecimal,
+  IsEnum,
+  IsNotEmpty,
+  IsUUID,
+} from 'class-validator';
 
 export enum StatusOrder {
   pending = 'Pending',
@@ -10,10 +15,9 @@ export enum StatusOrder {
 }
 
 export class CreateOrderDto {
-  
   @IsUUID()
   @IsNotEmpty()
-  userId: string; 
+  userId: string;
 
   @IsArray()
   @IsNotEmpty()
@@ -24,8 +28,8 @@ export class CreateOrderDto {
 
   @IsEnum(StatusOrder)
   @IsNotEmpty()
-  status: StatusOrder;  
+  status: StatusOrder;
 
   @IsNotEmpty()
-  date: Date;  
+  date: Date;
 }

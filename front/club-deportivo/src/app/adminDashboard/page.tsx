@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import StatCard from '@/components/StatCard';
 import AddActivityModal from '@/components/AddActivityModal';
+import { AdminRoute } from '@/components/RutasMenu/AdminRoute';
 
 export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
 
   return (
+    <AdminRoute>
     <div className="min-h-screen bg-white text-black">
       <div className="container mx-auto py-4 px-6">
         {/* Header */}
@@ -51,5 +53,6 @@ export default function AdminDashboard() {
       {/* Modal */}
       {showModal && <AddActivityModal onClose={() => setShowModal(false)} />}
     </div>
+    </AdminRoute>
   );
 }
