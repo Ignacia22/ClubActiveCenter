@@ -95,6 +95,7 @@ export class UserService {
       throw new InternalServerErrorException(error.message);
     }
   }
+  
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
       const user: User | null = await this.userRepository.findOne({
