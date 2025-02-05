@@ -106,11 +106,6 @@ await this.productRepository.save(products);
       orderItems, 
       order.totalPrice 
     )    
-  const checkoutUrl = await this.paymentService.createCheckoutSession(order.id, userId);
-  
-  
-  cart.items = []; 
-
 
     const checkoutUrl = await this.paymentService.createCheckoutSession(
       order.id,

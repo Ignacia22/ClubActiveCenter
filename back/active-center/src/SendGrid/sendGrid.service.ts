@@ -68,7 +68,6 @@ export class SendGridService {
       console.error('Error enviando email:', error.response.body.errors);
     }
   }
-}
 
   async orderEmail(
     id: string, 
@@ -113,7 +112,6 @@ export class SendGridService {
     } 
   };
     
-
 
   }
 
