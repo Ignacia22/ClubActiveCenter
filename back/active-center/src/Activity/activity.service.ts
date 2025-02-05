@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from 'src/Entities/Activity.entity';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { ActivitiesPageDTO, CreateActivityDTO } from './activitiesDTO/Activity.dto';
+import { ActivitiesPageDTO, ActivityResponseDTO, CreateActivityDTO } from './activitiesDTO/Activity.dto';
 import { User } from 'src/Entities/User.entity';
 
 @Injectable()
@@ -27,13 +27,13 @@ export class ActivityService {
                 },
                 activities: getActivities,
             };
-            return Page
+            return Page;
         } catch (error) {
             throw new InternalServerErrorException('Lo lamnetamos hubo algun error al buscar las actividades.', error.message || error);
         };
     };
 
-    async getActivityById(id: string): Promise<Activity> {
+    async getActivityById(id: string): Promise<ActivityResponseDTO> {
         try {
             const activity: Activity | null = await this.activityRepository.findOneBy({id});
             if(!activity) throw new NotFoundException('No existe la actividad.');
@@ -43,7 +43,7 @@ export class ActivityService {
         };
     };
 
-    async createActivity(activity: CreateActivityDTO): Promise<Activity>{
+    async createActivity(activity: CreateActivityDTO): Promise<ActivityResponseDTO>{
         try {
             const exist: null | Activity = await this.activityRepository.findOneBy({ title: activity.title });
             if(exist) throw new ConflictException('Ya existe una actividad con el mismo nombre, cambia el titulo por favor.');
@@ -103,4 +103,11 @@ export class ActivityService {
             throw new InternalServerErrorException(error.message || error);
         };
     };
+
+    async cancelActivity(id: string): Promise<string>{
+        const exist: Activity | null = await this.activityRepository.findOneBy({id});
+        if(!exist) throw new NotFoundException('No existe la actividad.');
+        await this.activityRepository.save({...exist, status: false});
+        return 'Se cancelo la actividad.'
+    }
 }

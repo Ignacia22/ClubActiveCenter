@@ -68,4 +68,57 @@ export class CreateActivityDTO {
     @IsOptional()
     @IsString({ message: 'La descripción debe ser un texto válido.' })
     description: string;
-  }
+}
+
+export class ActivityResponseDTO {
+  
+  @ApiProperty({
+    description: 'Identificador único de la actividad',
+    example: '9d21f2f5-6d3e-4f25-85bb-df7c531d445a',
+  })
+  id: string;
+
+  @ApiProperty({
+    description: 'Título de la actividad',
+    example: 'Torneo de Videojuegos',
+  })
+  title: string;
+
+  @ApiProperty({
+    description: 'Descripción detallada de la actividad (opcional)',
+    example: 'Una competencia de videojuegos en varias categorías.',
+    required: false,
+  })
+  description?: string | undefined;
+
+  @ApiProperty({
+    description: 'Fecha de la actividad',
+    example: '2025-02-04T09:00:00Z',
+  })
+  date: Date;
+
+  @ApiProperty({
+    description: 'Hora de la actividad en formato de 24 horas',
+    example: '14:00',
+  })
+  hour: string;
+
+  @ApiProperty({
+    description: 'Número máximo de personas que pueden participar',
+    example: 100,
+  })
+  maxPeople: number;
+
+  @ApiProperty({
+    description: 'Número de personas actualmente registradas en la actividad',
+    example: 50,
+  })
+  registeredPeople: number;
+
+  @ApiProperty({
+    description: 'Estado de la actividad (activa o inactiva)',
+    required: false,
+    example: true,
+  })
+  status?: boolean | undefined;
+}
