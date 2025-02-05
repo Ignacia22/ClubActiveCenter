@@ -99,7 +99,7 @@ export class ReservationService {
         date, 
         startTime, 
         endTime, 
-        price, 
+        newReservation.price, 
         space.title, 
         user.name 
       )
