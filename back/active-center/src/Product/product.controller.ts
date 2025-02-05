@@ -2,16 +2,21 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   InternalServerErrorException,
+  MaxFileSizeValidator,
   NotFoundException,
   Param,
+  ParseFilePipe,
   ParseUUIDPipe,
   Post,
   Put,
   Query,
   SetMetadata,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Product } from 'src/Entities/Product.entity';
@@ -20,6 +25,7 @@ import { ProductService } from './product.service';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/User/UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Products')
 @Controller('product')
@@ -59,23 +65,28 @@ async getProduct(
   }
 }
 
-  @Post()
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
-  @ApiBearerAuth()
-  async createProduct(
-    @Body() createProductDto: CreateProductDto,
-  ): Promise<Product> {
-    try {
-      const product = await this.productService.createProduct(createProductDto);
-      return product;
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Error al crear el producto.',
-        error.message || error,
-      );
-    }
-  }
+
+
+@Post('create')
+@Roles(Role.admin)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
+@UseInterceptors(FileInterceptor('file'))
+async createProduct(
+  @Body() product: CreateProductDto,
+  @UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024, message: 'Máximo 5 MB' }),
+        new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+      ],
+    })
+  ) 
+  file?: Express.Multer.File,
+) {
+  return this.productService.createProduct(product, file);
+}
+
 
   @Get(':id')
   @SetMetadata('isPublic', true)

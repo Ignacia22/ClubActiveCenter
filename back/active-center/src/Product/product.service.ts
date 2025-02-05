@@ -9,6 +9,7 @@ import { Category } from 'src/Entities/Category.entity';
 import { Product } from 'src/Entities/Product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto, ProductFilters, StatusProduct } from './productDTO/product.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductService {
@@ -16,38 +17,51 @@ export class ProductService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    private cloudinaryService:CloudinaryService
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+  async createProduct(createProductDto: CreateProductDto, file?: Express.Multer.File): Promise<Product> {
     try {
       const { category, stock, ...productData } = createProductDto;
-      let categoryExist = await this.categoryRepository.findOne({
-        where: { name: category },
-      });
+  
+      let imageUrl: string | undefined;
+      if (file) {
+        imageUrl = await this.cloudinaryService.uploadImage(file);
+      }
+  
+  
+      let categoryExist = await this.categoryRepository.findOne({ where: { name: category } });
       if (!categoryExist) {
         categoryExist = this.categoryRepository.create({ name: category });
         await this.categoryRepository.save(categoryExist);
       }
-      const product: Product | null = await this.productsRepository.findOneBy({
+  
+  
+      const existingProduct = await this.productsRepository.findOneBy({
         name: productData.name,
       });
-      if (product)
+  
+      if (existingProduct) {
         return await this.productsRepository.save({
-          ...product,
-          stock: product.stock + stock,
+          ...existingProduct,
+          stock: existingProduct.stock + stock,
+          img: imageUrl || existingProduct.img,
         });
+      }
+  
       return await this.productsRepository.save({
-        ...createProductDto,
+        ...productData,
         category: categoryExist,
+        stock,
+        img: imageUrl,
       });
+  
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Hubo un error al agregar el producto.',
-        error.message || error.detail || error,
-      );
+      throw new InternalServerErrorException('Error al crear el producto.', error.message || error.detail || error);
     }
   }
-
+  
+  
   async getProduct(page: number, limit: number, filters?: ProductFilters) {
     try {
       const query = this.productsRepository.createQueryBuilder('product')

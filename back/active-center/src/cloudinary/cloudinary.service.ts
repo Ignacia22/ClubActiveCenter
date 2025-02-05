@@ -1,26 +1,32 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 @Injectable()
 export class CloudinaryService {
   constructor(
-    @Inject('CLOUDINARY') private readonly clodinaryService: typeof cloudinary,
+    @Inject('CLOUDINARY') private readonly cloudinaryService: typeof cloudinary,
   ) {}
 
-  async uploadImageFromUrl(imageUrl: string): Promise<string> {
+  async uploadImage(file: Express.Multer.File): Promise<string> {
     try {
-      const result = await cloudinary.uploader.upload(imageUrl, {
-        resource_type: 'auto',
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+
+        Readable.from(file.buffer).pipe(uploadStream); 
+        
       });
 
-      return result.secure_url;
+      return (result as any).secure_url;
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al subir la imagen desde la URL: ${error.message}`,
+        `Error al subir la imagen: ${error.message}`,
       );
     }
   }

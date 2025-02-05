@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -16,29 +17,31 @@ export enum StatusProduct {
 }
 
 export class CreateProductDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   name: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   description: string;
 
-  @IsNumber()
+  @Type(() => Number)
   @IsPositive()
+  @IsNumber()
   price: number;
 
-  @IsNumber()
+  @Type(() => Number)
   @IsPositive()
+  @IsNumber()
   stock: number;
 
-  @IsString()
   @IsNotEmpty()
-  img: string;
-
   @IsString()
-  @IsNotEmpty()
   category: string;
+
+  @IsOptional()
+  @IsString({ message: 'img must be a string' })
+  img?: string;
 
   @IsEnum(StatusProduct)
   productStatus?: StatusProduct = StatusProduct.Available;
