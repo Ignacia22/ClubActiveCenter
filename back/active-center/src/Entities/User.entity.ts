@@ -1,17 +1,27 @@
 /* eslint-disable prettier/prettier */
-import { UserStatus } from 'src/User/UsersDTO/User.dto';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Reservation } from './Reservation.entity';
+import { Order } from './Order.entity';
+import { UserStatus } from 'src/User/UserDTO/users.dto';
+import { v4 as uuid } from 'uuid';
+import { Activity } from './Activity.entity';
+import { Cart } from './Cart.entity';
+import { Payment } from './Payment.entity';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id = uuid();
 
   @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
@@ -25,22 +35,31 @@ export class User {
   @Column({ type: 'varchar', length: 16, unique: true })
   phone: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  country?: string;
-
   @Column({ type: 'text', nullable: true })
   address?: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  city?: string;
-
-  @Column({ type: 'number', length: 8, unique: true, nullable: false })
+  @Column({ type: 'integer', unique: true, nullable: false })
   dni: number;
 
-  @Column({ type: 'enum', default: UserStatus.disconect, nullable: true })
+  @ManyToMany(() => Activity)
+  @JoinTable()
+  activities: Activity[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user)
+  reservations: Reservation[];
+
+  @OneToMany(() => Order, (orders) => orders.user)
+  orders: Order[];
+
+  @Column({
+    type: 'enum',
+    default: UserStatus.disconect,
+    nullable: true,
+    enum: UserStatus,
+  })
   userStatus: string;
 
-  @Column({ type: 'boolean', default: false, nullable: true })
+  @Column({ type: 'boolean', default: false, nullable: false })
   isAdmin?: boolean;
 
   @CreateDateColumn()
@@ -48,4 +67,10 @@ export class User {
 
   @UpdateDateColumn()
   updateUser?: Date;
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
+
+  @OneToOne(() => Cart, (cart) => cart.user)
+  cart: Cart;
 }
