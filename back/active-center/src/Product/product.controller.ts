@@ -81,7 +81,7 @@ async createProduct(
   @UploadedFile(
     new ParseFilePipe({
       validators: [
-        new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024, message: 'Máximo 5 MB' }),
+        new MaxFileSizeValidator({ maxSize: 1500000, message: 'El tamaño máximo es 1.5 MB' }),
         new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
       ],
     })
