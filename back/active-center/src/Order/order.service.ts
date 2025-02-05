@@ -1,15 +1,17 @@
-import { Product } from 'src/Entities/Product.entity';
-import { StatusOrder } from './OrderDTO/orders.dto';
-import { Order } from 'src/Entities/Order.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { User } from 'src/Entities/User.entity';
-import { CartService } from 'src/Cart/cart.service';
-import { PaymentService } from 'src/Payment/payment.service';
-import { OrderItem } from 'src/Entities/OrdenItem.entity';
-import { Cart } from 'src/Entities/Cart.entity';
-import { CartItem } from 'src/Entities/CartItem.entity';
+
+import { Product } from "src/Entities/Product.entity";
+import { StatusOrder } from "./OrderDTO/orders.dto";
+import { Order } from "src/Entities/Order.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Injectable } from "@nestjs/common";
+import { Repository } from "typeorm";
+import { User } from "src/Entities/User.entity";
+import { CartService } from "src/Cart/cart.service";
+import { PaymentService } from "src/Payment/payment.service";  
+import { OrderItem } from "src/Entities/OrdenItem.entity";
+import { Cart } from "src/Entities/Cart.entity";
+import { CartItem } from "src/Entities/CartItem.entity";
+import { SendGridService } from "src/SendGrid/sendGrid.service";
 
 @Injectable()
 export class OrderService {
@@ -23,6 +25,7 @@ export class OrderService {
     private cartItemRepository: Repository<CartItem>,
     private readonly cartService: CartService,
     private readonly paymentService: PaymentService,
+    private readonly sendGrid: SendGridService 
   ) {}
 
   async convertCartToOrder(
@@ -85,14 +88,29 @@ export class OrderService {
       return orderItem;
     });
 
-    await this.orderItemRepository.save(orderItems);
-    await this.productRepository.save(products);
-
-    const totalPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
-
+await this.orderItemRepository.save(orderItems);
+await this.productRepository.save(products); 
+  
+    
+  const totalPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
+  
     order.totalPrice = totalPrice;
 
     await this.orderRepository.save(order);
+  
+    await this.sendGrid.orderEmail(
+      order.id,
+      order.date, 
+      user.email, 
+      user.name, 
+      orderItems, 
+      order.totalPrice 
+    )    
+  const checkoutUrl = await this.paymentService.createCheckoutSession(order.id, userId);
+  
+  
+  cart.items = []; 
+
 
     const checkoutUrl = await this.paymentService.createCheckoutSession(
       order.id,

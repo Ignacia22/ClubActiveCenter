@@ -9,7 +9,9 @@ import { CreateReservationDto } from './ReservationDTO/reservations.dto';
 import { UserService } from 'src/User/user.service';
 import { SpaceService } from 'src/Space/space.service';
 import { PaymentService } from 'src/Payment/payment.service';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 import { updateReservationDto } from "src/Reservation/ReservationDTO/update-reservation.dto"
+
 
 
 
@@ -18,10 +20,10 @@ import { updateReservationDto } from "src/Reservation/ReservationDTO/update-rese
 export class ReservationService {
     constructor(@InjectRepository(Reservation) private reservationRepository:Repository<Reservation>,
     private paymentService: PaymentService,
-    private userService: UserService,
-    private spaceService: SpaceService,
-  ) {}
-
+    private userService:UserService,
+    private spaceService:SpaceService,
+    private readonly sendGrid: SendGridService
+    ){}
     async allReservations() {
       const reservations = await this.reservationRepository.find({
         relations: ['spaces'], 
@@ -90,7 +92,18 @@ export class ReservationService {
       if (!paymentSession || !paymentSession.url) {
         throw new Error('No se pudo generar el enlace de pago');
       }
-    
+
+      await this.sendGrid.reservationMail(
+        newReservation.id, 
+        user.email, 
+        date, 
+        startTime, 
+        endTime, 
+        price, 
+        space.title, 
+        user.name 
+      )
+      
       return {
         space: space.title,
         date,
