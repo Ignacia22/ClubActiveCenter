@@ -68,7 +68,7 @@ async getProduct(
 @Roles(Role.admin)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@ApiOperation({ summary: 'Crear un nuevo producto', description: 'Este endpoint permite a los administradores crear un nuevo producto.' })
+@ApiOperation({ summary: 'Crear un nuevo producto. (ADMIN)', description: 'Este endpoint permite a los administradores crear un nuevo producto.' })
 @ApiConsumes('multipart/form-data')
 @ApiBody({
   schema: {
@@ -123,7 +123,7 @@ async getProductById(@Param('id', ParseUUIDPipe) id: string) {
 @Roles(Role.admin)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@ApiOperation({ summary: 'Actualizar un producto', description: 'Este endpoint permite a los administradores actualizar un producto existente.' })
+@ApiOperation({ summary: 'Actualizar un producto. (ADMIN)', description: 'Este endpoint permite a los administradores actualizar un producto existente.' })
 async updateProductById(
   @Param('id', ParseUUIDPipe) id: string,
   @Body() product: Product,
@@ -142,7 +142,7 @@ async updateProductById(
 @Roles(Role.admin)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@ApiOperation({ summary: 'Eliminar (retirar) un producto', description: 'Este endpoint permite a los administradores retirar un producto del catálogo.' })
+@ApiOperation({ summary: 'Eliminar (retirar) un producto. (ADMIN)', description: 'Este endpoint permite a los administradores retirar un producto del catálogo, en caso que ya lo este devolverlo a la tienda, y si no tiene stock al momento de devolverlo a la tienda el estado sera sin stock.' })
 async isRetired(@Param('id', ParseUUIDPipe) id: string) {
   return await this.productService.isRetired(id);
 }

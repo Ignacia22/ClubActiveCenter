@@ -26,8 +26,8 @@ export class ReservationController {
   @ApiOperation({
     summary:"busca una reserva por id", description: 'Este endpoint permite traer una reserva por id.'
   })
-  getReservationById(@Param("id",ParseUUIDPipe) id:string){
-    return this.reservationService.getReservationById(id)
+  getReservationsByUserId(@Param("id",ParseUUIDPipe) id:string){
+    return this.reservationService.getReservationsByUserId(id)
   }
 
   @Post('create')
@@ -37,9 +37,7 @@ export class ReservationController {
   })
   CreateReservation(@Request() req:any , @Body() createReservationDto:CreateReservationDto){
     const userId = req.access.id;
-       
     return this.reservationService.createReservation(createReservationDto,userId)
-    
   }
 
   @Patch()

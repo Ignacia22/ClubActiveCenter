@@ -4,12 +4,34 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Space } from 'src/Entities/Space.entity';
 import espacios from 'src/Reservation/Espacios';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class SpaceService {
-  constructor(
+    constructor(
     @InjectRepository(Space) private spaceRepository: Repository<Space>,
+    private cloudinaryService:CloudinaryService  
   ) {}
+
+  async createSpaces(spaces: CreateSpaceDto, file?: Express.Multer.File): Promise<Space> {
+    let imageUrl: string | undefined;
+    if (file) {
+      imageUrl = await this.cloudinaryService.uploadImage(file);
+    }
+  
+    const newSpace = this.spaceRepository.create({
+      title: spaces.title,
+      img: imageUrl ? [imageUrl] : [],  
+      description: spaces.descripcion,
+      details: [],
+      characteristics: [],
+      price_hour: spaces.price_hours,
+      status: spaces.status ?? false,
+    });
+  
+    return await this.spaceRepository.save(newSpace);
+  }
+  
 
   async getSpaceById(spaceId: string) {
     try {
