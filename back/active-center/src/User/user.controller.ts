@@ -32,9 +32,9 @@ export class UserController {
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
   @ApiOperation({
-    summary: 'Obtiene todos los usuarios',
+    summary: 'Obtiene todos los usuarios (Admin)',
     description:
-      'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos.',
+      'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos. Solo para administradores.',
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: Number, description: 'Número de página para paginación. Por defecto es 1.' })

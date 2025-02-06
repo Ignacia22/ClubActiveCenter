@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, ParseUUIDPipe, Post, Put, Query, Req, SetMetadata, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ActivityService } from './activity.service';
 import { Activity } from 'src/Entities/Activity.entity';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -6,6 +6,7 @@ import { Role } from 'src/User/UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
 import { ActivitiesPageDTO, ActivityResponseDTO, CreateActivityDTO } from './activitiesDTO/Activity.dto';
 import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('activity')
 export class ActivityController {
@@ -29,12 +30,19 @@ export class ActivityController {
   };
 
   @Post('createActivity')
+  @ApiBearerAuth()
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
-  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Crear actividades', description: 'Este endpoint, permite crear una actividad con cualquier usuario administrador.'})
-  async createActivity(@Body() data: CreateActivityDTO): Promise<ActivityResponseDTO> {
-    return await this.activityService.createActivity(data);
+  async createActivity(@Body() data: CreateActivityDTO, @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1500000, message: 'El tamaño máximo es 1.5 MB' }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+      })) file: Express.Multer.File): Promise<ActivityResponseDTO> {
+    return await this.activityService.createActivity(data, file);
   };
 
   @Put('toggle-registration/:id')

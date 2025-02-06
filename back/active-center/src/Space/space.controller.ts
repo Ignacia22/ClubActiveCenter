@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
 import { CreateSpaceDto } from './dto/create-space.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Space } from 'src/Entities/Space.entity';
 
 @Controller('space')
@@ -19,6 +19,7 @@ export class SpaceController {
 
   @Get('allSpces')
   @SetMetadata('isPublic', true)
+  @ApiOperation({summary: 'Obtener espacios.', description: 'Este endpoint trae todos los espacios, paginados.'})
   async getSpaces(
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -38,12 +39,14 @@ export class SpaceController {
 
   @Get(':id')
   @ApiBearerAuth()
+  @ApiOperation({summary: 'Obtener un espacio id', description: 'Este endpoint recibe un id y se encarga de buscar el espacio.'})
   getSpaceById(@Param('id', ParseUUIDPipe) id: string) {
     return this.spaceService.getSpaceById(id);
   }
 
   @Get()
   @ApiBearerAuth()
+  @ApiOperation({summary: 'Obtener un espacio por nombre', description: 'Este endpoint se encarga de recibir un nombre y buscar un espacio.'})
   getSpaceByName(@Body() name: string) {
     return this.spaceService.getSpaceByName(name);
   }

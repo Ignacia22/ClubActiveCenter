@@ -23,24 +23,18 @@ export class ProductService {
   async createProduct(createProductDto: CreateProductDto, file?: Express.Multer.File): Promise<Product> {
     try {
       const { category, stock, ...productData } = createProductDto;
-  
       let imageUrl: string | undefined;
       if (file) {
         imageUrl = await this.cloudinaryService.uploadImage(file);
       }
-  
-  
       let categoryExist = await this.categoryRepository.findOne({ where: { name: category } });
       if (!categoryExist) {
         categoryExist = this.categoryRepository.create({ name: category });
         await this.categoryRepository.save(categoryExist);
       }
-  
-  
       const existingProduct = await this.productsRepository.findOneBy({
         name: productData.name,
       });
-  
       if (existingProduct) {
         return await this.productsRepository.save({
           ...existingProduct,
@@ -48,7 +42,6 @@ export class ProductService {
           img: imageUrl || existingProduct.img,
         });
       }
-  
       return await this.productsRepository.save({
         ...productData,
         category: categoryExist,
@@ -67,11 +60,9 @@ export class ProductService {
       const query = this.productsRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category');
-
       if (filters?.stock) {
         query.andWhere('product.stock = :stock', { stock: filters.stock });
       }
-
       if (filters?.category) {
         query.andWhere('category.name = :category', {
           category: filters.category,
@@ -170,6 +161,7 @@ export class ProductService {
         message,
       };
     } catch (error) {
+      if(error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Hubo un error al intentar hacer la petición.',
         error.message || error,

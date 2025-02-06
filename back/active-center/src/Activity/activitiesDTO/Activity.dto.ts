@@ -84,6 +84,9 @@ export class ActivityResponseDTO {
   })
   title: string;
 
+  @ApiProperty({description: 'Imagen de la actividad.'})
+  img: string;
+
   @ApiProperty({
     description: 'Descripción detallada de la actividad (opcional)',
     example: 'Una competencia de videojuegos en varias categorías.',

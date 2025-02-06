@@ -24,6 +24,7 @@ export class ReservationService {
     private spaceService:SpaceService,
     private readonly sendGrid: SendGridService
     ){}
+
     async allReservations() {
       const reservations = await this.reservationRepository.find({
         relations: ['user', 'spaces'],
@@ -54,7 +55,6 @@ export class ReservationService {
           ],
       }));
     }
-
 
     async getReservationById(id: string) {
       const reservation = await this.reservationRepository.findOne({
@@ -91,7 +91,6 @@ export class ReservationService {
           ], 
       };
     }
-    
     
     async createReservation(createReservationDto: CreateReservationDto, userId: string) {
       const { date, startTime, endTime, spaceName } = createReservationDto;
