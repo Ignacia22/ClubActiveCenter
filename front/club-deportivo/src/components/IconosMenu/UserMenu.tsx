@@ -50,7 +50,7 @@ export function UserMenu() {
   const handleDashboardClick = () => {
     const userIsAdmin = isAdmin; // usando el valor del contexto
     console.log("Accediendo al dashboard como:", userIsAdmin ? "admin" : "usuario");
-    const route = userIsAdmin ? "/adminDashboard" : "/userDashboard";
+    const route = userIsAdmin ? "/admin/adminDashboard" : "/userDashboard";
     router.push(route);
 };
 
