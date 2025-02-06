@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
-import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -38,8 +37,7 @@ export default function RootLayout({
           <UserProvider>
             <SendUserData />
             <CartProvider>
-              <AdminProvider> 
-                <Nav />
+              <AdminProvider>
                 {children}
                 <Footer />
               </AdminProvider>
