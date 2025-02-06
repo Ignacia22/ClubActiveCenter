@@ -56,41 +56,34 @@ export class ReservationService {
     }
 
 
-    async getReservationById(id: string) {
-      const reservation = await this.reservationRepository.findOne({
-        where: { id },
-        relations: ['user', 'spaces'], 
+    async getReservationsByUserId(userId: string) {
+      const reservations = await this.reservationRepository.find({
+        where: { user: { id: userId } },
+        relations: ['user', 'spaces'],
       });
     
-      if (!reservation) {
-        throw new NotFoundException("Reserva no encontrada");
+      if (!reservations || reservations.length === 0) {
+        throw new NotFoundException('No se encontraron reservas para este usuario');
       }
     
-      return {
+      return reservations.map(reservation => ({
         id: reservation.id,
         date: reservation.date,
         startTime: reservation.startTime,
         endTime: reservation.endTime,
         status: reservation.status,
         price: reservation.price,
-        user: {
-          id: reservation.user.id,  
-          name: reservation.user.name, 
-          email: reservation.user.email,  
-          phone: reservation.user.phone,  
-        },
-        spaces: Array.isArray(reservation.spaces) ? 
-          reservation.spaces.map(space => ({
-            id: space.id,  
-            title: space.title,  
-          })) : [
-            {
-              id: reservation.spaces.id,
-              title: reservation.spaces.title
-            }
-          ], 
-      };
+        spaces: Array.isArray(reservation.spaces)
+          ? reservation.spaces.map(space => ({
+              id: space.id,
+              title: space.title,
+            }))
+          : reservation.spaces 
+          ? [{ id: reservation.spaces.id, title: reservation.spaces.title }]
+          : [],
+      }));
     }
+    
     
     
     async createReservation(createReservationDto: CreateReservationDto, userId: string) {

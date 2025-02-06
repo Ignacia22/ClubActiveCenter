@@ -1,23 +1,34 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   InternalServerErrorException,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseUUIDPipe,
+  Post,
   Query,
   SetMetadata,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { SpaceService } from './space.service';
-import { CreateSpaceDto } from './dto/create-space.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { Space } from 'src/Entities/Space.entity';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/User/UserDTO/Role.enum';
+import { RolesGuard } from 'src/Auth/Guard/roles.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateSpaceDto } from './dto/create-space.dto';
 
 @Controller('space')
 export class SpaceController {
   constructor(private readonly spaceService: SpaceService) {}
 
-  @Get('allSpces')
+  @Get('allSpaces')
   @SetMetadata('isPublic', true)
   async getSpaces(
     @Query('page') page: number,
@@ -35,6 +46,39 @@ export class SpaceController {
       );
     }
   }
+
+  @Post('create')
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Imagen del producto',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async createSpaces(
+    @Body() spaces: CreateSpaceDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1500000, message: 'El tamaño máximo es 1.5 MB' }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+      })
+    ) 
+    file?: Express.Multer.File,
+  ) {
+    return this.spaceService.createSpaces(spaces, file);
+  }  
 
   @Get(':id')
   @ApiBearerAuth()

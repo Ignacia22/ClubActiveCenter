@@ -25,8 +25,8 @@ export class ReservationController {
   @ApiOperation({
     summary:"busca una reserva por id"
   })
-  getReservationById(@Param("id",ParseUUIDPipe) id:string){
-    return this.reservationService.getReservationById(id)
+  getReservationsByUserId(@Param("id",ParseUUIDPipe) id:string){
+    return this.reservationService.getReservationsByUserId(id)
 
   }
 
