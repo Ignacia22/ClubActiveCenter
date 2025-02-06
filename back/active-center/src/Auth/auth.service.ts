@@ -6,6 +6,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SALT, SECRET_SECRET_WORD } from 'src/config/config.envs';
@@ -151,6 +152,7 @@ export class AuthService {
         throw new BadRequestException('Mail o contraseña incorrecta.');
       if (exist && exist.userStatus === UserStatus.delete)
         throw new BadRequestException('Mail o contraseña incorrecta.');
+      if (exist && exist.userStatus === UserStatus.ban) throw new UnauthorizedException('Usuario baneado.')
       return exist;
     } catch (error) {
       throw error;
