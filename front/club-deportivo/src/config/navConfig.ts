@@ -14,7 +14,7 @@ export const navConfig: NavItem[] = [
 
   {
     text: "Instalaciones",
-    path: "/instalaciones",
+    path: "/instalaciones-2",
     isPrivate: false,
     subItems: [
       { text: "Futbol", path: "/instalaciones/futbol" },

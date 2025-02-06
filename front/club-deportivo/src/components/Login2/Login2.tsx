@@ -1,17 +1,19 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthService } from "@/service/authservices"; // Asegúrate de que esté correctamente importado
+import { useAuth } from "@/context/AuthContext";
 import Swal from "sweetalert2";
 
 const Login = () => {
+  const { login } = useAuth();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,6 +21,7 @@ const Login = () => {
       ...prev,
       [name]: value,
     }));
+    console.log("Formulario actualizado:", formData); // Ver los datos del formulario
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,42 +30,36 @@ const Login = () => {
       setError("Todos los campos son obligatorios.");
       return;
     }
+
+    console.log("Datos a enviar al login:", formData);
+
     try {
-      // Llamamos al servicio de login
-      const response = await AuthService.login(formData);
+      await login(formData);
+      
+      Swal.fire({
+        icon: "success",
+        title: "Inicio de sesión exitoso",
+        text: "Bienvenido de nuevo!",
+      });
 
-      if (response && response.userInfo && response.token) {
-        // Guardamos los datos del usuario y el token en localStorage
-        localStorage.setItem("user", JSON.stringify(response.userInfo));
-        localStorage.setItem("token", response.token);
-
-        Swal.fire({
-          icon: "success",
-          title: "Inicio de sesión exitoso",
-          text: "Bienvenido de nuevo!",
-        });
-
-        // Redirigimos al usuario a la página principal
-        router.push("/home");
-      } else {
-        setError("Hubo un problema con la autenticación.");
-      }
     } catch (error) {
-      console.error("Error en el login:", error); // Muestra el error en la consola (solo para desarrolladores)
+      console.error("Error en el login:", error);
       Swal.fire({
         icon: "error",
         title: "Error al iniciar sesión",
         text: "Credenciales incorrectas o problema en el servidor.",
       });
     }
-  };
+};
 
   const handleGoogleLogin = () => {
+    console.log("Redirigiendo a login de Google...");
     window.location.href = "/api/auth/login";
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[url('https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg')] bg-cover bg-center">
+    <div className="flex justify-center items-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: "url('https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg')" }}>
       <form
         onSubmit={handleSubmit}
         className="bg-black bg-opacity-80 p-8 rounded-lg shadow-md w-full max-w-lg"
