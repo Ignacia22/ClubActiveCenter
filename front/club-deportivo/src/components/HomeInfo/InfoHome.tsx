@@ -16,11 +16,17 @@ export default function InfoHome() {
           className="z-0"
         />
         <div className="absolute inset-0 flex flex-col items-start justify-center pb-0 pt-20 px-6 md:px-20 text-white z-10">
-          <h1 className="text-6xl pl-4 md:text-[6rem] sm:text-[5rem] xs:text-[5rem] font-sans font-bold drop-shadow-lg">Club Active Center</h1>
+          <h1 className="text-6xl pl-4 md:text-[6rem] sm:text-[5rem] xs:text-[5rem] font-sans font-bold drop-shadow-lg">
+            Club Active Center
+          </h1>
           <p className="mt-6 pl-4 md:mt-8 font-sans text-[1em] md:text-[1.1em] drop-shadow-md w-full md:w-1/2 text-left">
-            Este complejo deportivo ofrece instalaciones de última generación para diversas disciplinas. Contamos con canchas de fútbol, tenis, pádel y piscina, todas diseñadas y equipadas para brindar a nuestros clientes una experiencia de entrenamiento y recreación de excelencia.
+            Este complejo deportivo ofrece instalaciones de última generación
+            para diversas disciplinas. Contamos con canchas de fútbol, tenis,
+            pádel y piscina, todas diseñadas y equipadas para brindar a nuestros
+            clientes una experiencia de entrenamiento y recreación de
+            excelencia.
           </p>
-          <Link href="/instalaciones">
+          <Link href="/instalaciones-2">
             <button className="mt-6 pl-5 md:mt-8 bg-white hover:bg-slate-300 hover:text-black text-black font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
               Ver Instalaciones
             </button>
@@ -41,9 +47,15 @@ export default function InfoHome() {
             />
           </div>
           <div className="w-full md:w-1/3 md:ml-8 text-center md:text-left">
-            <h2 className="text-5xl md:text-6xl font-sans font-bold mb-4 text-white">Bienestar Deportivo</h2>
+            <h2 className="text-5xl md:text-6xl font-sans font-bold mb-4 text-white">
+              Bienestar Deportivo
+            </h2>
             <p className="text-white my-6 md:my-9">
-            Descubre cómo el deporte puede transformar tu bienestar físico y mental. Únete a nuestras actividades llenas de energía, desde emocionantes competiciones hasta entrenamientos diseñados para todos los niveles. Mantente activo, diviértete y forma parte de una comunidad apasionada por el movimiento.
+              Descubre cómo el deporte puede transformar tu bienestar físico y
+              mental. Únete a nuestras actividades llenas de energía, desde
+              emocionantes competiciones hasta entrenamientos diseñados para
+              todos los niveles. Mantente activo, diviértete y forma parte de
+              una comunidad apasionada por el movimiento.
             </p>
             <Link href="/eventos">
               <button className="mt-4 bg-white hover:bg-slate-300 text-black font-sans font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
@@ -53,7 +65,6 @@ export default function InfoHome() {
           </div>
         </div>
       </div>
-
 
       {/* Tercera imagen */}
       <div className="bg-black py-10 px-6 md:px-4">
@@ -68,9 +79,14 @@ export default function InfoHome() {
             />
           </div>
           <div className="w-full md:w-1/3 md:ml-8 text-center md:text-left">
-            <h2 className="text-5xl md:text-7xl font-sans font-bold mb-4 text-white">Club Active Center</h2>
+            <h2 className="text-5xl md:text-7xl font-sans font-bold mb-4 text-white">
+              Club Active Center
+            </h2>
             <p className="text-white my-6 md:my-9">
-              Mantente al tanto de nuestros próximos eventos y actividades especiales. Tenemos una agenda llena de emocionantes competiciones, entrenamientos y actividades recreativas para que disfrutes al máximo.
+              Mantente al tanto de nuestros próximos eventos y actividades
+              especiales. Tenemos una agenda llena de emocionantes
+              competiciones, entrenamientos y actividades recreativas para que
+              disfrutes al máximo.
             </p>
             <Link href="/eventos">
               <button className="mt-4 bg-white hover:bg-slate-300 text-black font-sans font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
@@ -87,7 +103,7 @@ export default function InfoHome() {
       </div>
 
       <div>
-        <BeneficiosInfo/>
+        <BeneficiosInfo />
       </div>
     </div>
   );
