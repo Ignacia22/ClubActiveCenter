@@ -93,7 +93,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     // Función de redirección
     const handleRedirect = (isAdmin: boolean) => {
         console.log(`Redirigiendo a ${isAdmin ? 'admin' : 'user'} dashboard`);
-        const route = isAdmin ? "/adminDashboard" : "/userDashboard";
+        const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
         router.push(route);
     };
 
@@ -206,15 +206,20 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     
 
     const logout = async () => {
-        setUser(null)
-        setIsAuthenticated(false)
-        setIsAdmin(false)
-        localStorage.removeItem("user")
-        localStorage.removeItem("token")
-        localStorage.removeItem("isAdmin")
-        emptyCart();
-        router.replace("/Home")
-    }
+        try {
+            if (user && user.id) {
+                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/Log-out/${user.id}`);
+            }
+            setUser(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            localStorage.clear();
+            emptyCart();
+            router.replace("/Home");
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
+    };
 
     
 

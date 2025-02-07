@@ -34,6 +34,7 @@ interface AdminContextType {
   isRetired: (userId: string) => Promise<boolean>;
   isBan: (userId: string) => Promise<boolean>;
   isAdmin: (userId: string) => Promise<boolean>;
+  updateUserStatus: (userId: string) => Promise<void>;
 
   // Funciones de Actividades
   getAllActivities: () => Promise<Activity[]>;
@@ -68,50 +69,33 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const getAllUsers = async () => {
     try {
       setLoading(true);
-      
-      // Obtener el token manualmente para verificar
       const token = localStorage.getItem('token');
-      console.log('Token actual:', token);
+      console.log('Token:', token);
   
-      const { data } = await axios.get(`${API_URL}/user`, {
-        params: {
-          limit: 1000
-        },
-        // Añadir headers manualmente para depuración
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      console.log('Iniciando solicitud GET a', `${API_URL}/user`);
+      const response = await axios.get(`${API_URL}/user`, {
+        params: { limit: 1000 },
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      
-      const usersList = data.users || data;
-      
+      console.log('Respuesta recibida:', response);
+  
+      const usersList = response.data.users || response.data;
+      console.log('Lista de usuarios:', usersList);
+  
       setUsers(usersList);
       setLoading(false);
       return usersList;
     } catch (error) {
       setLoading(false);
-      
+      console.error('Error en getAllUsers:', error);
       if (axios.isAxiosError(error)) {
-        console.error('Error detallado:', {
+        console.error('Detalles del error:', {
           status: error.response?.status,
           data: error.response?.data,
-          headers: error.response?.headers,
-          message: error.message
+          headers: error.response?.headers
         });
-        
-        const errorMessage = error.response?.data?.message || 
-                             error.message || 
-                             'Error al obtener usuarios';
-        
-        setError(errorMessage);
-        throw new Error(errorMessage);
       }
-      
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Error desconocido al obtener usuarios';
-      
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -137,31 +121,12 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateUserStatus = async (userId: string, status: { userStatus: string }) => {
+  const updateUserStatus = async (userId: string) => {
     try {
-      await axios.put(`${API_URL}/user/${userId}`, status);
-      
-      // Actualizar el estado local del usuario
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId 
-            ? { ...user, ...status } 
-            : user
-        )
-      );
+      await axios.put(`${API_URL}/user/${userId}`);
     } catch (error) {
-      // Verificar si es un error de Axios
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error al actualizar estado del usuario';
-        throw new Error(errorMessage);
-      }
-      
-      // Manejo de errores genéricos
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Error desconocido al actualizar estado del usuario';
-      
-      throw new Error(errorMessage);
+      console.error('Error al actualizar estado del usuario:', error);
+      throw error;
     }
   };
 
@@ -176,10 +141,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   const isBan = async (userId: string) => {
     try {
-      const { data } = await axios.get(`${API_URL}/user/${userId}/isBan`);
-      return data;
+      const { data } = await axios.delete(`${API_URL}/auth/${userId}`);
+      return data; // Devuelve la respuesta del backend
     } catch (error) {
-      throw new Error('Error al verificar estado de ban');
+      console.error('Error al verificar estado de ban:', error);
+      return false;
     }
   };
 
@@ -324,6 +290,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     isRetired,
     isBan,
     isAdmin,
+    updateUserStatus,
     // Funciones de Actividades
     getAllActivities,
     getActivityById,
