@@ -199,7 +199,7 @@ export class PaymentService {
       user: { id: userId },
       order: { id: orderId },
       paymentIntentId: paymentIntentId,
-      reservationId: session.metadata?.reservationId || null,
+      reservationId:null,
     });
 
     await this.paymentRepository.save(payment);
