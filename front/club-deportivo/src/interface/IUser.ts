@@ -1,5 +1,4 @@
 export interface IUser {
-  userInfo: any;
   id: string; // Cambiado de number a string porque usas UUID
   name: string;
   email: string;
