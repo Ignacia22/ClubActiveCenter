@@ -50,7 +50,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Iniciar sesión de usuario',
     description:
-      'Este endpoint permite a los usuarios autenticarse en el sistema proporcionando su correo electrónico y contraseña. Si las credenciales son válidas, se genera un token JWT para la sesión.',
+      'Este endpoint permite a los usuarios autenticarse en el sistema proporcionando su correo electrónico y contraseña. Si las credenciales son válidas, se genera un token JWT para la sesión y devuelve cierta información.',
   })
   @SetMetadata('isPublic', true)
   async SignIn(@Body() user: SignInUserDTO): Promise<SingInDTOResponse> {
@@ -79,9 +79,9 @@ export class AuthController {
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Banear o desbanear un usuario',
+    summary: 'Banear o desbanear un usuario (ADMIN)',
     description:
-      'Este endpoint permite banear a un usuario, buscando al usuaurio por su id y luego baneandolo y en caso que ya lo este, poder desbanearlo.',
+      'Este endpoint permite banear a un usuario, buscando al usuaurio por su id y luego baneandolo y en caso que ya lo este, poder desbanearlo. Solo para administradores.',
   })
   async isBan(@Param('id', ParseUUIDPipe) id: string): Promise<BanDTOResponse> {
     return await this.authService.isBan(id);
@@ -106,7 +106,7 @@ export class AuthController {
   @ApiOperation({
     description:
       'Este endpoint actualiza el rol del usurio, convirtiendolo en administrador o quitandole el administrador.',
-    summary: 'Dar o quitar administrador',
+    summary: 'Dar o quitar administrador. (ADMIN)',
   })
   @ApiBearerAuth()
   async isAdmin(

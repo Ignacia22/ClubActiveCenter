@@ -51,4 +51,6 @@ export class Reservation {
 
   @OneToMany(() => Payment, (payment) => payment.reservation)
   payments: Payment[];
+  length: number;
+  map: any;
 }

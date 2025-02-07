@@ -23,6 +23,9 @@ export class Activity {
   @Column({ type: 'varchar', length: 90, nullable: false })
   title: string;
 
+  @Column({type: 'text', nullable: false})
+  img: string;
+
   @Column({type: 'integer', nullable: false, default: 20})
   @Max(100, {message: 'El maximo de personas son 100.'})
   maxPeople: number;

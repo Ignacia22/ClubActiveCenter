@@ -17,6 +17,7 @@ import { SeederModule } from './Seeder/seeder.module';
 import { CartModule } from './Cart/cart.module';
 import { SpaceModule } from './Space/space.module';
 import { ActivityModule } from './Activity/activity.module';
+import { CategoryModule } from './Category/category.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ActivityModule } from './Activity/activity.module';
     CartModule,
     SpaceModule,
     ActivityModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],

@@ -14,38 +14,36 @@ export class ReservationController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({
-    summary: "todas las reservas"
+    summary: "Todas las reservas",
+    description: "Este Endpoint permite llamar a todas las reservaciones."
   })
   allReservation(){
-    return this.reservationService.allReservations()
+    return this.reservationService.allReservations();
   }
 
   @Get(':id')
   @ApiBearerAuth()
   @ApiOperation({
-    summary:"busca una reserva por id"
+    summary:"busca una reserva por id", description: 'Este endpoint permite traer una reserva por id.'
   })
   getReservationsByUserId(@Param("id",ParseUUIDPipe) id:string){
     return this.reservationService.getReservationsByUserId(id)
-
   }
 
   @Post('create')
   @ApiBearerAuth()
   @ApiOperation({
-    summary: "crea una reserva"
+    summary: "crea una reserva", description: 'Este endpoint permite crear una reservación.'
   })
   CreateReservation(@Request() req:any , @Body() createReservationDto:CreateReservationDto){
     const userId = req.access.id;
-       
     return this.reservationService.createReservation(createReservationDto,userId)
-    
   }
 
   @Patch()
   @ApiBearerAuth()
   @ApiOperation({
-    summary:"actualiza una reserva"
+    summary:"actualiza una reserva", description: 'Este endpoint permite actualizar una reserva.'
   })
   updateReservation(@Body() updateReservationDto:updateReservationDto , @Request() req:any){
 
@@ -57,7 +55,7 @@ export class ReservationController {
   @Delete()
   @ApiBearerAuth()
   @ApiOperation({
-    summary:"cancela una reserva"
+    summary:"cancela una reserva", description: 'Este endpoint permite cancelar una reserva.'
   })
   cancelReservation(@Request() req:any){
     
