@@ -66,6 +66,12 @@ export class UserDTOREsponseGet {
   name: string;
 
   @ApiProperty({
+    description: 'Indica si un usuario esta o no suscrito.', 
+    example: false, default: false
+  })
+  isSubscribed: boolean;
+
+  @ApiProperty({
     description: 'El correo electrónico del usuario.',
     example: 'usuario@ejemplo.com',
   })
@@ -165,6 +171,10 @@ export class RegisterUserDTO {
     message: 'El correo electrónico es obligatorio y no puede estar vacío.',
   })
   email: string;
+
+  @ApiHideProperty()
+  @IsEmpty({message: 'Esta propiedad no puede se mandada.'})
+  isSubscribed: boolean;
 
   @ApiProperty({
     description:

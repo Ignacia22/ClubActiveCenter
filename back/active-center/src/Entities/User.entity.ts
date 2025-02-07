@@ -26,6 +26,9 @@ export class User {
   @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
 
+  @Column({ type: 'boolean', default: false, nullable: false })
+  isSubscribed: boolean;
+
   @Column({ type: 'varchar', length: 50, unique: true, nullable: false })
   email: string;
 
@@ -73,4 +76,4 @@ export class User {
 
   @OneToOne(() => Cart, (cart) => cart.user)
   cart: Cart;
-}
+} 

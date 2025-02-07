@@ -25,11 +25,11 @@ export class SeeederDB {
       for (let category of categories) {
         const exist: null | Category = await queryRunner.manager.findOneBy(
           Category,
-          { name: category },
-        );
+          { name: category },  
+        );        
         if (!exist)
           await queryRunner.manager.save(Category, { name: category });
-      }
+      };
       for (let product of Products) {
         const exist: Product | null = await queryRunner.manager.findOneBy(
           Product,
