@@ -13,7 +13,7 @@ export class ActivityService {
     async getActivities(page: number, limit: number): Promise<ActivitiesPageDTO>{
         try {
             const activities: Activity[] = await this.activityRepository.find();
-            if(!activities) throw new NotFoundException('Lo lamentamos aun no hay ningúna actividad, intentelo más tarde.')
+            if(!activities.length) throw new NotFoundException('Lo lamentamos aun no hay ningúna actividad, intentelo más tarde.');
             const totalItems: number = activities.length;
             const maxPages: number = Math.ceil(totalItems / limit);
             const currentPage: number = Math.min(Math.max(1, page), maxPages);

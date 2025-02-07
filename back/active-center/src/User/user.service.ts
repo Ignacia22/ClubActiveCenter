@@ -67,7 +67,7 @@ export class UserService {
       }
       const users: User[] = await query.getMany();
 
-      if (!users) throw new NotFoundException('No se encontró ningún usuario');
+      if (!users.length) throw new NotFoundException('No se encontró ningún usuario');
 
       const partialUsers: UserDTOREsponseGet[] = users.map((user) => {
         const { password, ...partialUser } = user;

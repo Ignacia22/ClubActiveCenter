@@ -12,13 +12,11 @@ export class SpaceService {
     @InjectRepository(Space) private spaceRepository: Repository<Space>,
     private cloudinaryService:CloudinaryService  
   ) {}
-
   async createSpaces(spaces: CreateSpaceDto, file?: Express.Multer.File): Promise<Space> {
     let imageUrl: string | undefined;
     if (file) {
       imageUrl = await this.cloudinaryService.uploadImage(file);
     }
-  
     const newSpace = this.spaceRepository.create({
       title: spaces.title,
       img: imageUrl ? [imageUrl] : [],  
@@ -28,7 +26,6 @@ export class SpaceService {
       price_hour: spaces.price_hours,
       status: spaces.status ?? false,
     });
-  
     return await this.spaceRepository.save(newSpace);
   }
   
@@ -62,7 +59,7 @@ export class SpaceService {
   async getAllSpace(page: number, limit: number): Promise<Space[]> {
     try {
       const spaces: Space[] = await this.spaceRepository.find({});
-      if(!spaces) throw new NotFoundException('Lo lamentamos no hay espacios aun.');
+      if(!spaces.length) throw new NotFoundException('Lo lamentamos no hay espacios aun.');
       const start = (page - 1) * limit;
       const end = start + limit;
       return spaces.slice(start, end);
@@ -75,7 +72,6 @@ export class SpaceService {
   }
 
   async addSpace() {
-    
     const existSpace = (await this.spaceRepository.find()).map(
       (space) => space.title,
     );
