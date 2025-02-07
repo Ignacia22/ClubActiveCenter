@@ -100,7 +100,7 @@ export default function UsersDashboard() {
           <h2 className="text-xl font-bold text-white">Lista de Usuarios</h2>
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             Agregar Usuario
-          </button>
+          </button>   
         </div>
         
         <table className="w-full">

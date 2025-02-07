@@ -27,7 +27,7 @@ export default function StatsCards() {
 
   const stats = {
     totalActivities: activities.length,
-    activeActivities: activities.filter(a => a.categoriaId === 1).length,
+    activeActivities: activities.filter(a => a.status === 'active').length,
     totalOrders: items.length,
     totalRevenue: getCartTotal().toFixed(2)
   };

@@ -2,8 +2,8 @@
 
 import { getProducts } from "@/helpers/getProducts";
 import { useEffect, useState } from "react";
-import { IProducts } from "../../../interface/IProducts";
-import Card from "../../../components/Card/Card";
+import { IProducts } from "../../interface/IProducts";
+import Card from "../../components/Card/Card";
 
 export default function Tienda() {
   const [products, setProducts] = useState<IProducts[]>([]);

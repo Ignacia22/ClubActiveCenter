@@ -12,14 +12,14 @@ export interface UsersTableProps {
 }
 
 // Enum para los estados de usuario
-enum UserStatus {
+export enum UserStatus {
   ACTIVE = 'ACTIVE',
   BANNED = 'BANNED',
   SUSPENDED = 'SUSPENDED'
 }
 
 export default function UsersTable({ searchTerm }: UsersTableProps) {
-  const { getAllUsers, isBan, updateUserStatus } = useAdmin();
+  const { getAllUsers, isBan } = useAdmin();
   const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,11 +73,7 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
 
   const handleBanUser = async (userId: string) => {
     try {
-      await updateUserStatus(userId);
-      setUsers(users.map(u => u.id === userId ? {
-        ...u, 
-        userStatus: u.userStatus === UserStatus.ACTIVE ? UserStatus.BANNED : UserStatus.ACTIVE
-      } : u));
+      await isBan(userId);
     } catch (error) {
       console.error('Error al actualizar estado:', error);
     }
@@ -119,13 +115,13 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
                 <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-medium">
                     {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-white">{user.name}</div>
-                      <div className="text-sm text-gray-400">{user.email}</div>
-                    </div>
                   </div>
-                </td>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-white">{user.name}</div>
+                    <div className="text-sm text-gray-400">{user.email}</div>
+                  </div>
+                </div>
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                 {user.dni}
               </td>
