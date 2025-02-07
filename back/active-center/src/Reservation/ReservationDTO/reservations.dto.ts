@@ -6,6 +6,13 @@ import { IsEndTimeGreaterThanStartTime, MinTwoHoursDifference } from "../validat
 const TIME_REGEX = /^(0[7-9]|1\d|2[0-3]):[0-5]\d$/;
 
 export class CreateReservationDto {
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    example: "userId12345",
+  })
+  userId: string;
     
     @IsNotEmpty()
     @IsString()

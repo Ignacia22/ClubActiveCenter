@@ -140,20 +140,65 @@ export class OrderService {
     return total;
   }
 
-  async getAllOrder(): Promise<Order[]> {
-    return await this.orderRepository.find({
+  async getAllOrder(): Promise<any[]> {
+    const orders = await this.orderRepository.find({
       relations: ['user', 'orderItems', 'orderItems.product'],
     });
+  
+    return orders.map(order => ({
+      id: order.id,
+      price: order.price,
+      totalprice: order.totalPrice,
+      status: order.status,
+      date: order.date,
+      user: {
+        id: order.user.id,
+        username: order.user.name,
+        email: order.user.email,
+      },
+      orderItems: order.orderItems.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        price: item.price,
+        product: {
+          id: item.product.id,
+          name: item.product.name,
+        },
+      })),
+    }));
   }
 
-  async getOrderById(orderId: string): Promise<Order> {
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId },
+  async getOrdersByUserId(userId: string): Promise<any> {
+    const orders = await this.orderRepository.find({
+      where: { user: { id: userId } },
       relations: ['user', 'orderItems', 'orderItems.product'],
     });
-    if (!order) {
-      throw new NotFoundException('Orden no encontrada');
+  
+    if (!orders || orders.length === 0) {
+      throw new NotFoundException('No se encontraron órdenes para este usuario');
     }
-    return order;
+  
+    return orders.map(order => ({
+      id: order.id,
+      price: order.price,
+      totalprice: order.totalPrice, 
+      status: order.status, 
+      date: order.date,
+      user: {
+        id: order.user.id,
+        username: order.user.name,
+        email: order.user.email,
+      },
+      orderItems: order.orderItems.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        price: item.price,
+        product: {
+          id: item.product.id,
+          name: item.product.name,
+        },
+      })),
+    }));
   }
+  
 }

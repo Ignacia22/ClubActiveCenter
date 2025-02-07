@@ -1,3 +1,5 @@
+"use client"
+
 import { Home, Table, Users, CreditCard, Settings, User, LogIn } from 'lucide-react';
 
 export default function Sidebar() {
@@ -8,17 +10,21 @@ export default function Sidebar() {
       </div>
       
       <nav className="space-y-2">
-        <a href="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
+        <a href="/admin/adminDashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
           <Home className="h-5 w-5" />
           <span>Dashboard</span>
         </a>
-        <a href="/usuarios" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
+        <a href="/admin/usuarios" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
           <Users className="h-5 w-5" />
           <span>Usuarios</span>
         </a>
-        <a href="/actividades" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
+        <a href="/admin/actividades" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
           <Table className="h-5 w-5" />
           <span>Actividades</span>
+        </a>
+        <a href="/admin/productos" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
+          <Table className="h-5 w-5" />
+          <span>Productos</span>
         </a>
         <a href="/billing" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-600/20">
           <CreditCard className="h-5 w-5" />

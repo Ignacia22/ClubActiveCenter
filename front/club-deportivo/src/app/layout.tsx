@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
-import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import SendUserData from "@/components/SendUserData";
 import { AdminProvider } from "@/context/AdminContext";
+import Nav from "@/components/Nav";
+import ExcludedWrapped from "@/components/ExcludedWrapped";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,8 +39,10 @@ export default function RootLayout({
           <UserProvider>
             <SendUserData />
             <CartProvider>
-              <AdminProvider> 
-                <Nav />
+              <AdminProvider>
+                <ExcludedWrapped>
+                  <Nav />
+                </ExcludedWrapped>
                 {children}
                 <Footer />
               </AdminProvider>

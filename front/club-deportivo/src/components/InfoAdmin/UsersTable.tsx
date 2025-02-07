@@ -1,15 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
+
 import { useEffect, useState } from 'react';
 import { MoreVertical } from 'lucide-react';
-import Image from 'next/image';
 import { IUser } from '@/interface/IUser';
 import { useAdmin } from '@/context/AdminContext';
+import { debounce } from 'lodash';
 
 export interface UsersTableProps {
   searchTerm: string;
 }
 
 // Enum para los estados de usuario
-enum UserStatus {
+export enum UserStatus {
   ACTIVE = 'ACTIVE',
   BANNED = 'BANNED',
   SUSPENDED = 'SUSPENDED'
@@ -26,32 +29,41 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
       try {
         setLoading(true);
         const data = await getAllUsers();
-        // Opcional: Verificar estado de ban adicional si es necesario
         const usersWithVerifiedStatus = await Promise.all(
           data.map(async (user) => {
-            // Si quieres verificar el ban mediante un método adicional
-            const isBanned = await isBan(user.id);
-            return {
-              ...user,
-              // Actualizar el estado si el método isBan lo indica
-              userStatus: isBanned ? UserStatus.BANNED : user.userStatus
-            };
+            try {
+              const isBanned = await isBan(user.id);
+              return {
+                ...user,
+                userStatus: isBanned ? UserStatus.BANNED : (user.userStatus || UserStatus.ACTIVE)
+              };
+            } catch (banError) {
+              console.error(`Error verificando ban para usuario ${user.id}:`, banError);
+              return user;
+            }
           })
         );
         setUsers(usersWithVerifiedStatus);
       } catch (err) {
+        console.error('Error al cargar usuarios:', err);
         setError('Error al cargar usuarios');
-        console.error(err);
       } finally {
         setLoading(false);
       }
     };
+  
+    const debouncedFetch = debounce(fetchUsers, 300);
+    debouncedFetch();
+  
+    return () => debouncedFetch.cancel();
+  }, []);
 
-    fetchUsers();
-  }, [getAllUsers, isBan]);
+  // Debugging adicional
+  console.log('Estado de usuarios:', { users, loading, error });
 
   if (loading) return <div className="text-white">Cargando usuarios...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
+  if (users.length === 0) return <div className="text-white">No hay usuarios</div>;
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,24 +73,9 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
 
   const handleBanUser = async (userId: string) => {
     try {
-      // Lógica para cambiar el estado del usuario
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId 
-            ? { 
-                ...user, 
-                userStatus: user.userStatus === UserStatus.BANNED 
-                  ? UserStatus.ACTIVE 
-                  : UserStatus.BANNED 
-              }
-            : user
-        )
-      );
-      
-      // Aquí deberías llamar a tu endpoint para actualizar el estado del usuario
-      // await updateUserStatus(userId, newStatus);
+      await isBan(userId);
     } catch (error) {
-      console.error('Error cambiando el estado del usuario:', error);
+      console.error('Error al actualizar estado:', error);
     }
   };
 
@@ -116,11 +113,9 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
             <tr key={user.id} className="hover:bg-gray-700/50">
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                  <Image
-                    className="h-10 w-10 rounded-full bg-gray-700"
-                    src="/api/placeholder/40/40"
-                    alt={user.name}
-                  />
+                  <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-medium">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
                   <div className="ml-4">
                     <div className="text-sm font-medium text-white">{user.name}</div>
                     <div className="text-sm text-gray-400">{user.email}</div>
