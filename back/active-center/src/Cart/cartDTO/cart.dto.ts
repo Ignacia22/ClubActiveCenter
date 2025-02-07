@@ -53,7 +53,14 @@ export class CartDTO {
   })
   userName: string;
 }
-export class updateItemtDTO {
+export class UpdateItemDTO {
+  @ApiProperty({
+    description: 'Identificador único del usuario.',
+    example: 'user12345',
+  })
+  @IsString()
+  userId: string;
+
   @ApiProperty({
     description: 'Identificador único del producto.',
     example: '12345abcde',
@@ -68,3 +75,37 @@ export class updateItemtDTO {
   @IsNumber()
   quantity: number;
 }
+
+export class AddProductsDTO {
+  @ApiProperty({
+    description: 'Identificador único del usuario.',
+    example: 'user12345',
+  })
+  @IsString()
+  userId: string;
+
+  @ApiProperty({
+    description: 'Lista de productos a agregar al carrito.',
+    type: [CartItemDTO],
+  })
+  @IsArray()
+  products: CartItemDTO[];
+}
+
+export class RemoveItemDTO {
+  @ApiProperty({
+    description: 'Identificador único del usuario.',
+    example: 'user12345',
+  })
+  @IsString()
+  userId: string;
+
+  @ApiProperty({
+    description: 'Identificador único del producto a eliminar.',
+    example: '12345abcde',
+  })
+  @IsString()
+  productId: string;
+}
+
+
