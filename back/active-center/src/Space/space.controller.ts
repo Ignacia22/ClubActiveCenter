@@ -52,15 +52,43 @@ export class SpaceController {
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
+  @ApiOperation({summary: 'Agregar espacio. (ADMIN)', description: 'Este endpoint permite agregar un espacio, solo para administradores.'})
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Imagen del producto',
     schema: {
       type: 'object',
       properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
+        title: { 
+          type: 'string', 
+          description: 'Título de la actividad', 
+          example: 'Clase de Yoga Matutina' 
+        },
+        maxPeople: { 
+          type: 'number', 
+          description: 'Número máximo de personas que pueden participar en la actividad', 
+          example: 20 
+        },
+        date: { 
+          type: 'string', 
+          format: 'date', 
+          description: 'Fecha en la que se realizará la actividad', 
+          example: '2025-02-10' 
+        },
+        hour: { 
+          type: 'string', 
+          pattern: '^(?:[01]\\d|2[0-3]):[0-5]\\d$', 
+          description: 'Hora en la cual se va a realizar la actividad', 
+          example: '14:30' 
+        },
+        description: { 
+          type: 'string', 
+          description: 'Descripción de la actividad', 
+          example: 'Clase de yoga para principiantes en el parque central.', 
+        },
+        file: { 
+          type: 'string', 
+          format: 'binary', 
+          description: 'Imagen de la actividad (JPG, PNG, WEBP, máximo 1.5MB)' 
         },
       },
     },

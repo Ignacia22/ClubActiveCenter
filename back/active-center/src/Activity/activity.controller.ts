@@ -5,7 +5,7 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/User/UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
 import { ActivitiesPageDTO, ActivityResponseDTO, CreateActivityDTO } from './activitiesDTO/Activity.dto';
-import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('activity')
@@ -33,8 +33,48 @@ export class ActivityController {
   @ApiBearerAuth()
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { 
+          type: 'string', 
+          description: 'Título de la actividad', 
+          example: 'Clase de Yoga Matutina' 
+        },
+        maxPeople: { 
+          type: 'number', 
+          description: 'Número máximo de personas que pueden participar en la actividad', 
+          example: 20 
+        },
+        date: { 
+          type: 'string', 
+          format: 'date', 
+          description: 'Fecha en la que se realizará la actividad', 
+          example: '2025-02-10' 
+        },
+        hour: { 
+          type: 'string', 
+          pattern: '^(?:[01]\\d|2[0-3]):[0-5]\\d$', 
+          description: 'Hora en la cual se va a realizar la actividad', 
+          example: '14:30' 
+        },
+        description: { 
+          type: 'string', 
+          description: 'Descripción de la actividad', 
+          example: 'Clase de yoga para principiantes en el parque central.', 
+        },
+        file: { 
+          type: 'string', 
+          format: 'binary', 
+          description: 'Imagen de la actividad (JPG, PNG, WEBP, máximo 1.5MB)' 
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Crear actividades', description: 'Este endpoint, permite crear una actividad con cualquier usuario administrador.'})
+  @ApiOperation({ summary: 'Crear actividades. (ADMIN)', description: 'Este endpoint, permite crear una actividad con cualquier usuario administrador.'})
   async createActivity(@Body() data: CreateActivityDTO, @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -58,7 +98,7 @@ export class ActivityController {
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Borrar actividades', description: 'Este endpoint, permite borrar una actividad con cualquier usuario administrador.'})
+  @ApiOperation({ summary: 'Borrar actividades. (ADMIN)', description: 'Este endpoint, permite borrar una actividad con cualquier usuario administrador.'})
   async cancelActivity(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.activityService.cancelActivity(id);
   }
