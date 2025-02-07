@@ -1,4 +1,4 @@
-// Usuario: para representar la información del usuario
+// Usuario: para representar la información básica del usuario
 export interface User {
   id: string;
   name: string;
@@ -32,23 +32,23 @@ export interface Space {
 
 // Reserva: con las relaciones del espacio y el usuario
 export interface Reservation {
-  id: string;
-  date: string; // Fecha de la reserva
-  price: number; // Precio de la reserva
-  user: Partial<User>; // Datos básicos del usuario
-  spaces: Partial<Space>[]; // Datos básicos del espacio
-  startTime: string; // Hora de inicio de la reserva
-  endTime: string; // Hora de fin de la reserva
-  status: "pending" | "confirmed" | "cancelled"; // Estado de la reserva
-  payments: string[]; // Lista de IDs de pagos asociados a la reserva
+  id?: string; // ID de la reserva (esto es lo que falta en tu DTO)
+  user?: Partial<User>; // Información del usuario (debería venir del backend o contexto)
+  spaces?: Partial<Space>[]; // Espacios reservados (deberían ser referencias a objetos Space)
+  startTime: string;
+  endTime: string;
+  date: string;
+  price: number; // Precio total de la reserva
+  status: string; // Estado de la reserva
+  payments?: string[]; // Opcional: IDs de pagos asociados
 }
 
 // DTO para crear una reserva: datos que el cliente envía al backend
 export interface CreateReservationDto {
-  space: string; // Cambiado de spaceName a space
-  price: string; // Ahora obligatorio porque el backend lo devuelve
+  space: string; // ID del espacio (en lugar de nombre)
+  price: string; // Precio
   startTime: string;
   endTime: string;
   date: string;
-  status: "pending" | "confirmed" | "cancelled"; // Coincide con la respuesta del backend
+  status: "pending" | "confirmed" | "cancelled"; // El estado de la reserva
 }
