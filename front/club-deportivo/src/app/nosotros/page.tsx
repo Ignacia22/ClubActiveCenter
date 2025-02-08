@@ -1,8 +1,41 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
+import axios from "axios";
+import ContactForm from "../../components/ContactForm/ContactForm";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Nosotros() {
+
+  const BACK_URL = "http://localhost:3007";
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleFormSubmit = async (formData: { name: string; phone: string; email: string; message: string }) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await axios.post(`${BACK_URL}/sendGrid/contacForm`, formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      setSuccessMessage("¡Formulario enviado con éxito!");
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setError(error.response.data.message || "Hubo un error al enviar el formulario.");
+      } else {
+        setError("Hubo un error al enviar el formulario. Intenta nuevamente.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   return (
     <div className="bg-black text-white px-6 py-12 space-y-16">
       {/* Sección 1: Historia del gimnasio */}
@@ -101,7 +134,16 @@ export default function Nosotros() {
               Aprender más
             </button>
           </Link>
-        </div>
+        <div className="bg-black text-white px-6 py-12 space-y-16">
+      </div>
+    </div>
+      </div>
+      {/* Otras secciones de "Nosotros" */}
+      <div className="flex flex-col items-center">
+      <ContactForm onSubmit={handleFormSubmit} />
+        {isLoading && <p>Enviando...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
       </div>
     </div>
   );
