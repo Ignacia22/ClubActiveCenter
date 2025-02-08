@@ -28,9 +28,7 @@ export default function ActivitiesDashboard() {
     date: '',
     hour: '',
     maxPeople: 0,
-    registeredPeople: 0,
-    status: 'active',
-    imagenUrl: ''
+    file: undefined
   });
 
   useEffect(() => {
@@ -104,10 +102,9 @@ export default function ActivitiesDashboard() {
         date: '',
         hour: '',
         maxPeople: 0,
-        registeredPeople: 0,
-        status: 'active',
-        imagenUrl: ''
+        file: undefined, // Cambiar el tipo de string a undefined
       });
+      
     } catch (error) {
       console.error('Error al crear actividad:', error);
       alert('No se pudo crear la actividad. Por favor, inténtalo de nuevo.');
@@ -115,7 +112,7 @@ export default function ActivitiesDashboard() {
   };
 
   
-  const handleDeleteActivity = async (id: number) => {
+  const handleDeleteActivity = async (id: string) => {
     try {
       await deleteActivity(id);
     } catch (error) {
@@ -188,18 +185,18 @@ export default function ActivitiesDashboard() {
                   {activity.description}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {activity.imagenUrl ? (
-                    <Image 
-                      src={activity.imagenUrl} 
-                      alt={activity.title} 
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-gray-500">Sin imagen</span>
-                  )}
-                </td>
+                   {activity.file ? (
+                     <Image 
+                       src={URL.createObjectURL(activity.file)} // Crear una URL del archivo
+                       alt={activity.title} 
+                       width={40}
+                       height={40}
+                       className="h-10 w-10 object-cover rounded"
+                     />
+                   ) : (
+                     <span className="text-gray-500">Sin imagen</span>
+                   )}
+                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                   <div className="flex space-x-3">
                     <button 
@@ -290,14 +287,14 @@ export default function ActivitiesDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">URL de Imagen</label>
-                <input
-                  type="text"
-                  value={newActivity.imagenUrl}
-                  onChange={(e) => setNewActivity({...newActivity, imagenUrl: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                 <label className="block text-sm font-medium text-gray-300 mb-2">Selecciona una imagen</label>
+                 <input
+                   type="file"
+                   onChange={(e) => setNewActivity({ ...newActivity, file: e.target.files?.[0] })}
+                   className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 />
+               </div>
+
               <div className="flex justify-end space-x-4 mt-6">
                 <button
                   type="button"
