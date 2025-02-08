@@ -27,6 +27,7 @@ export class CreateActivityDTO {
       description: 'Número máximo de personas que pueden participar en la actividad',
       example: 20,
     })
+    @Transform(({ value }) => Number(value))
     @IsNumber({}, { message: 'El número máximo de personas debe ser un número.' })
     @IsNotEmpty({ message: 'El número máximo de personas es obligatorio.' })
     maxPeople: number;
