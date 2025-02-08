@@ -23,7 +23,7 @@ export default function Nosotros() {
       const response = await axios.post(`${BACK_URL}/sendGrid/contacForm`, formData, {
         headers: { "Content-Type": "application/json" },
       });
-
+      console.log(response.data)
       setSuccessMessage("¡Formulario enviado con éxito!");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
