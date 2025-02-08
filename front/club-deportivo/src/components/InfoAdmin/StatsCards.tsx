@@ -1,29 +1,34 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useActivities } from '@/context/ActivityContext2';
-import { useAuth } from '@/context/AuthContext';
+"use client"
 
+import { useEffect, useState } from 'react';
+import { useAdmin } from '@/context/AdminContext';
 import { useCart } from '@/context/CartContext';
-
-interface StatsCardProps {
-  title: string;
-  value: string | number;
-  description?: string;
-}
-
-function StatsCard({ title, value, description }: StatsCardProps) {
-  return (
-    <div className="bg-gray-800 rounded-lg p-4">
-      <h3 className="text-gray-400 text-sm">{title}</h3>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      {description && <p className="text-sm text-gray-400 mt-1">{description}</p>}
-    </div>
-  );
-}
+import { Activity2 } from '@/interface/IActivity2';
+import StatsCard from './StatsCard'; 
 
 export default function StatsCards() {
-  const { activities } = useActivities();
-  const { user } = useAuth();
+  const [activities, setActivities] = useState<Activity2[]>([]);
+  const { getAllActivities } = useAdmin();
   const { items, getCartTotal } = useCart();
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const activitiesData = await getAllActivities();
+        const convertedActivities: Activity2[] = activitiesData.map(activity => ({
+          ...activity,
+          img: '',
+          registeredPeople: 0,
+          status: 'active'
+        }));
+        setActivities(convertedActivities);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      }
+    };
+
+    fetchActivities();
+  }, [getAllActivities]);
 
   const stats = {
     totalActivities: activities.length,

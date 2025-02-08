@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
-import { Activity } from '@/interface/IActivity';
+import { Activity2 } from '@/interface/IActivity2';
 import Image from 'next/image';
 
 export default function ActivitiesPage() {
@@ -16,12 +16,12 @@ export default function ActivitiesPage() {
   console.log('Actividades recibidas:', activities);
 
   // Extraer el array de actividades correctamente
-  const activityList: Activity[] = Array.isArray(activities) 
+  const activityList: Activity2[] = Array.isArray(activities) 
     ? activities 
     : (activities as any)?.activities || [];
 
   // Filtrar actividades activas o futuras
-  const availableActivities = activityList.filter((activity: Activity) => {
+  const availableActivities = activityList.filter((activity: Activity2) => {
     const activityDate = new Date(activity.date);
     const today = new Date();
     return activityDate >= today; // Solo mostrar actividades futuras
@@ -69,14 +69,14 @@ export default function ActivitiesPage() {
         <p className="text-center text-gray-500">No hay actividades disponibles</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableActivities.map((activity: Activity) => (
+          {availableActivities.map((activity: Activity2) => (
             <div 
               key={activity.id} 
               className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
             >
-              {activity.imagenUrl ? (
+              {activity.img ? (
                 <Image 
-                  src={activity.imagenUrl} 
+                  src={activity.img} 
                   alt={activity.title} 
                   width={400}
                   height={200}

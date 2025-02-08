@@ -38,10 +38,10 @@ interface AdminContextType {
 
   // Funciones de Actividades
   getAllActivities: () => Promise<Activity[]>;
-  getActivityById: (id: number) => Promise<Activity>;
+  getActivityById: (id: string) => Promise<Activity>;
   createActivity: (activityData: Omit<Activity, 'id'>) => Promise<void>;
-  updateActivityRegistration: (id: number, activityData: Partial<Activity>) => Promise<void>;
-  deleteActivity: (id: number) => Promise<void>;
+  updateActivityRegistration: (id: string, activityData: Partial<Activity>) => Promise<void>;
+  deleteActivity: (id: string) => Promise<void>;
   
   // Funciones de Productos
   getAllProducts: () => Promise<IProducts[]>;
@@ -229,7 +229,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const getActivityById = async (id: number) => {
+  const getActivityById = async (id: string) => {
     try {
       const { data } = await axios.get(`${API_URL}/activity/${id}`);
       return data;
@@ -238,22 +238,62 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const createActivity = async (activityData: Omit<Activity, 'id'>) => {
+  const createActivity = async (activityData: Omit<Activity, 'id'>): Promise<void> => {
     try {
-      console.log('Datos de actividad a enviar:', activityData);
-      const response = await axios.post(`${API_URL}/activity/createActivity`, activityData);
-      console.log('Respuesta del servidor:', response.data);
-      setActivities(prev => [...prev, response.data]);
-      return response.data;
+      const maxPeopleValue = Number(activityData.maxPeople);
+      if (isNaN(maxPeopleValue) || maxPeopleValue <= 0) {
+        throw new Error("El número máximo de personas debe ser un valor mayor a 0.");
+      }
+  
+      // Crear un FormData
+      const formData = new FormData();
+      formData.append('title', activityData.title);
+      formData.append('description', activityData.description);
+      formData.append('date', activityData.date);
+      formData.append('hour', activityData.hour);
+      formData.append('maxPeople', String(Number(maxPeopleValue))); // Asegurar que maxPeople es un string numérico
+  
+      if (activityData.file) {
+        formData.append('file', activityData.file);
+      }
+  
+      // Obtener el token desde localStorage (o donde sea que lo estés almacenando)
+      const token = localStorage.getItem('token'); // Cambia esto según tu implementación
+  
+      // Verificar si el token existe
+      if (!token) {
+        throw new Error('No se encontró un token de autenticación.');
+      }
+  
+      // Enviar la solicitud POST al backend con el token en los encabezados
+      const response = await axios.post(`${API_URL}/activity/createActivity`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Agregar el token al encabezado
+        }
+      });
+  
+      if (!response) {
+        throw new Error(`Error al crear la actividad: ${response}`);
+      }
+  
+      console.log('Actividad creada:', response.data);
+      return response.data; // Retornar el resultado de la creación
+  
     } catch (error) {
-      console.error('Error detallado al crear actividad:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Respuesta del servidor:', error.response?.data);
+      console.error('Error al crear actividad:', error);
+      if (error instanceof Error) {
+        console.error('Detalles del error:', error.message);
       }
       throw error;
     }
   };
-  const updateActivityRegistration = async (id: number, activityData: Partial<Activity>) => {
+  
+  
+  
+  
+
+
+  const updateActivityRegistration = async (id: string, activityData: Partial<Activity>) => {
     try {
       const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`, activityData);
       setActivities(prev => prev.map(activity => activity.id === id ? data : activity));
@@ -262,7 +302,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const deleteActivity = async (id: number) => {
+  const deleteActivity = async (id: string) => {
     try {
       await axios.delete(`${API_URL}/activity/delete-activity/${id}`);
       setActivities(prev => prev.filter(activity => activity.id !== id));
