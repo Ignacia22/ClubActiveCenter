@@ -79,12 +79,6 @@ async getProduct(
       price: { type: 'number', description: 'Precio del producto', example: 200},
       stock: { type: 'number', description: 'Cantidad disponible en stock', example: 1},
       category: { type: 'string', description: 'Categoría del producto', example: 'Camisa' },
-      img: { type: 'string', description: 'URL de la imagen (opcional)' },
-      productStatus: { 
-        type: 'string', 
-        enum: ['Available', 'OutOfStock', 'Discontinued'], 
-        description: 'Estado del producto' 
-      },
       file: { type: 'string', format: 'binary', description: 'Imagen del producto (JPG, PNG, WEBP, máximo 1.5MB)' },
     },
   },
