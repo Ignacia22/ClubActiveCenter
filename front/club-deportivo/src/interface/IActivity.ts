@@ -6,6 +6,9 @@ export interface Activity {
     hour: string;
     maxPeople: number;
     file?: File;
+    img?: string; 
+    status?: boolean;
+    registeredPeople?: number;
 }
 
 
