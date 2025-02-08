@@ -1,10 +1,16 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Order } from "./Order.entity";
-import { Product } from "./Product.entity";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Order } from './Order.entity';
+import { Product } from './Product.entity';
 
-@Entity({ name: "order_items" })
+@Entity({ name: 'order_items' })
 export class OrderItem {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => Order, (order) => order.orderItems)
@@ -18,6 +24,6 @@ export class OrderItem {
   @Column()
   quantity: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 2 }) 
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 }

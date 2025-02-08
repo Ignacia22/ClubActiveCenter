@@ -4,9 +4,9 @@ import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.config';
 import { ValidationPipe } from '@nestjs/common';
 
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -14,9 +14,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.enableCors();
   setupSwagger(app);
-
   await app.listen(process.env.PORT ?? 3000, () =>
     console.log(`Server is listen on the port ${process.env.PORT}`),
   );

@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import {
   UpdateUserDTO,
   UserDTOPage,
@@ -28,42 +28,50 @@ import { RolesGuard } from 'src/Auth/Guard/roles.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-@Get()
-//@Roles(Role.admin)
-//@UseGuards(RolesGuard)
-@SetMetadata("isPublic", true)
-@ApiOperation({
-  summary: 'Obtiene todos los usuarios',
-  description:
-    'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos.',
-})
-@ApiBearerAuth()
-async getAllUsers(
-  @Query('page') page: number,
-  @Query('limit') limit: number,
-  @Query('name') name?: string,
-  @Query('email') email?: string,
-  @Query('phone') phone?: string,
-  @Query('address') address?: string,
-  @Query('dni') dni?: number,
-  @Query('userStatus') userStatus?: string,
-  @Query('isAdmin') isAdmin?: string,
-): Promise<UserDTOPage> {
-  if (isNaN(page) || page <= 0) page = 1;
-  if (isNaN(limit) || limit <= 0) limit = 5;
+  @Get()
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Obtiene todos los usuarios (ADMIN)',
+    description:
+      'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos. Solo para administradores.',
+  })
+  @ApiBearerAuth()
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Número de página para paginación. Por defecto es 1.' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Número de elementos por página. Por defecto es 5.' })
+  @ApiQuery({ name: 'name', required: false, type: String, description: 'Filtra por nombre del usuario.' })
+  @ApiQuery({ name: 'email', required: false, type: String, description: 'Filtra por correo electrónico del usuario.' })
+  @ApiQuery({ name: 'phone', required: false, type: String, description: 'Filtra por teléfono del usuario.' })
+  @ApiQuery({ name: 'address', required: false, type: String, description: 'Filtra por dirección del usuario.' })
+  @ApiQuery({ name: 'dni', required: false, type: Number, description: 'Filtra por DNI del usuario.' })
+  @ApiQuery({ name: 'userStatus', required: false, type: String, description: 'Filtra por estado del usuario.' })
+  @ApiQuery({ name: 'isAdmin', required: false, type: String, description: 'Filtra por el rol de administrador.' })
+  async getAllUsers(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('name') name?: string,
+    @Query('email') email?: string,
+    @Query('phone') phone?: string,
+    @Query('address') address?: string,
+    @Query('dni') dni?: number,
+    @Query('userStatus') userStatus?: string,
+    @Query('isAdmin') isAdmin?: string,
+  ): Promise<UserDTOPage> {
+    if (isNaN(page) || page <= 0) page = 1;
+    if (isNaN(limit) || limit <= 0) limit = 5;
 
-  const filters: UserFilters = {
-    name,
-    email,
-    phone,
-    address,
-    dni,
-    userStatus,
-    isAdmin,
-  };
+    const filters: UserFilters = {
+      name,
+      email,
+      phone,
+      address,
+      dni,
+      userStatus,
+      isAdmin,
+    };
 
-  return await this.userService.getAllUsers(page, limit, filters);
-}
+    return await this.userService.getAllUsers(page, limit, filters);
+  }
 
   @Get(':id')
   @ApiOperation({
@@ -82,7 +90,7 @@ async getAllUsers(
   @ApiOperation({
     summary: 'Eliminar usuario.',
     description:
-      'Este endpoint ecibe el id del usuario, para buscarlo y luego eliminarlo.',
+      'Este endpoint recibe el id del usuario, para buscarlo y luego eliminarlo.',
   })
   @ApiBearerAuth()
   async deleteUser(
@@ -95,7 +103,7 @@ async getAllUsers(
   @ApiOperation({
     summary: 'Editar usuario.',
     description:
-      'Este endpoint recibe el id del usuario, para buscarlo y luego modificarlo con los atribustos mandados.',
+      'Este endpoint recibe el id del usuario, para buscarlo y luego modificarlo con los atributos mandados.',
   })
   @ApiBearerAuth()
   async editUser(

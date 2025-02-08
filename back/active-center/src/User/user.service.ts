@@ -20,6 +20,7 @@ import {
 } from './UserDTO/users.dto';
 import { SALT } from 'src/config/config.envs';
 import * as bcrypt from 'bcrypt';
+import { userMAin } from 'src/UserMain';
 
 @Injectable()
 export class UserService {
@@ -27,48 +28,59 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async getAllUsers(page: number, limit: number, filters: UserFilters): Promise<UserDTOPage> {
+  async getAllUsers(
+    page: number,
+    limit: number,
+    filters: UserFilters,
+  ): Promise<UserDTOPage> {
     try {
       const query = this.userRepository.createQueryBuilder('user');
-  
+
       if (filters?.name) {
         query.andWhere('user.name LIKE :name', { name: `%${filters.name}%` });
       }
       if (filters?.email) {
-        query.andWhere('user.email LIKE :email', { email: `%${filters.email}%` });
+        query.andWhere('user.email LIKE :email', {
+          email: `%${filters.email}%`,
+        });
       }
       if (filters?.phone) {
-        query.andWhere('user.phone LIKE :phone', { phone: `%${filters.phone}%` });
+        query.andWhere('user.phone LIKE :phone', {
+          phone: `%${filters.phone}%`,
+        });
       }
       if (filters?.address) {
-        query.andWhere('user.address LIKE :address', { address: `%${filters.address}%` });
+        query.andWhere('user.address LIKE :address', {
+          address: `%${filters.address}%`,
+        });
       }
       if (filters?.dni) {
         query.andWhere('user.dni = :dni', { dni: filters.dni });
       }
       if (filters?.userStatus) {
-        query.andWhere('user.userStatus = :userStatus', { userStatus: filters.userStatus });
+        query.andWhere('user.userStatus = :userStatus', {
+          userStatus: filters.userStatus,
+        });
       }
       if (filters?.isAdmin !== undefined) {
         query.andWhere('user.isAdmin = :isAdmin', { isAdmin: filters.isAdmin });
       }
-  
       const users: User[] = await query.getMany();
-  
+
       if (!users) throw new NotFoundException('No se encontró ningún usuario');
-  
+
       const partialUsers: UserDTOREsponseGet[] = users.map((user) => {
         const { password, ...partialUser } = user;
         return partialUser;
       });
-  
+
       const totalItems: number = users.length;
       const maxPages: number = Math.ceil(totalItems / limit);
       const currentPage: number = Math.min(Math.max(1, page), maxPages);
       const init: number = (currentPage - 1) * limit;
       const end: number = Math.min(currentPage * limit, totalItems);
       const getUsers: UserDTOREsponseGet[] = partialUsers.slice(init, end);
-  
+
       const Page: UserDTOPage = {
         infoPage: {
           totalItems,
@@ -78,12 +90,14 @@ export class UserService {
         },
         users: getUsers,
       };
-  
+
       return Page;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      if(error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(`Hubo un error al obtener los usuarios. Error: ${error.message}`);
     }
   }
+  
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
       const user: User | null = await this.userRepository.findOne({
@@ -95,7 +109,8 @@ export class UserService {
         user;
       return partialUser;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      if(error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(`Hubo un error al obtener al usuario. Error: ${error.message}`);
     }
   }
 
@@ -104,14 +119,16 @@ export class UserService {
       const user: User | null = await this.userRepository.findOneBy({ email });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(`Hubo un error al obtener al usuario. Error: ${error.message}`);
     }
   }
 
   async deleteUser(id: string): Promise<'Usuario eliminado'> {
     try {
       const exist: User | null = await this.userRepository.findOneBy({ id });
+      const admin: User | null = await this.getUserByEmail(userMAin.email);
       if (!exist) throw new NotFoundException('El usuario buscado, no existe.');
+      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.')
       await this.userRepository.save({
         ...exist,
         userStatus: UserStatus.delete,
@@ -119,9 +136,8 @@ export class UserService {
       });
       return 'Usuario eliminado';
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Hubo algun error al eliminar el usuario. Intentelo más tarde.',
-      );
+      if(error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(`Hubo un error, al borrar el usuario. Error: ${error.message}`);
     }
   }
 
@@ -131,7 +147,9 @@ export class UserService {
   ): Promise<'Se actualizo el perfil correctamente'> {
     try {
       const oldUser: User | null = await this.userRepository.findOneBy({ id });
-      if (!oldUser) throw new BadRequestException('No existe el usuario.');
+      const admin: User | null = await this.getUserByEmail(userMAin.email);
+      if (!oldUser) throw new NotFoundException('No existe el usuario.');
+      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.');
       if (editUser.password) {
         const password: string = await this.hashPassword(editUser.password);
         await this.userRepository.save({
@@ -149,7 +167,9 @@ export class UserService {
       });
       return 'Se actualizo el perfil correctamente';
     } catch (error) {
-      throw new Error(error);
+      if(error instanceof NotFoundException) throw error;
+      if(error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(`Hubo un error, al editar el usuario. Error: ${error.message}`);
     }
   }
 

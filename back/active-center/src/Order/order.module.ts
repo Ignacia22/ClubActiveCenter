@@ -11,11 +11,12 @@ import { PaymentModule } from 'src/Payment/payment.module';
 import { OrderItem } from 'src/Entities/OrdenItem.entity';
 import { CartItem } from 'src/Entities/CartItem.entity';
 import { Cart } from 'src/Entities/Cart.entity';
+import { SendGridModule } from 'src/SendGrid/sendGrid.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order,Product,User,OrderItem,CartItem,Cart]),CartModule,forwardRef(() => PaymentModule)],
+  imports: [TypeOrmModule.forFeature([Order,Product,User,OrderItem,CartItem,Cart]),CartModule,forwardRef(() => PaymentModule), SendGridModule],
   controllers: [OrderController],
   providers: [OrderService],
-  exports:[OrderService]
+  exports: [OrderService],
 })
 export class OrderModule {}

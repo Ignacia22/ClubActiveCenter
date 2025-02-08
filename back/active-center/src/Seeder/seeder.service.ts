@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Category } from 'src/Entities/Category.entity';
 import { Product } from 'src/Entities/Product.entity';
 import { User } from 'src/Entities/User.entity';

@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
-import { Cart } from "./Cart.entity";
-import { Product } from "./Product.entity";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
+import { Cart } from './Cart.entity';
+import { Product } from './Product.entity';
 
 @Entity()
 export class CartItem {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => Cart, (cart) => cart.items, { nullable: false })
@@ -13,6 +13,6 @@ export class CartItem {
   @ManyToOne(() => Product, { nullable: false })
   product: Product;
 
-  @Column({ default: 1 }) 
+  @Column({ default: 1 })
   quantity: number;
 }

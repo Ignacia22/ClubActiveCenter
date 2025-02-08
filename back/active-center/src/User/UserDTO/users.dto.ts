@@ -511,4 +511,3 @@ export interface UserFilters {
   userStatus?: string;
   isAdmin?: string;
 }
-

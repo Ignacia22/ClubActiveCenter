@@ -9,12 +9,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async redirects() {
+  async rewrites() {
     return [
+      // Evitar que las rutas de Auth0 sean afectadas
       {
-        source: "/login",
-        destination: "/api/auth/login",
-        permanent: true,
+        source: "/api/auth/:path*",
+        destination: "/api/auth/:path*", 
+      },
+      {
+        source: "/api/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
       },
     ];
   },
@@ -23,6 +27,9 @@ const nextConfig: NextConfig = {
     AUTH0_BASE_URL: process.env.AUTH0_BASE_URL,
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
+    AUTH0_ISSUER_BASE_URL: process.env.AUTH0_ISSUER_BASE_URL, 
+    API_URL: process.env.API_URL, 
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL, 
   },
 };
 

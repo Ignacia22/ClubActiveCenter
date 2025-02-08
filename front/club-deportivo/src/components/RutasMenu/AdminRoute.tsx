@@ -1,19 +1,29 @@
+"use client"
+
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
+// Definimos la interfaz AdminRouteProps
 interface AdminRouteProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { user } = useAuth();
-  const router = useRouter();
+    const { isAdmin } = useAuth();
+    const router = useRouter();
 
-  if (user?.isAdmin) {
+    useEffect(() => {
+        if (!isAdmin) {
+            router.push("/userDashboard");
+        }
+    }, [isAdmin, router]);
+
+    console.log("AdminRoute - isAdmin:", isAdmin); // Para debugging
+
+    if (!isAdmin) {
+        return null;
+    }
+
     return <>{children}</>;
-  } else {
-    router.push("/userDashboard");
-    return null;
-  }
 };
