@@ -11,5 +11,7 @@ export interface IProducts {
   price: number;
   stock: number;
   image: string;
-  State: ProductState;
+  State?: ProductState;
 }
+
+export type CreateProductDto = Omit<IProducts, "id">;
