@@ -65,8 +65,8 @@ export class PaymentService {
       line_items: lineItems,
       mode: 'payment',
       success_url:
-        'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'http://localhost:3000/cancel',
+        'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://club-active-center.vercel.app/pago/cancel',
       metadata: {
         orderId: orderId,
         userId: userId,
@@ -97,9 +97,9 @@ export class PaymentService {
       throw new NotFoundException('Usuario no encontrado en la reserva');
     }
 
-    const successUrl =
-      'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}';
-    const cancelUrl = 'http://localhost:3000/cancel';
+    const successUrl = 'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = 'https://club-active-center.vercel.app/pago/cancel';
+
 
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -199,7 +199,7 @@ export class PaymentService {
       user: { id: userId },
       order: { id: orderId },
       paymentIntentId: paymentIntentId,
-      reservationId: session.metadata?.reservationId || null,
+      reservationId:null,
     });
 
     await this.paymentRepository.save(payment);

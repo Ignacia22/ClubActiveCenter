@@ -7,6 +7,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import SendUserData from "@/components/SendUserData";
 import { AdminProvider } from "@/context/AdminContext";
+import Nav from "@/components/Nav";
+import ExcludedWrapped from "@/components/ExcludedWrapped";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +40,9 @@ export default function RootLayout({
             <SendUserData />
             <CartProvider>
               <AdminProvider>
+                <ExcludedWrapped>
+                  <Nav />
+                </ExcludedWrapped>
                 {children}
                 <Footer />
               </AdminProvider>
