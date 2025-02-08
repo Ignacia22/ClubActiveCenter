@@ -1,12 +1,13 @@
 "use client";
 
-import { Activity } from "@/interface/IActivity";
+
+import { Activity2 } from "@/interface/IActivity2";
 import { createContext, useState, useContext } from "react";
 
 interface ActivitiesContextProps {
-  activities: Activity[];
-  addActivity: (activity: Omit<Activity, "id">) => void;
-  removeActivity: (id: number) => void;
+  activities: Activity2[];  // Usa Activity2
+  addActivity: (activity: Omit<Activity2, "id">) => void;  // Usa Activity2
+  removeActivity: (id: string) => void;
 }
 
 const ActivitiesContext = createContext<ActivitiesContextProps>({
@@ -16,20 +17,21 @@ const ActivitiesContext = createContext<ActivitiesContextProps>({
 });
 
 export const ActivitiesProvider = ({ children }: { children: React.ReactNode }) => {
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<Activity2[]>([]);  // Usa Activity2
 
-  // Agregar nueva actividad
-  const addActivityHandler = (activity: Omit<Activity, "id">) => {
+  const addActivityHandler = (activity: Omit<Activity2, "id">) => {  // Usa Activity2
     try {
-      const newActivity: Activity = { ...activity, id: Date.now() }; // Asegúrate de agregar un id único
+      const newActivity: Activity2 = { 
+        ...activity, 
+        id: crypto.randomUUID() 
+      };
       setActivities((prev) => [...prev, newActivity]);
     } catch (error) {
       console.error("Error al agregar actividad:", error);
     }
   };
 
-  // Eliminar actividad
-  const removeActivityHandler = (id: number) => {
+  const removeActivityHandler = (id: string) => {
     try {
       setActivities((prev) => prev.filter((activity) => activity.id !== id));
     } catch (error) {
