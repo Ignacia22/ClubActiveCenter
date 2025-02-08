@@ -17,6 +17,7 @@ import { v4 as uuid } from 'uuid';
 import { Activity } from './Activity.entity';
 import { Cart } from './Cart.entity';
 import { Payment } from './Payment.entity';
+import { SubscriptionDetail } from './SubscriptionDetails.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -43,6 +44,9 @@ export class User {
 
   @Column({ type: 'integer', unique: true, nullable: false })
   dni: number;
+
+  @OneToMany(() => SubscriptionDetail, (subscription) => subscription.user)
+  subscriptionsDetails: SubscriptionDetail[];
 
   @ManyToMany(() => Activity)
   @JoinTable()
@@ -76,4 +80,4 @@ export class User {
 
   @OneToOne(() => Cart, (cart) => cart.user)
   cart: Cart;
-} 
+}

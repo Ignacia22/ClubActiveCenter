@@ -14,7 +14,12 @@ import { Cart } from 'src/Entities/Cart.entity';
 import { SendGridModule } from 'src/SendGrid/sendGrid.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order,Product,User,OrderItem,CartItem,Cart]),CartModule,forwardRef(() => PaymentModule), SendGridModule],
+  imports: [
+    TypeOrmModule.forFeature([Order, Product, User, OrderItem, CartItem, Cart]),
+    CartModule,
+    forwardRef(() => PaymentModule),
+    SendGridModule,
+  ],
   controllers: [OrderController],
   providers: [OrderService],
   exports: [OrderService],

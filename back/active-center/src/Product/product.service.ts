@@ -8,7 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/Entities/Category.entity';
 import { Product } from 'src/Entities/Product.entity';
 import { Repository } from 'typeorm';
-import { CreateProductDto, ProductFilters, StatusProduct } from './productDTO/product.dto';
+import {
+  CreateProductDto,
+  ProductFilters,
+  StatusProduct,
+} from './productDTO/product.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
@@ -17,17 +21,22 @@ export class ProductService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-    private cloudinaryService:CloudinaryService
+    private cloudinaryService: CloudinaryService,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto, file?: Express.Multer.File): Promise<Product> {
+  async createProduct(
+    createProductDto: CreateProductDto,
+    file?: Express.Multer.File,
+  ): Promise<Product> {
     try {
       const { category, stock, ...productData } = createProductDto;
       let imageUrl: string | undefined;
       if (file) {
         imageUrl = await this.cloudinaryService.uploadImage(file);
       }
-      let categoryExist = await this.categoryRepository.findOne({ where: { name: category } });
+      let categoryExist = await this.categoryRepository.findOne({
+        where: { name: category },
+      });
       if (!categoryExist) {
         categoryExist = this.categoryRepository.create({ name: category });
         await this.categoryRepository.save(categoryExist);
@@ -48,13 +57,14 @@ export class ProductService {
         stock,
         img: imageUrl,
       });
-  
     } catch (error) {
-      throw new InternalServerErrorException('Error al crear el producto.', error.message || error.detail || error);
+      throw new InternalServerErrorException(
+        'Error al crear el producto.',
+        error.message || error.detail || error,
+      );
     }
   }
-  
-  
+
   async getProduct(page: number, limit: number, filters?: ProductFilters) {
     try {
       const query = this.productsRepository
@@ -161,7 +171,7 @@ export class ProductService {
         message,
       };
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Hubo un error al intentar hacer la petición.',
         error.message || error,

@@ -18,6 +18,7 @@ import { CartModule } from './Cart/cart.module';
 import { SpaceModule } from './Space/space.module';
 import { ActivityModule } from './Activity/activity.module';
 import { CategoryModule } from './Category/category.module';
+import { SubscriptionModule } from './Subscription/subscription.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CategoryModule } from './Category/category.module';
     SpaceModule,
     ActivityModule,
     CategoryModule,
+    SubscriptionModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],

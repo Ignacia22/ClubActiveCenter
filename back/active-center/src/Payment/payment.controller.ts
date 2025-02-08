@@ -29,7 +29,6 @@ export class PaymentController {
     return this.paymentService.createCheckoutSession(body.orderId, body.userId);
   }
 
-
   @ApiOperation({
     summary: 'Manejar eventos de webhook de Stripe',
     description:

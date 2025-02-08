@@ -1,4 +1,8 @@
-import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 
@@ -16,11 +20,10 @@ export class CloudinaryService {
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
-          }
+          },
         );
 
-        Readable.from(file.buffer).pipe(uploadStream); 
-        
+        Readable.from(file.buffer).pipe(uploadStream);
       });
 
       return (result as any).secure_url;

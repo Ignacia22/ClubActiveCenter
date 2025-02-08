@@ -66,8 +66,9 @@ export class UserDTOREsponseGet {
   name: string;
 
   @ApiProperty({
-    description: 'Indica si un usuario esta o no suscrito.', 
-    example: false, default: false
+    description: 'Indica si un usuario esta o no suscrito.',
+    example: false,
+    default: false,
   })
   isSubscribed: boolean;
 
@@ -173,7 +174,7 @@ export class RegisterUserDTO {
   email: string;
 
   @ApiHideProperty()
-  @IsEmpty({message: 'Esta propiedad no puede se mandada.'})
+  @IsEmpty({ message: 'Esta propiedad no puede se mandada.' })
   isSubscribed: boolean;
 
   @ApiProperty({

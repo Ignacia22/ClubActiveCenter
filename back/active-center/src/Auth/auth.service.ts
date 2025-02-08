@@ -152,7 +152,8 @@ export class AuthService {
         throw new BadRequestException('Mail o contraseña incorrecta.');
       if (exist && exist.userStatus === UserStatus.delete)
         throw new BadRequestException('Mail o contraseña incorrecta.');
-      if (exist && exist.userStatus === UserStatus.ban) throw new UnauthorizedException('Usuario baneado.')
+      if (exist && exist.userStatus === UserStatus.ban)
+        throw new UnauthorizedException('Usuario baneado.');
       return exist;
     } catch (error) {
       throw error;
@@ -183,9 +184,14 @@ export class AuthService {
   async isBan(id: string): Promise<BanDTOResponse> {
     try {
       const user: User | null = await this.userRepository.findOneBy({ id });
-      const admin: User | null = await this.userService.getUserByEmail(userMAin.email);
+      const admin: User | null = await this.userService.getUserByEmail(
+        userMAin.email,
+      );
       if (!user) throw new NotFoundException('No existe el usuario.');
-      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.')
+      if (id === admin?.id)
+        throw new BadRequestException(
+          'Esta prohibido modificar de alguna forma este usuario.',
+        );
       if (user.userStatus === UserStatus.delete) {
         throw new ConflictException(
           'No se puede banear a un usuario que fue eliminado.',
@@ -211,9 +217,12 @@ export class AuthService {
         message: 'El Usuario fue baneado.',
       };
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      if(error instanceof BadRequestException) throw error;
-      throw new InternalServerErrorException('Hubo un error en la petición.', error.message || error);
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException(
+        'Hubo un error en la petición.',
+        error.message || error,
+      );
     }
   }
 
@@ -232,17 +241,25 @@ export class AuthService {
       });
       return 'Te has desconectado.';
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      if(error instanceof BadRequestException) throw error;
-      throw new InternalServerErrorException('Hubo un error al cerrar sesión', error.message || error);
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException(
+        'Hubo un error al cerrar sesión',
+        error.message || error,
+      );
     }
   }
 
   async isAdmin(id: string): Promise<BanDTOResponse> {
     try {
       const user: null | User = await this.userRepository.findOneBy({ id });
-      const admin: User | null = await this.userService.getUserByEmail(userMAin.email);
-      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.')
+      const admin: User | null = await this.userService.getUserByEmail(
+        userMAin.email,
+      );
+      if (id === admin?.id)
+        throw new BadRequestException(
+          'Esta prohibido modificar de alguna forma este usuario.',
+        );
       if (!user) throw new NotFoundException('El usuario no existe.');
       !user.isAdmin
         ? await this.userRepository.save({ ...user, isAdmin: true })
@@ -257,9 +274,12 @@ export class AuthService {
             message: `El usuario "${user.name}" ya no es administrador.`,
           };
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      if(error instanceof BadRequestException) throw error;
-      throw new InternalServerErrorException('Hubo un error en la petición.', error.message || error);
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException(
+        'Hubo un error en la petición.',
+        error.message || error,
+      );
     }
   }
 
@@ -293,8 +313,11 @@ export class AuthService {
         token,
       };
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-        throw new InternalServerErrorException('Hubo un error al iniciar sesión', error.message || error);
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Hubo un error al iniciar sesión',
+        error.message || error,
+      );
     }
   }
 }

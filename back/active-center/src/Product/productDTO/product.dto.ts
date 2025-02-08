@@ -18,17 +18,27 @@ export enum StatusProduct {
 }
 
 export class CreateProductDto {
-  @ApiProperty({ description: 'Nombre del producto', example: 'Camiseta Gamer' })
+  @ApiProperty({
+    description: 'Nombre del producto',
+    example: 'Camiseta Gamer',
+  })
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @ApiProperty({ description: 'Descripción del producto', example: 'Camiseta de algodón con diseño de Dark Souls' })
+  @ApiProperty({
+    description: 'Descripción del producto',
+    example: 'Camiseta de algodón con diseño de Dark Souls',
+  })
   @IsNotEmpty()
   @IsString()
   description: string;
 
-  @ApiProperty({ description: 'Precio del producto', example: 29.99, type: Number })
+  @ApiProperty({
+    description: 'Precio del producto',
+    example: 29.99,
+    type: Number,
+  })
   @Type(() => Number)
   @IsPositive()
   @IsNumber()
@@ -45,12 +55,19 @@ export class CreateProductDto {
   @IsString()
   category: string;
 
-  @ApiPropertyOptional({ description: 'Imagen del producto (URL o base64)', example: 'https://example.com/image.jpg' })
+  @ApiPropertyOptional({
+    description: 'Imagen del producto (URL o base64)',
+    example: 'https://example.com/image.jpg',
+  })
   @IsOptional()
   @IsString({ message: 'img must be a string' })
   img?: string;
 
-  @ApiPropertyOptional({ description: 'Estado del producto', enum: StatusProduct, example: StatusProduct.Available })
+  @ApiPropertyOptional({
+    description: 'Estado del producto',
+    enum: StatusProduct,
+    example: StatusProduct.Available,
+  })
   @IsEnum(StatusProduct)
   productStatus?: StatusProduct = StatusProduct.Available;
 }

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
@@ -74,7 +79,9 @@ export class PaymentService {
     });
 
     if (!session.url) {
-      throw new InternalServerErrorException('No se pudo generar el enlace de pago.');
+      throw new InternalServerErrorException(
+        'No se pudo generar el enlace de pago.',
+      );
     }
 
     return session.url;
@@ -199,7 +206,7 @@ export class PaymentService {
       user: { id: userId },
       order: { id: orderId },
       paymentIntentId: paymentIntentId,
-      reservationId:null,
+      reservationId: null,
     });
 
     await this.paymentRepository.save(payment);
