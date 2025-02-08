@@ -7,4 +7,5 @@ export interface Activity2 {
     maxPeople: number;
     img: string;
     registeredPeople: number;
+    status: string;
 }
