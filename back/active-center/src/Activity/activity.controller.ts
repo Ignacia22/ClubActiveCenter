@@ -1,11 +1,12 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, ParseUUIDPipe, Post, Put, Query, Req, SetMetadata, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ActivityService } from './activity.service';
 import { Activity } from 'src/Entities/Activity.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/User/UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
 import { ActivitiesPageDTO, ActivityResponseDTO, CreateActivityDTO } from './activitiesDTO/Activity.dto';
-import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('activity')
 export class ActivityController {
@@ -29,12 +30,59 @@ export class ActivityController {
   };
 
   @Post('createActivity')
+  @ApiBearerAuth()
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Crear actividades', description: 'Este endpoint, permite crear una actividad con cualquier usuario administrador.'})
-  async createActivity(@Body() data: CreateActivityDTO): Promise<ActivityResponseDTO> {
-    return await this.activityService.createActivity(data);
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { 
+          type: 'string', 
+          description: 'Título de la actividad', 
+          example: 'Clase de Yoga Matutina' 
+        },
+        maxPeople: { 
+          type: 'number', 
+          description: 'Número máximo de personas que pueden participar en la actividad', 
+          example: 20 
+        },
+        date: { 
+          type: 'string', 
+          format: 'date', 
+          description: 'Fecha en la que se realizará la actividad', 
+          example: '2025-02-10' 
+        },
+        hour: { 
+          type: 'string', 
+          pattern: '^(?:[01]\\d|2[0-3]):[0-5]\\d$', 
+          description: 'Hora en la cual se va a realizar la actividad', 
+          example: '14:30' 
+        },
+        description: { 
+          type: 'string', 
+          description: 'Descripción de la actividad', 
+          example: 'Clase de yoga para principiantes en el parque central.', 
+        },
+        file: { 
+          type: 'string', 
+          format: 'binary', 
+          description: 'Imagen de la actividad (JPG, PNG, WEBP, máximo 1.5MB)' 
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Crear actividades. (ADMIN)', description: 'Este endpoint, permite crear una actividad con cualquier usuario administrador.'})
+  async createActivity(@Body() data: CreateActivityDTO, @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1500000, message: 'El tamaño máximo es 1.5 MB' }),
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+        ],
+      })) file: Express.Multer.File): Promise<ActivityResponseDTO> {
+    return await this.activityService.createActivity(data, file);
   };
 
   @Put('toggle-registration/:id')
@@ -50,7 +98,7 @@ export class ActivityController {
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Borrar actividades', description: 'Este endpoint, permite borrar una actividad con cualquier usuario administrador.'})
+  @ApiOperation({ summary: 'Borrar actividades. (ADMIN)', description: 'Este endpoint, permite borrar una actividad con cualquier usuario administrador.'})
   async cancelActivity(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return await this.activityService.cancelActivity(id);
   }

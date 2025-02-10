@@ -6,6 +6,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SALT, SECRET_SECRET_WORD } from 'src/config/config.envs';
@@ -28,12 +29,15 @@ import {
   TokenRefreshPayloadDTO,
 } from './AuthDTO/auths.dto';
 import { SendGridService } from 'src/SendGrid/sendGrid.service';
+import { userMAin } from 'src/UserMain';
+import { Chat } from 'src/Entities/Chat.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Chat) private chatRepository:Repository<Chat>,
     private readonly jwtService: JwtService,
     private readonly sendGridService: SendGridService,
   ) {}
@@ -46,6 +50,10 @@ export class AuthService {
       const exist: User | null = await this.userDeleted(user);
       if (exist) return await this.saveUser({ ...exist, ...user });
       const registerUser: User = await this.userRepository.save(user);
+      
+      const chat = this.chatRepository.create({user});
+      await this.chatRepository.save(chat);
+
       const {
         updateUser,
         isAdmin,
@@ -147,12 +155,13 @@ export class AuthService {
           exist.userStatus === UserStatus.delete
         )
       )
-        throw new NotFoundException('Mail o contraseña incorrecta.');
+        throw new BadRequestException('Mail o contraseña incorrecta.');
       if (exist && exist.userStatus === UserStatus.delete)
-        throw new NotFoundException('Mail o contraseña incorrecta.');
+        throw new BadRequestException('Mail o contraseña incorrecta.');
+      if (exist && exist.userStatus === UserStatus.ban) throw new UnauthorizedException('Usuario baneado.')
       return exist;
     } catch (error) {
-      throw new NotFoundException('Mail o contraseña incorrecta.');
+      throw error;
     }
   }
 
@@ -180,7 +189,9 @@ export class AuthService {
   async isBan(id: string): Promise<BanDTOResponse> {
     try {
       const user: User | null = await this.userRepository.findOneBy({ id });
-      if (!user) throw new BadRequestException('No existe el usuario.');
+      const admin: User | null = await this.userService.getUserByEmail(userMAin.email);
+      if (!user) throw new NotFoundException('No existe el usuario.');
+      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.')
       if (user.userStatus === UserStatus.delete) {
         throw new ConflictException(
           'No se puede banear a un usuario que fue eliminado.',
@@ -206,17 +217,16 @@ export class AuthService {
         message: 'El Usuario fue baneado.',
       };
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Error al procesar la acción de baneo/desbaneo.',
-        error.message,
-      );
+      if(error instanceof NotFoundException) throw error;
+      if(error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException('Hubo un error en la petición.', error.message || error);
     }
   }
 
   async LogOut(id: string): Promise<'Te has desconectado.'> {
     try {
       const user: User | null = await this.userRepository.findOneBy({ id });
-      if (!user) throw new BadRequestException('El usuario no existe');
+      if (!user) throw new NotFoundException('El usuario no existe');
       if (user.userStatus === UserStatus.disconect) {
         throw new BadRequestException(
           'Este usuario ya se encuentra desconectado.',
@@ -228,57 +238,69 @@ export class AuthService {
       });
       return 'Te has desconectado.';
     } catch (error) {
-      if (error.message) throw new NotFoundException(error.message);
-      throw new InternalServerErrorException(
-        'Error al procesar la desconexión del usuario.',
-      );
+      if(error instanceof NotFoundException) throw error;
+      if(error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException('Hubo un error al cerrar sesión', error.message || error);
     }
   }
 
   async isAdmin(id: string): Promise<BanDTOResponse> {
-    const user: null | User = await this.userRepository.findOneBy({ id });
-    if (!user) throw new NotFoundException('El usuario no existe.');
-    !user.isAdmin
-      ? await this.userRepository.save({ ...user, isAdmin: true })
-      : await this.userRepository.save({ ...user, isAdmin: false });
-    return !user.isAdmin
-      ? {
-          user: { id },
-          message: `El usuario "${user.name}" ahora es administrador.`,
-        }
-      : {
-          user: { id },
-          message: `El usuario "${user.name}" ya no es administrador.`,
-        };
+    try {
+      const user: null | User = await this.userRepository.findOneBy({ id });
+      const admin: User | null = await this.userService.getUserByEmail(userMAin.email);
+      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.')
+      if (!user) throw new NotFoundException('El usuario no existe.');
+      !user.isAdmin
+        ? await this.userRepository.save({ ...user, isAdmin: true })
+        : await this.userRepository.save({ ...user, isAdmin: false });
+      return !user.isAdmin
+        ? {
+            user: { id },
+            message: `El usuario "${user.name}" ahora es administrador.`,
+          }
+        : {
+            user: { id },
+            message: `El usuario "${user.name}" ya no es administrador.`,
+          };
+    } catch (error) {
+      if(error instanceof NotFoundException) throw error;
+      if(error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException('Hubo un error en la petición.', error.message || error);
+    }
   }
 
   async login({ email }: LoginDTO): Promise<SingInDTOResponse> {
-    const user: User | null = await this.userService.getUserByEmail(email);
-    if (!user || user.userStatus === UserStatus.delete)
-      throw new NotFoundException('No existe el usuario.');
-    const token: string = this.jwtService.sign({
-      sub: user.id,
-      id: user.id,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      userStatus: user.userStatus,
-    });
-    this.userRepository.save({ ...user, userStatus: UserStatus.active });
-    const {
-      dni,
-      cart,
-      orders,
-      password,
-      updateUser,
-      reservations,
-      createUser,
-      activities,
-      payments,
-      ...extra
-    } = user;
-    return {
-      userInfo: { ...extra, userStatus: UserStatus.active },
-      token,
-    };
+    try {
+      const user: User | null = await this.userService.getUserByEmail(email);
+      if (!user || user.userStatus === UserStatus.delete)
+        throw new NotFoundException('No existe el usuario.');
+      const token: string = this.jwtService.sign({
+        sub: user.id,
+        id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        userStatus: user.userStatus,
+      });
+      this.userRepository.save({ ...user, userStatus: UserStatus.active });
+      const {
+        dni,
+        cart,
+        orders,
+        password,
+        updateUser,
+        reservations,
+        createUser,
+        activities,
+        payments,
+        ...extra
+      } = user;
+      return {
+        userInfo: { ...extra, userStatus: UserStatus.active },
+        token,
+      };
+    } catch (error) {
+      if(error instanceof NotFoundException) throw error;
+        throw new InternalServerErrorException('Hubo un error al iniciar sesión', error.message || error);
+    }
   }
 }

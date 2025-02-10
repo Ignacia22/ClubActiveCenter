@@ -1,3 +1,5 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -16,30 +18,39 @@ export enum StatusProduct {
 }
 
 export class CreateProductDto {
-  @IsString()
+  @ApiProperty({ description: 'Nombre del producto', example: 'Camiseta Gamer' })
   @IsNotEmpty()
+  @IsString()
   name: string;
 
-  @IsString()
+  @ApiProperty({ description: 'Descripción del producto', example: 'Camiseta de algodón con diseño de Dark Souls' })
   @IsNotEmpty()
+  @IsString()
   description: string;
 
-  @IsNumber()
+  @ApiProperty({ description: 'Precio del producto', example: 29.99, type: Number })
+  @Type(() => Number)
   @IsPositive()
+  @IsNumber()
   price: number;
 
-  @IsNumber()
+  @ApiProperty({ description: 'Stock disponible', example: 100, type: Number })
+  @Type(() => Number)
   @IsPositive()
+  @IsNumber()
   stock: number;
 
-  @IsString()
+  @ApiProperty({ description: 'Categoría del producto', example: 'Ropa' })
   @IsNotEmpty()
-  img: string;
-
   @IsString()
-  @IsNotEmpty()
   category: string;
 
+  @ApiPropertyOptional({ description: 'Imagen del producto (URL o base64)', example: 'https://example.com/image.jpg' })
+  @IsOptional()
+  @IsString({ message: 'img must be a string' })
+  img?: string;
+
+  @ApiPropertyOptional({ description: 'Estado del producto', enum: StatusProduct, example: StatusProduct.Available })
   @IsEnum(StatusProduct)
   productStatus?: StatusProduct = StatusProduct.Available;
 }

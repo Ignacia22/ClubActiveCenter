@@ -32,9 +32,9 @@ export class UserController {
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
   @ApiOperation({
-    summary: 'Obtiene todos los usuarios',
+    summary: 'Obtiene todos los usuarios (ADMIN)',
     description:
-      'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos.',
+      'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos. Solo para administradores.',
   })
   @ApiBearerAuth()
   @ApiQuery({ name: 'page', required: false, type: Number, description: 'Número de página para paginación. Por defecto es 1.' })
@@ -90,7 +90,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Eliminar usuario.',
     description:
-      'Este endpoint ecibe el id del usuario, para buscarlo y luego eliminarlo.',
+      'Este endpoint recibe el id del usuario, para buscarlo y luego eliminarlo.',
   })
   @ApiBearerAuth()
   async deleteUser(
@@ -103,7 +103,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Editar usuario.',
     description:
-      'Este endpoint recibe el id del usuario, para buscarlo y luego modificarlo con los atribustos mandados.',
+      'Este endpoint recibe el id del usuario, para buscarlo y luego modificarlo con los atributos mandados.',
   })
   @ApiBearerAuth()
   async editUser(

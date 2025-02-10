@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
@@ -36,60 +37,229 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     const { emptyCart } = useCart();
 
     const checkLocalStorage = () => {
-        const storedUser = localStorage.getItem("user")
-        const storedToken = localStorage.getItem("token")
-        const storedIsAdmin = localStorage.getItem("isAdmin")
-        if(storedUser && storedToken) {
-            const parsedUser = JSON.parse(storedUser) as IUser;
-            setUser(parsedUser)
-            setToken(storedToken)
-            setIsAuthenticated(true)
-            setIsAdmin(storedIsAdmin === "true")
-        } else {
-            setUser(null)
-            setToken(null)
-            setIsAuthenticated(false)
-            setIsAdmin(false)
+        try {
+            const storedUser = localStorage.getItem("user");
+            const storedToken = localStorage.getItem("token");
+            const storedIsAdmin = localStorage.getItem("isAdmin");
+    
+            console.log("Datos en localStorage:", {
+                user: storedUser ? JSON.parse(storedUser) : null,
+                token: storedToken,
+                isAdmin: storedIsAdmin
+            });
+    
+            if (storedUser && storedToken) {
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+    
+                    if (parsedUser && typeof parsedUser === 'object') {
+                        // Verificamos isAdmin en userInfo si existe
+                        const isAdminValue = parsedUser.userInfo?.isAdmin ?? false;
+    
+                        setUser(parsedUser);
+                        setToken(storedToken);
+                        setIsAuthenticated(true);
+                        setIsAdmin(isAdminValue);
+                        
+                        console.log("Estado actualizado:", {
+                            isAdmin: isAdminValue
+                        });
+                    } else {
+                        resetAuthState();
+                    }
+                } catch (parseError) {
+                    console.error("Error al parsear usuario:", parseError);
+                    resetAuthState();
+                }
+            } else {
+                resetAuthState();
+            }
+        } catch (error) {
+            console.error("Error al verificar localStorage:", error);
+            resetAuthState();
         }
-    }
+    };
+    
+    // Función auxiliar para resetear el estado
+    const resetAuthState = () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("isAdmin");
+        setUser(null);
+        setToken(null);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+    };
+
+    // Función de redirección
+    const handleRedirect = (isAdmin: boolean) => {
+        console.log(`Redirigiendo a ${isAdmin ? 'admin' : 'user'} dashboard`);
+        const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
+        router.push(route);
+    };
 
     useEffect(() => {
         checkLocalStorage()
     }, [])
 
-    const login = async (form: ILogin) => {
+
+    useEffect(() => {
+        // Configurar interceptores de solicitud
+        const requestInterceptor = axios.interceptors.request.use(
+          (config) => {
+            const token = localStorage.getItem('token');
+            if (token) {
+              config.headers['Authorization'] = `Bearer ${token}`;
+            }
+            return config;
+          },
+          (error) => Promise.reject(error)
+        );
+      
+        // Configurar interceptores de respuesta
+        const responseInterceptor = axios.interceptors.response.use(
+          (response) => response,
+          (error) => {
+            if (error.response?.status === 401) {
+              // Token inválido o expirado
+              console.error('Token inválido o expirado');
+              
+              // Limpiar estado de autenticación
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              localStorage.removeItem('isAdmin');
+              
+              // Resetear estado de autenticación
+              setUser(null);
+              setToken(null);
+              setIsAuthenticated(false);
+              setIsAdmin(false);
+              
+              // Redirigir al login
+              router.push('/login');
+            }
+            return Promise.reject(error);
+          }
+        );
+      
+        // Limpiar interceptores cuando el componente se desmonte
+        return () => {
+          axios.interceptors.request.eject(requestInterceptor);
+          axios.interceptors.response.eject(responseInterceptor);
+        };
+      }, []); // Array de dependencias vacío para que se ejecute solo una vez
+
+      const login = async (form: ILogin) => {
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, form);
-            const userData = response.data.user as IUser;
-            const tokenData = response.data.token;
-            const isAdminData = userData.isAdmin;
+            console.log("Iniciando login con:", {
+                url: `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`,
+                datos: form
+            });
+    
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, form, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             
-            setUser(userData)
-            setToken(tokenData)
-            setIsAuthenticated(true)
-            setIsAdmin(isAdminData)
+            console.log("Respuesta del servidor:", {
+                status: response.status,
+                data: response.data
+            });
+    
+            // Validaciones más robustas
+            if (!response.data || !response.data.token) {
+                throw new Error("Respuesta de inicio de sesión inválida: falta token");
+            }
+    
+            const userData = response.data;
+            const isAdminValue = userData.userInfo?.isAdmin ?? false;
             
-            localStorage.setItem("user", JSON.stringify(userData))
-            localStorage.setItem("token", tokenData)
-            localStorage.setItem("isAdmin", isAdminData.toString())
-            
-            router.push("/Home")
+            const userToStore = {
+                ...userData,
+                isAdmin: isAdminValue
+            };
+    
+            // Actualizar estado
+            setUser(userToStore);
+            setToken(userData.token);
+            setIsAuthenticated(true);
+            setIsAdmin(isAdminValue);
+    
+            // Almacenar en localStorage
+            localStorage.setItem("user", JSON.stringify(userToStore));
+            localStorage.setItem("token", userData.token);
+            localStorage.setItem("isAdmin", isAdminValue.toString());
+    
+            // Configurar interceptor de Axios con nuevo token
+            axios.interceptors.request.use(
+                (config) => {
+                    config.headers['Authorization'] = `Bearer ${userData.token}`;
+                    return config;
+                },
+                (error) => Promise.reject(error)
+            );
+    
+            console.log("Login exitoso, redirigiendo...", {
+                isAdmin: isAdminValue
+            });
+    
+            // Redirigir con pequeño retraso
+            setTimeout(() => {
+                handleRedirect(isAdminValue);
+            }, 100);
+    
         } catch (error) {
-            console.error("Error durante el inicio de sesión:", error)
+            // Manejo detallado de errores
+            if (axios.isAxiosError(error)) {
+                console.error("Error de Axios en login:", {
+                    mensaje: error.message,
+                    codigo: error.response?.status,
+                    datos: error.response?.data,
+                    headers: error.response?.headers
+                });
+    
+                // Mensajes de error más específicos
+                if (error.response?.status === 401) {
+                    throw new Error("Credenciales incorrectas. Por favor, verifica tu email y contraseña.");
+                } else if (error.response?.status === 500) {
+                    throw new Error("Error del servidor. Por favor, intenta de nuevo más tarde.");
+                }
+            } else {
+                console.error("Error desconocido durante el login:", error);
+            }
+    
+            // Limpiar cualquier dato de autenticación previo
+            setUser(null);
+            setToken(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("isAdmin");
+    
             throw error;
         }
-    }
+    };
+    
 
     const logout = async () => {
-        setUser(null)
-        setIsAuthenticated(false)
-        setIsAdmin(false)
-        localStorage.removeItem("user")
-        localStorage.removeItem("token")
-        localStorage.removeItem("isAdmin")
-        emptyCart();
-        router.replace("/Home")
-    }
+        try {
+            if (user && user.id) {
+                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/Log-out/${user.id}`);
+            }
+            setUser(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            localStorage.clear();
+            emptyCart();
+            router.replace("/Home");
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
+    };
+
+    
 
     return (
         <AuthContext.Provider value={{user, login, logout, isAuthenticated, token, isAdmin}}>

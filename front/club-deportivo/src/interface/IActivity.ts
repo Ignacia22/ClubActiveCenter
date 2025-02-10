@@ -1,7 +1,16 @@
 export interface Activity {
-    id: number;
+    id: string;
     title: string;
-    descripcion: string;
-    imagenUrl: string;
-    categoriaId: number;
+    description: string;
+    date: string;
+    hour: string;
+    maxPeople: number;
+    file?: File;
+    img?: string; 
+    status?: boolean;
+    registeredPeople?: number;
 }
+
+
+// Añade este tipo
+export type CreateActivityDto = Omit<Activity, 'id'>;

@@ -1,11 +1,20 @@
 export interface IUser {
-  id: string; // Cambiado de number a string porque usas UUID
+  userInfo: {
+    id: string; // ID del usuario (UUID)
+    name: string; // Nombre del usuario
+    email: string; // Correo electrónico
+    phone: string; // Teléfono
+    address: string; // Dirección
+    userStatus: string; // Estado del usuario
+    isAdmin: boolean; // Si el usuario es admin
+  };
+  id: string; // ID global del usuario
   name: string;
   email: string;
-  password: string; // Aunque no deberías exponer esto en el frontend
+  password: string; // Aunque no deberías exponerlo en el frontend
   phone: string;
   address?: string;
-  dni: number;
+  dni: number; // DNI del usuario
   activities: []; // Relación ManyToMany con Activity
   reservations: []; // Relación OneToMany con Reservation
   orders: []; // Relación OneToMany con Order

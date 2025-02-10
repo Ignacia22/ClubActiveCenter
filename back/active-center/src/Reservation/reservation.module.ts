@@ -9,12 +9,11 @@ import { Space } from 'src/Entities/Space.entity';
 import { User } from 'src/Entities/User.entity';
 import { SpaceService } from 'src/Space/space.service';
 import { PaymentModule } from 'src/Payment/payment.module';
+import { SendGridModule } from 'src/SendGrid/sendGrid.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Reservation, Space, User]),
-    PaymentModule,
-  ],
+  imports:[TypeOrmModule.forFeature([Reservation,Space,User]),PaymentModule, SendGridModule, CloudinaryModule],
   controllers: [ReservationController],
   providers: [ReservationService, UserService, SpaceService],
 })

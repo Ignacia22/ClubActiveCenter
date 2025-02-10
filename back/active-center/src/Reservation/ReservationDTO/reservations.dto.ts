@@ -1,21 +1,43 @@
 /* eslint-disable prettier/prettier */
-import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsDateString, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, validate, Validate} from "class-validator";
-import { IsEndTimeGreaterThanStartTime, MinTwoHoursDifference } from "../validator";
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  validate,
+  Validate,
+} from 'class-validator';
+import {
+  IsEndTimeGreaterThanStartTime,
+  MinTwoHoursDifference,
+} from '../validator';
+import { Transform } from 'class-transformer';
 
 const TIME_REGEX = /^(0[7-9]|1\d|2[0-3]):[0-5]\d$/;
 
 export class CreateReservationDto {
-    
-    @IsNotEmpty()
-    @IsString()
-    @ApiProperty({
-        example: "cancha de futbol"
-    })
-    spaceName: string;
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    example: 'userId12345',
+  })
+  userId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    example: 'cancha de futbol',
+  })
+  spaceName: string;
 
   @IsNotEmpty()
   @IsDateString()
+  @Transform(({ value }) => value.split('T')[0])
   date: Date;
 
   @IsNotEmpty()
@@ -27,14 +49,13 @@ export class CreateReservationDto {
   })
   startTime: string;
 
-    @IsNotEmpty()
-    @IsString()
-    @Matches(TIME_REGEX)
-    @Validate(MinTwoHoursDifference)
-    @Validate(IsEndTimeGreaterThanStartTime)
-    @ApiProperty({
-        example: "10:00"
-    })
-    endTime:string;
-
+  @IsNotEmpty()
+  @IsString()
+  @Matches(TIME_REGEX)
+  @Validate(MinTwoHoursDifference)
+  @Validate(IsEndTimeGreaterThanStartTime)
+  @ApiProperty({
+    example: '10:00',
+  })
+  endTime: string;
 }

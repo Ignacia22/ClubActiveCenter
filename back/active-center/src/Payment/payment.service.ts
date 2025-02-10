@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
@@ -28,8 +28,8 @@ export class PaymentService {
   ) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
-      throw new Error(
-        'Stripe secret key is not defined in environment variables',
+      throw new InternalServerErrorException(
+        'La clave secreta de Stripe no está definida en las variables de entorno',
       );
     }
 
@@ -46,9 +46,9 @@ export class PaymentService {
       relations: ['orderItems', 'orderItems.product', 'user'],
     });
 
-    if (!order) throw new Error('Orden no encontrada');
+    if (!order) throw new NotFoundException('Orden no encontrada');
     if (!order.orderItems || order.orderItems.length === 0) {
-      throw new Error('La orden no tiene productos asociados.');
+      throw new BadRequestException('La orden no tiene productos asociados.');
     }
 
     const lineItems = order.orderItems.map((item) => ({
@@ -65,8 +65,8 @@ export class PaymentService {
       line_items: lineItems,
       mode: 'payment',
       success_url:
-        'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'http://localhost:3000/cancel',
+        'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://club-active-center.vercel.app/pago/cancel',
       metadata: {
         orderId: orderId,
         userId: userId,
@@ -74,7 +74,7 @@ export class PaymentService {
     });
 
     if (!session.url) {
-      throw new Error('No se pudo generar el enlace de pago.');
+      throw new InternalServerErrorException('No se pudo generar el enlace de pago.');
     }
 
     return session.url;
@@ -89,17 +89,17 @@ export class PaymentService {
     });
 
     if (!reservation) {
-      throw new Error('Reserva no encontrada');
+      throw new NotFoundException('Reserva no encontrada');
     }
 
     const user = reservation.user;
     if (!user) {
-      throw new Error('Usuario no encontrado en la reserva');
+      throw new NotFoundException('Usuario no encontrado en la reserva');
     }
 
-    const successUrl =
-      'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}';
-    const cancelUrl = 'http://localhost:3000/cancel';
+    const successUrl = 'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = 'https://club-active-center.vercel.app/pago/cancel';
+
 
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -132,7 +132,7 @@ export class PaymentService {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      throw new Error('Webhook secret no está definido');
+      throw new InternalServerErrorException('Webhook secret no está definido');
     }
 
     let event: Stripe.Event;
@@ -141,7 +141,7 @@ export class PaymentService {
       event = this.stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
     } catch (err) {
       console.error('Error validando el webhook:', err.message);
-      throw new Error('Webhook no válido');
+      throw new BadRequestException('Webhook no válido');
     }
 
     if (event.type === 'checkout.session.completed') {
@@ -158,13 +158,13 @@ export class PaymentService {
           await this.processReservationPayment(session, reservationId);
         } else {
           console.error('Metadata faltante en el webhook');
-          throw new Error(
+          throw new BadRequestException(
             'Orden, usuario o reserva no especificados en el webhook',
           );
         }
       } catch (err) {
         console.error('Error procesando el evento:', err.message);
-        throw new Error('Error procesando el evento');
+        throw new InternalServerErrorException('Error procesando el evento');
       }
     }
   }
@@ -181,7 +181,7 @@ export class PaymentService {
 
     if (!user || !order) {
       console.error('Usuario u orden no encontrados en el webhook');
-      throw new Error('Usuario u orden no encontrados');
+      throw new NotFoundException('Usuario u orden no encontrados');
     }
 
     const paymentIntentId =
@@ -189,7 +189,7 @@ export class PaymentService {
 
     if (!paymentIntentId) {
       console.error('Payment intent no disponible en el webhook');
-      throw new Error('Payment intent no disponible');
+      throw new BadRequestException('Payment intent no disponible');
     }
 
     const payment = this.paymentRepository.create({
@@ -199,7 +199,7 @@ export class PaymentService {
       user: { id: userId },
       order: { id: orderId },
       paymentIntentId: paymentIntentId,
-      reservationId: session.metadata?.reservationId || null,
+      reservationId:null,
     });
 
     await this.paymentRepository.save(payment);
@@ -218,7 +218,7 @@ export class PaymentService {
 
     if (!reservation) {
       console.error('Reserva no encontrada en el webhook');
-      throw new Error('Reserva no encontrada');
+      throw new NotFoundException('Reserva no encontrada');
     }
 
     const paymentIntentId =
@@ -226,7 +226,7 @@ export class PaymentService {
 
     if (!paymentIntentId) {
       console.error('Payment intent no disponible en el webhook');
-      throw new Error('Payment intent no disponible');
+      throw new BadRequestException('Payment intent no disponible');
     }
 
     const payment = this.paymentRepository.create({
