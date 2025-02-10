@@ -2,6 +2,8 @@ import { Inject } from '@nestjs/common';
 import * as sgMail from '@sendgrid/mail';
 import { ContactFormDTO } from './sengridDTO/contactForm.dto';
 
+
+
 export class SendGridService {
   constructor(
     @Inject('SENDGRID') private readonly sgMail: sgMail.MailService,
