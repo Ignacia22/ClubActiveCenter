@@ -30,12 +30,14 @@ import {
 } from './AuthDTO/auths.dto';
 import { SendGridService } from 'src/SendGrid/sendGrid.service';
 import { userMAin } from 'src/UserMain';
+import { Chat } from 'src/Entities/Chat.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Chat) private chatRepository:Repository<Chat>,
     private readonly jwtService: JwtService,
     private readonly sendGridService: SendGridService,
   ) {}
@@ -48,6 +50,10 @@ export class AuthService {
       const exist: User | null = await this.userDeleted(user);
       if (exist) return await this.saveUser({ ...exist, ...user });
       const registerUser: User = await this.userRepository.save(user);
+      
+      const chat = this.chatRepository.create({user});
+      await this.chatRepository.save(chat);
+
       const {
         updateUser,
         isAdmin,
