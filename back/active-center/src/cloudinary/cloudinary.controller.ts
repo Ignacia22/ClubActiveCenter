@@ -4,9 +4,7 @@ import { CloudinaryService } from './cloudinary.service';
 @Controller('cloudinary')
 export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
-   
-  
-  
+
   @Get('images')
   @SetMetadata('isPublic', true)
   async getImages() {

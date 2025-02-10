@@ -18,7 +18,6 @@ export enum StatusOrder {
 }
 
 export class CreateOrderDto {
-
   @IsNotEmpty()
   userId: string;
 
@@ -37,19 +36,24 @@ export class CreateOrderDto {
   date: Date;
 }
 
-
 export class OrderDto {
   @ApiProperty({ description: 'ID de la orden' })
   id: string;
 
-  @ApiProperty({ description: 'Información del usuario asociado a la orden', type: User })
+  @ApiProperty({
+    description: 'Información del usuario asociado a la orden',
+    type: User,
+  })
   user: User;
 
-  @ApiProperty({ description: 'Lista de productos comprados en esta orden', type: [OrderItem] })
-  orderItems: { 
-    productId: string; 
-    quantity: number; 
-    price: number; 
+  @ApiProperty({
+    description: 'Lista de productos comprados en esta orden',
+    type: [OrderItem],
+  })
+  orderItems: {
+    productId: string;
+    quantity: number;
+    price: number;
   }[];
 
   @ApiProperty({ description: 'Precio de la orden sin descuentos' })
