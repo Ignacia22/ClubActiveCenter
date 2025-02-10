@@ -44,7 +44,6 @@ export class PaymentController {
     );
   }
 
-
   @ApiOperation({
     summary: 'Manejar eventos de webhook de Stripe',
     description:
