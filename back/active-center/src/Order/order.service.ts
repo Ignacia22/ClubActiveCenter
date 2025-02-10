@@ -1,17 +1,16 @@
-
-import { Product } from "src/Entities/Product.entity";
-import { StatusOrder } from "./OrderDTO/orders.dto";
-import { Order } from "src/Entities/Order.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { Repository } from "typeorm";
-import { User } from "src/Entities/User.entity";
-import { CartService } from "src/Cart/cart.service";
-import { PaymentService } from "src/Payment/payment.service";  
-import { OrderItem } from "src/Entities/OrdenItem.entity";
-import { Cart } from "src/Entities/Cart.entity";
-import { CartItem } from "src/Entities/CartItem.entity";
-import { SendGridService } from "src/SendGrid/sendGrid.service";
+import { Product } from 'src/Entities/Product.entity';
+import { StatusOrder } from './OrderDTO/orders.dto';
+import { Order } from 'src/Entities/Order.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { User } from 'src/Entities/User.entity';
+import { CartService } from 'src/Cart/cart.service';
+import { PaymentService } from 'src/Payment/payment.service';
+import { OrderItem } from 'src/Entities/OrdenItem.entity';
+import { Cart } from 'src/Entities/Cart.entity';
+import { CartItem } from 'src/Entities/CartItem.entity';
+import { SendGridService } from 'src/SendGrid/sendGrid.service';
 
 @Injectable()
 export class OrderService {
@@ -25,7 +24,7 @@ export class OrderService {
     private cartItemRepository: Repository<CartItem>,
     private readonly cartService: CartService,
     private readonly paymentService: PaymentService,
-    private readonly sendGrid: SendGridService 
+    private readonly sendGrid: SendGridService,
   ) {}
 
   async convertCartToOrder(
@@ -61,7 +60,9 @@ export class OrderService {
         where: { id: item.productId },
       });
       if (!productEntity) {
-        throw new NotFoundException(`Producto con ID ${item.productId} no encontrado`);
+        throw new NotFoundException(
+          `Producto con ID ${item.productId} no encontrado`,
+        );
       }
       return productEntity;
     });
@@ -74,38 +75,39 @@ export class OrderService {
       );
 
       if (!productEntity) {
-        throw new NotFoundException(`Producto con ID ${cartItem.productId} no encontrado`);
+        throw new NotFoundException(
+          `Producto con ID ${cartItem.productId} no encontrado`,
+        );
       }
 
       productEntity.stock -= cartItem.quantity;
 
       const orderItem = new OrderItem();
-        orderItem.order = order;
-        orderItem.product = productEntity;
-        orderItem.quantity = cartItem.quantity;
-        orderItem.price = productEntity.price * cartItem.quantity;
+      orderItem.order = order;
+      orderItem.product = productEntity;
+      orderItem.quantity = cartItem.quantity;
+      orderItem.price = productEntity.price * cartItem.quantity;
 
-         return orderItem;
-      });
+      return orderItem;
+    });
 
     await this.orderItemRepository.save(orderItems);
-    await this.productRepository.save(products); 
-  
-    
-    const totalPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
-  
-      order.totalPrice = totalPrice;
+    await this.productRepository.save(products);
 
-      await this.orderRepository.save(order);
-  
-      await this.sendGrid.orderEmail(
-        order.id,
-        order.date, 
-        user.email, 
-        user.name, 
-        orderItems, 
-        order.totalPrice 
-      )    
+    const totalPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
+
+    order.totalPrice = totalPrice;
+
+    await this.orderRepository.save(order);
+
+    await this.sendGrid.orderEmail(
+      order.id,
+      order.date,
+      user.email,
+      user.name,
+      orderItems,
+      order.totalPrice,
+    );
 
     const checkoutUrl = await this.paymentService.createCheckoutSession(
       order.id,
@@ -144,8 +146,8 @@ export class OrderService {
     const orders = await this.orderRepository.find({
       relations: ['user', 'orderItems', 'orderItems.product'],
     });
-  
-    return orders.map(order => ({
+
+    return orders.map((order) => ({
       id: order.id,
       price: order.price,
       totalprice: order.totalPrice,
@@ -156,7 +158,7 @@ export class OrderService {
         username: order.user.name,
         email: order.user.email,
       },
-      orderItems: order.orderItems.map(item => ({
+      orderItems: order.orderItems.map((item) => ({
         id: item.id,
         quantity: item.quantity,
         price: item.price,
@@ -173,23 +175,25 @@ export class OrderService {
       where: { user: { id: userId } },
       relations: ['user', 'orderItems', 'orderItems.product'],
     });
-  
+
     if (!orders || orders.length === 0) {
-      throw new NotFoundException('No se encontraron órdenes para este usuario');
+      throw new NotFoundException(
+        'No se encontraron órdenes para este usuario',
+      );
     }
-  
-    return orders.map(order => ({
+
+    return orders.map((order) => ({
       id: order.id,
       price: order.price,
-      totalprice: order.totalPrice, 
-      status: order.status, 
+      totalprice: order.totalPrice,
+      status: order.status,
       date: order.date,
       user: {
         id: order.user.id,
         username: order.user.name,
         email: order.user.email,
       },
-      orderItems: order.orderItems.map(item => ({
+      orderItems: order.orderItems.map((item) => ({
         id: item.id,
         quantity: item.quantity,
         price: item.price,
@@ -200,5 +204,4 @@ export class OrderService {
       })),
     }));
   }
-  
 }

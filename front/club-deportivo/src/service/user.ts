@@ -2,7 +2,7 @@ import axios from "axios";
 import { IUser } from "../interface/IUser";
 import Swal from "sweetalert2";
 
-const BACK_URL = "http://localhost:3001";
+const BACK_URL = "https://active-center-db-3rfj.onrender.com";
 
 // ✅ FUNCIÓN ORIGINAL: Obtener datos del usuario por ID
 export const getUserById = async (userId: string): Promise<IUser | null> => {

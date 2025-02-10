@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cart } from 'src/Entities/Cart.entity';
 import { CartItem } from 'src/Entities/CartItem.entity';
@@ -52,7 +56,9 @@ export class CartService {
         where: { id: productId },
       });
       if (!product) {
-        throw new NotFoundException(`Producto con ID ${productId} no encontrado`);
+        throw new NotFoundException(
+          `Producto con ID ${productId} no encontrado`,
+        );
       }
       let cartItem = await this.cartItemRepository.findOne({
         where: { cart: { id: cart.id }, product: { id: productId } },
@@ -127,6 +133,7 @@ export class CartService {
       cartItem.quantity = quantity;
       await this.cartItemRepository.save(cartItem);
     }  
+
     return this.getCart(userId);
   }
 
