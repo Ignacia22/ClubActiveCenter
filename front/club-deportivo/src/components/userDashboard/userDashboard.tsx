@@ -6,8 +6,12 @@ import {
   FaSignOutAlt,
   FaChevronRight,
   FaBasketballBall,
+  FaClock,
+  FaDollarSign,
+  FaCheckCircle,
+  FaExclamationTriangle,
 } from "react-icons/fa";
-import { getUserById } from "../../service/user";
+import { getUserById, getUserReservations } from "../../service/user";
 import { IUser } from "../../interface/IUser";
 import Swal from "sweetalert2";
 
@@ -24,69 +28,96 @@ interface UserDashboardProps {
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
   const [user, setUser] = useState<IUser | null>(null);
+  const [reservations, setReservations] = useState<
+    {
+      id: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+      price: string;
+      status: string;
+    }[]
+  >([]);
   const [selectedOption, setSelectedOption] = useState<string>("reservations");
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndReservations = async () => {
       if (!userId) return;
       try {
         const userData = await getUserById(userId);
         setUser(userData);
+
+        const reservationsData = await getUserReservations(userId);
+        setReservations(reservationsData);
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    fetchUser();
+
+    fetchUserAndReservations();
   }, [userId]);
 
   const handleSignOut = () => {
-    localStorage.removeItem("user");
     Swal.fire({
-      title: "Sesión cerrada",
-      text: "Se ha cerrado la sesión con éxito.",
-      icon: "success",
-      confirmButtonText: "Aceptar",
-    }).then(() => {
-      window.location.href = "/home";
+      title: "¿Estás seguro?",
+      text: "Se cerrará tu sesión y perderás el acceso.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, cerrar sesión",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("user");
+        Swal.fire(
+          "Sesión cerrada",
+          "Has cerrado sesión con éxito.",
+          "success"
+        ).then(() => {
+          window.location.href = "/home";
+        });
+      }
     });
   };
 
-  if (!user) return <div className="text-white">Cargando...</div>;
+  if (!user)
+    return <div className="text-white text-center mt-10">Cargando...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white flex justify-center items-start">
-      <div className="max-w-7xl w-full flex gap-8 p-8 flex-col lg:flex-row">
-        <aside className="w-full lg:w-1/4 bg-white text-black rounded-xl p-6 shadow-md mb-8 lg:mb-0">
-          <h2 className="text-2xl font-bold mb-10">Hola, {user.name}</h2>
-          <ul className="space-y-6">
+    <div className="min-h-screen bg-black text-white flex justify-center items-start p-8">
+      <div className="max-w-7xl w-full flex flex-col lg:flex-row gap-8">
+        {/* Sidebar */}
+        <aside className="w-full lg:w-1/4 bg-white text-black rounded-xl p-6 shadow-lg">
+          <h2 className="text-2xl font-bold mb-8">Hola, {user.name}</h2>
+          <ul className="space-y-4">
             {menuOptions.map(({ id, label, icon }) => (
               <li
                 key={id}
-                className={`flex items-center justify-between p-4 rounded-lg cursor-pointer hover:bg-gray-200 transition ${
-                  selectedOption === id ? "bg-gray-300" : "bg-gray-100"
+                className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition ${
+                  selectedOption === id
+                    ? "bg-gray-300 font-semibold"
+                    : "bg-gray-100 hover:bg-gray-200"
                 }`}
                 onClick={() => setSelectedOption(id)}
               >
-                <div className="flex items-center gap-4">
-                  {icon}
-                  <span className="font-medium">{label}</span>
+                <div className="flex items-center gap-3">
+                  {icon} <span>{label}</span>
                 </div>
-                <FaChevronRight className="text-lg" />
+                <FaChevronRight />
               </li>
             ))}
             <li
               className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200"
               onClick={handleSignOut}
             >
-              <div className="flex items-center gap-4">
-                <FaSignOutAlt className="text-lg" />
-                <span className="font-medium">Cerrar sesión</span>
+              <div className="flex items-center gap-3">
+                <FaSignOutAlt /> <span>Cerrar sesión</span>
               </div>
-              <FaChevronRight className="text-lg" />
+              <FaChevronRight />
             </li>
           </ul>
         </aside>
 
+        {/* Contenido Principal */}
         <main className="w-full lg:w-3/4 bg-gray-200 text-black rounded-xl p-8 shadow-md">
           {selectedOption === "profile" && <UserProfile user={user} />}
           {selectedOption === "activities" && (
@@ -94,7 +125,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
           )}
           {selectedOption === "orders" && <UserOrders orders={user.orders} />}
           {selectedOption === "reservations" && (
-            <UserReservations reservations={user.reservations} />
+            <UserReservations reservations={reservations} />
           )}
         </main>
       </div>
@@ -117,17 +148,13 @@ const UserProfile = ({ user }: { user: IUser }) => (
 const UserActivities = ({ activities }: { activities: string[] }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
-    {activities.length > 0 ? (
-      <ul className="space-y-4">
-        {activities.map((activity, index) => (
-          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
-            <p>{activity}</p>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>No tienes actividades registradas.</p>
-    )}
+    <ul className="space-y-4">
+      {activities.map((activity, index) => (
+        <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+          {activity}
+        </li>
+      ))}
+    </ul>
   </div>
 );
 
@@ -136,41 +163,65 @@ const UserOrders = ({ orders }: { orders: string[] }) => (
     <h2 className="text-2xl font-bold mb-6 text-primary">
       Productos Comprados
     </h2>
-    {orders.length > 0 ? (
-      <ul className="space-y-4">
-        {orders.map((order, index) => (
-          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
-            <p>{order}</p>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>No tienes productos comprados.</p>
-    )}
+    <ul className="space-y-4">
+      {orders.map((order, index) => (
+        <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+          {order}
+        </li>
+      ))}
+    </ul>
   </div>
 );
 
 const UserReservations = ({
   reservations,
 }: {
-  reservations: { date: string; status: boolean }[];
+  reservations: {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    price: string;
+    status: string;
+  }[];
 }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6 text-primary">Reservas</h2>
-    {reservations.length > 0 ? (
-      <ul className="space-y-4">
-        {reservations.map((reservation, index) => (
-          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
-            <p>
-              Fecha: {reservation.date} - Estado:{" "}
-              {reservation.status ? "Confirmada" : "Pendiente"}
-            </p>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>No tienes reservas disponibles.</p>
-    )}
+    <ul className="space-y-4">
+      {reservations.map((reservation) => (
+        <li
+          key={reservation.id}
+          className="bg-gray-300 p-4 rounded-lg shadow-md"
+        >
+          <p className="flex items-center gap-2">
+            <FaCalendarAlt /> <span>Fecha: {reservation.date}</span>
+          </p>
+          <p className="flex items-center gap-2">
+            <FaClock />{" "}
+            <span>
+              Horario: {reservation.startTime} - {reservation.endTime}
+            </span>
+          </p>
+          <p className="flex items-center gap-2">
+            <FaDollarSign /> <span>Precio: ${reservation.price}</span>
+          </p>
+          <p
+            className={`flex items-center gap-2 ${
+              reservation.status === "confirmed"
+                ? "text-green-600"
+                : "text-yellow-500"
+            }`}
+          >
+            {reservation.status === "confirmed" ? (
+              <FaCheckCircle />
+            ) : (
+              <FaExclamationTriangle />
+            )}
+            {reservation.status === "confirmed" ? "Confirmada" : "Pendiente"}
+          </p>
+        </li>
+      ))}
+    </ul>
   </div>
 );
 
