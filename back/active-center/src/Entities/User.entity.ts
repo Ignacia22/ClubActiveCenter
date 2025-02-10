@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -17,6 +18,7 @@ import { v4 as uuid } from 'uuid';
 import { Activity } from './Activity.entity';
 import { Cart } from './Cart.entity';
 import { Payment } from './Payment.entity';
+import { Chat } from './Chat.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -73,4 +75,7 @@ export class User {
 
   @OneToOne(() => Cart, (cart) => cart.user)
   cart: Cart;
+
+  @OneToOne(() => Chat, (chat) => chat.user)
+  chat: Chat;
 }
