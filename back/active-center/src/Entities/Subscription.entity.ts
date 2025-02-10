@@ -31,5 +31,5 @@ export class Subscription {
     () => SubscriptionDetail,
     (subscriptionsDetails) => subscriptionsDetails.subscription,
   )
-  subscriptionsDetails: SubscriptionDetail[];
+  subscriptionsDetails?: SubscriptionDetail[];
 }

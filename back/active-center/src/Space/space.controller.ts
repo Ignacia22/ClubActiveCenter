@@ -70,12 +70,38 @@ export class SpaceController {
     schema: {
       type: 'object',
       properties: {
-        title: { type: 'string', description: 'Nombre del espacio', example: 'Alberca' },
-        price_hour: { type: 'number', description: 'Precio por hora', example: 25 },
-        description: { type: 'string', description: 'Descripción del espacio', example: 'Alberca olímpica.' },
-        details: { type: 'array', items: { type: 'string' }, description: 'Detalles del espacio', example: ['Cuenta con vestidores', 'Servicio de salvavidas'] },
-        characteristics: { type: 'array', items: { type: 'string' }, description: 'Características', example: ['Climatizada', 'Dimensiones olímpicas'] },
-        file: { type: 'string', format: 'binary', description: 'Imagen (JPG, PNG, WEBP, máx. 1.5MB)' },
+        title: {
+          type: 'string',
+          description: 'Nombre del espacio',
+          example: 'Alberca',
+        },
+        price_hour: {
+          type: 'number',
+          description: 'Precio por hora',
+          example: 25,
+        },
+        description: {
+          type: 'string',
+          description: 'Descripción del espacio',
+          example: 'Alberca olímpica.',
+        },
+        details: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Detalles del espacio',
+          example: ['Cuenta con vestidores', 'Servicio de salvavidas'],
+        },
+        characteristics: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Características',
+          example: ['Climatizada', 'Dimensiones olímpicas'],
+        },
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagen (JPG, PNG, WEBP, máx. 1.5MB)',
+        },
       },
     },
   })

@@ -12,6 +12,7 @@ import { SubscriptionService } from './subscriptions.service';
 import { ApiOperation } from '@nestjs/swagger';
 import { Subscription } from 'src/Entities/Subscription.entity';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
+import { CreateSubscriptionDTO } from './SubscriptionDTO/subscription.dto';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -24,7 +25,7 @@ export class SubscriptionController {
   })
   async getSubscriptions(): Promise<Subscription[]> {
     return await this.subscriptionService.getSubscriptions();
-  };
+  }
 
   @Get(':id')
   @ApiOperation({
@@ -33,7 +34,16 @@ export class SubscriptionController {
   })
   async getSubscriptionById(@Param('id') id: string): Promise<Subscription> {
     return this.subscriptionService.getSubscriptionById(id);
-  };
+  }
+
+  @Post('create-subscrition')
+  @ApiOperation({
+    summary: 'Craer una subscripción.',
+    description: 'Este endpoint permite crear una nueva suscripción.',
+  })
+  async createSubscrition(data: CreateSubscriptionDTO): Promise<Subscription> {
+    return await this.subscriptionService.createSubscription(data);
+  }
 
   @Post('subscribe')
   @ApiOperation({
@@ -47,7 +57,7 @@ export class SubscriptionController {
   ): Promise<SubscriptionDetail> {
     const userId: string = req.access.id;
     return this.subscriptionService.subscribe(userId, subId);
-  };
+  }
 
   @Put('unsubscribe/:id')
   @ApiOperation({
@@ -56,7 +66,7 @@ export class SubscriptionController {
   })
   async unsubscribe(@Param('id') id: string): Promise<string> {
     return this.subscriptionService.unsubscribe(id);
-  };
+  }
 
   @Delete(':id')
   @ApiOperation({
@@ -65,5 +75,5 @@ export class SubscriptionController {
   })
   async deleteSubscription(@Param('id') id: string): Promise<string> {
     return this.subscriptionService.deleteSubscription(id);
-  };
+  }
 }

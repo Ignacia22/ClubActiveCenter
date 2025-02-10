@@ -26,7 +26,7 @@ export class SpaceService {
     }
     const newSpace = this.spaceRepository.create({
       title: spaces.title,
-      img: imageUrl ? [imageUrl] : [],  
+      img: imageUrl ? [imageUrl] : [],
       description: spaces.description,
       details: spaces.details,
       characteristics: spaces.characteristics,

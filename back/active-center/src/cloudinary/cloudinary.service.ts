@@ -44,29 +44,31 @@ export class CloudinaryService {
     try {
       let imagesData: any[] = [];
       let nextCursor: string | null = null;
-  
+
       // Si no estás seguro del prefijo, puedes obtener todas las imágenes en tu cuenta
       do {
         const result = await cloudinary.api.resources({
           type: 'upload',
           next_cursor: nextCursor, // Paginación
         });
-  
-        imagesData = [...imagesData, ...result.resources.map((img: any) => ({
-          asset_id: img.asset_id,
-          public_id: img.public_id,
-          display_name: img.display_name,
-          url: img.url,
-        }))];
-  
+
+        imagesData = [
+          ...imagesData,
+          ...result.resources.map((img: any) => ({
+            asset_id: img.asset_id,
+            public_id: img.public_id,
+            display_name: img.display_name,
+            url: img.url,
+          })),
+        ];
+
         nextCursor = result.next_cursor; // Paginación
       } while (nextCursor); // Continuar hasta obtener todas las imágenes
-  
+
       return imagesData;
     } catch (error) {
       console.error('Error obteniendo imágenes:', error);
       return [];
     }
   }
-  
 }

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -8,6 +9,7 @@ import { Subscription } from 'src/Entities/Subscription.entity';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { User } from 'src/Entities/User.entity';
 import { Repository } from 'typeorm';
+import { CreateSubscriptionDTO } from './SubscriptionDTO/subscription.dto';
 
 @Injectable()
 export class SubscriptionService {
@@ -126,6 +128,19 @@ export class SubscriptionService {
         'Hubo un error al borrar la subcripción.',
         error.message || error,
       );
+    }
+  }
+
+  async createSubscription(data: CreateSubscriptionDTO): Promise<Subscription> {
+    try {
+      return await this.subscriptionRepository.save(data);
+    } catch (error) {
+      throw error.detail
+        ? new ConflictException(error.detail)
+        : new InternalServerErrorException(
+            'Hubo un error al crear la suscripción.',
+            error.message || 'Error desconocido.',
+          );
     }
   }
 }

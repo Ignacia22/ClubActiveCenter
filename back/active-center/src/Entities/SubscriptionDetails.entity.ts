@@ -23,8 +23,8 @@ export class SubscriptionDetail {
     () => Subscription,
     (subscriptions) => subscriptions.subscriptionsDetails,
   )
-  subscription: Subscription;
+  subscription?: Subscription;
 
   @ManyToOne(() => User, (user) => user.subscriptionsDetails)
-  user: User;
+  user?: User;
 }
