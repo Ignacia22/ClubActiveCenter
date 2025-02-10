@@ -19,6 +19,9 @@ import { SpaceModule } from './Space/space.module';
 import { ActivityModule } from './Activity/activity.module';
 import { CategoryModule } from './Category/category.module';
 import { SubscriptionModule } from './Subscription/subscription.module';
+import { SendGridController } from './SendGrid/sendGrid.controller';
+import { webSocketModule } from './webSockets/websocket.module';
+
 
 @Module({
   imports: [
@@ -39,8 +42,9 @@ import { SubscriptionModule } from './Subscription/subscription.module';
     ActivityModule,
     CategoryModule,
     SubscriptionModule,
+    webSocketModule,
   ],
-  controllers: [],
+  controllers: [SendGridController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

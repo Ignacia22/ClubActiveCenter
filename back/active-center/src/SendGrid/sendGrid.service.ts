@@ -1,12 +1,8 @@
-/* eslint-disable prettier/prettier */
 import { Inject } from '@nestjs/common';
 import * as sgMail from '@sendgrid/mail';
+import { ContactFormDTO } from './sengridDTO/contactForm.dto';
 
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
+
 
 export class SendGridService {
   constructor(
@@ -105,32 +101,34 @@ export class SendGridService {
           'Acá iría el link para ver el estado de la orden segun el id',
       },
     };
+      
+      try {
+        await this.sgMail.send(mail);
+        console.log('Email enviado correctamente');
+      } catch (error) {
+        console.error('Error enviando email:', error.response.body.errors);
+    } 
+  };
+    
+
+  async contactMail(contactForm: ContactFormDTO): Promise<void>{
+
+    const {name, phone, email, message} = contactForm;
+    
+    const senderMail = "jumi.rc@hotmail.com";
+    const receiver = "jumicjv@gmail.com"
+    const mail = {
+      to: receiver,
+      from: senderMail,
+      subject: "Mail de consultas",
+      text: `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nMensaje: ${message}`
+    };
+
     try {
       await this.sgMail.send(mail);
       console.log('Email enviado correctamente');
     } catch (error) {
       console.error('Error enviando email:', error.response.body.errors);
-    }
+  } 
   }
-}
-
-// async Inquiry(inquiryObject: InquieyDTO): Promise<string>{
-
-//     const {from, subject, text} = inquiryObject
-
-//     const msg = {
-//         to: 'jumicjv@gmail.com',
-//         from: from,
-//         subject: subject,
-//         text: text,
-//     }
-
-//     try{
-//         sgMail.send(msg)
-//         console.log ("Consulta enviada con éxito")
-//         return "Consulta enviada con éxito"
-
-//     }catch(err){
-//         console.log(`Error al enviar mail ${err.message}`)
-//     }
-// }
+  }
