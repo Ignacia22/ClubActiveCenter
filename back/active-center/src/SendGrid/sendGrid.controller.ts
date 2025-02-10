@@ -2,6 +2,8 @@ import { Body, Controller, Post, SetMetadata } from '@nestjs/common';
 import { SendGridService } from './sendGrid.service';
 import { ContactFormDTO } from './sengridDTO/contactForm.dto';
 
+
+
 @Controller('sendGrid')
 export class SendGridController {
     constructor(
