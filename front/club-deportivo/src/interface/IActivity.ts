@@ -1,13 +1,14 @@
 export interface Activity {
-    id: number;
+    id: string;
     title: string;
     description: string;
     date: string;
     hour: string;
     maxPeople: number;
-    registeredPeople: number;
-    status: string;
-    imagenUrl?: string;
+    file?: File;
+    img?: string; 
+    status?: boolean;
+    registeredPeople?: number;
 }
 
 

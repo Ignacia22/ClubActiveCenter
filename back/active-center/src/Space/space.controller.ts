@@ -70,39 +70,12 @@ export class SpaceController {
     schema: {
       type: 'object',
       properties: {
-        title: {
-          type: 'string',
-          description: 'Título de la actividad',
-          example: 'Clase de Yoga Matutina',
-        },
-        maxPeople: {
-          type: 'number',
-          description:
-            'Número máximo de personas que pueden participar en la actividad',
-          example: 20,
-        },
-        date: {
-          type: 'string',
-          format: 'date',
-          description: 'Fecha en la que se realizará la actividad',
-          example: '2025-02-10',
-        },
-        hour: {
-          type: 'string',
-          pattern: '^(?:[01]\\d|2[0-3]):[0-5]\\d$',
-          description: 'Hora en la cual se va a realizar la actividad',
-          example: '14:30',
-        },
-        description: {
-          type: 'string',
-          description: 'Descripción de la actividad',
-          example: 'Clase de yoga para principiantes en el parque central.',
-        },
-        file: {
-          type: 'string',
-          format: 'binary',
-          description: 'Imagen de la actividad (JPG, PNG, WEBP, máximo 1.5MB)',
-        },
+        title: { type: 'string', description: 'Nombre del espacio', example: 'Alberca' },
+        price_hour: { type: 'number', description: 'Precio por hora', example: 25 },
+        description: { type: 'string', description: 'Descripción del espacio', example: 'Alberca olímpica.' },
+        details: { type: 'array', items: { type: 'string' }, description: 'Detalles del espacio', example: ['Cuenta con vestidores', 'Servicio de salvavidas'] },
+        characteristics: { type: 'array', items: { type: 'string' }, description: 'Características', example: ['Climatizada', 'Dimensiones olímpicas'] },
+        file: { type: 'string', format: 'binary', description: 'Imagen (JPG, PNG, WEBP, máx. 1.5MB)' },
       },
     },
   })

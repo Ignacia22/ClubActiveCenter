@@ -29,6 +29,22 @@ export class PaymentController {
     return this.paymentService.createCheckoutSession(body.orderId, body.userId);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Crear una sesión de pago para una reserva',
+    description:
+      'Genera una nueva sesión de pago en Stripe para una reserva específica.',
+  })
+  @Post('create-checkout-session-reservation')
+  async createCheckoutSessionForReservation(
+    @Body() body: { reservationId: string },
+  ) {
+    return this.paymentService.createCheckoutSessionForReservation(
+      body.reservationId,
+    );
+  }
+
+
   @ApiOperation({
     summary: 'Manejar eventos de webhook de Stripe',
     description:

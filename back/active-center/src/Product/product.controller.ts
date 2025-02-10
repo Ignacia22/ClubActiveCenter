@@ -124,77 +124,40 @@ export class ProductController {
     }
   }
 
-  @Post('create')
-  @Roles(Role.admin)
-  @UseGuards(RolesGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Crear un nuevo producto. (ADMIN)',
-    description:
-      'Este endpoint permite a los administradores crear un nuevo producto.',
-  })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: 'Nombre del producto',
-          example: 'camisa',
-        },
-        description: {
-          type: 'string',
-          description: 'Descripción del producto',
-          example: 'camisa toda chula',
-        },
-        price: {
-          type: 'number',
-          description: 'Precio del producto',
-          example: 200,
-        },
-        stock: {
-          type: 'number',
-          description: 'Cantidad disponible en stock',
-          example: 1,
-        },
-        category: {
-          type: 'string',
-          description: 'Categoría del producto',
-          example: 'Camisa',
-        },
-        img: { type: 'string', description: 'URL de la imagen (opcional)' },
-        productStatus: {
-          type: 'string',
-          enum: ['Available', 'OutOfStock', 'Discontinued'],
-          description: 'Estado del producto',
-        },
-        file: {
-          type: 'string',
-          format: 'binary',
-          description: 'Imagen del producto (JPG, PNG, WEBP, máximo 1.5MB)',
-        },
-      },
+@Post('create')
+@Roles(Role.admin)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
+@ApiOperation({ summary: 'Crear un nuevo producto. (ADMIN)', description: 'Este endpoint permite a los administradores crear un nuevo producto.' })
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      name: { type: 'string', description: 'Nombre del producto' , example: 'camisa'},
+      description: { type: 'string', description: 'Descripción del producto', example: 'camisa toda chula'},
+      price: { type: 'number', description: 'Precio del producto', example: 200},
+      stock: { type: 'number', description: 'Cantidad disponible en stock', example: 1},
+      category: { type: 'string', description: 'Categoría del producto', example: 'Camisa' },
+      file: { type: 'string', format: 'binary', description: 'Imagen del producto (JPG, PNG, WEBP, máximo 1.5MB)' },
     },
-  })
-  @UseInterceptors(FileInterceptor('file'))
-  async createProduct(
-    @Body() product: CreateProductDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 1500000,
-            message: 'El tamaño máximo es 1.5 MB',
-          }),
-          new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
-        ],
-      }),
-    )
-    file?: Express.Multer.File,
-  ) {
-    return this.productService.createProduct(product, file);
-  }
+  },
+})
+@UseInterceptors(FileInterceptor('file'))
+async createProduct(
+  @Body() product: CreateProductDto,
+  @UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize: 1500000, message: 'El tamaño máximo es 1.5 MB' }),
+        new FileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ }),
+      ],
+    })
+  ) 
+  file?: Express.Multer.File,
+) {
+  return this.productService.createProduct(product, file);
+}
 
   @Get(':id')
   @SetMetadata('isPublic', true)

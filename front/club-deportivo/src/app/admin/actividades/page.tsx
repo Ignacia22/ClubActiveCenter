@@ -1,10 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+// pages/admin/activities/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
 import { useAdmin } from '@/context/AdminContext';
 import { Activity, CreateActivityDto } from '@/interface/IActivity';
-import Image from 'next/image';
+import { CreateActivityModal } from '@/components/admin/CreateActivityModal';
+import { ActivitiesTable } from '@/components/admin/ActivitiesTable';
+import StatsCard from '@/components/InfoAdmin/StatsCard';
 
 export default function ActivitiesDashboard() {
   const { 
@@ -13,14 +18,19 @@ export default function ActivitiesDashboard() {
     error, 
     getAllActivities, 
     createActivity, 
-    deleteActivity 
+    cancelActivity
   } = useAdmin();
+
+  console.log('Activities from context:', activities); // Log 1
   
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   
   const activityList: Activity[] = Array.isArray(activities) ? activities : [];
+  console.log('ActivityList after conversion:', activityList); // Log 2
 
   const [newActivity, setNewActivity] = useState<CreateActivityDto>({
     title: '',
@@ -28,39 +38,31 @@ export default function ActivitiesDashboard() {
     date: '',
     hour: '',
     maxPeople: 0,
-    registeredPeople: 0,
-    status: 'active',
-    imagenUrl: ''
+    file: undefined
   });
 
   useEffect(() => {
     const fetchActivities = async () => {
-      if (hasLoaded) return;
       try {
         await getAllActivities();
-        setHasLoaded(true);
-      } catch (err) {
-        console.error('Error fetching activities:', err);
+      } finally {
+        setIsLoading(false);
       }
     };
-  
+
     fetchActivities();
-  }, [getAllActivities, hasLoaded]);
-  
+  }, []);
 
-  if (loading) {
-    return <div className="text-white">Cargando...</div>;
-  }
 
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
-  }
+  if (loading) return <div className="text-white">Cargando...</div>;
+  if (error) return <div className="text-red-500">Error: {error}</div>;
 
-  // Filtered activities with explicit type
   const filteredActivities: Activity[] = activityList.filter((activity: Activity) => 
-    activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    activity.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     activity.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  console.log('FilteredActivities:', filteredActivities); // Log 5
 
   const handleCreateActivity = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -104,28 +106,29 @@ export default function ActivitiesDashboard() {
         date: '',
         hour: '',
         maxPeople: 0,
-        registeredPeople: 0,
-        status: 'active',
-        imagenUrl: ''
+        file: undefined, // Cambiar el tipo de string a undefined
       });
+      
     } catch (error) {
       console.error('Error al crear actividad:', error);
       alert('No se pudo crear la actividad. Por favor, inténtalo de nuevo.');
     }
   };
 
-  
-  const handleDeleteActivity = async (id: number) => {
+
+  const handleDeleteActivity = async (id: string) => {
     try {
-      await deleteActivity(id);
+      await cancelActivity(id);
+      // No es necesario recargar las actividades aquí
     } catch (error) {
-      console.error('Error deleting activity:', error);
+      console.error('Error al eliminar actividad:', error);
+      alert('Error al eliminar la actividad. Por favor, intenta de nuevo.');
     }
-  };
+};
 
   return (
     <div className="space-y-6">
-      {/* Depuración */}
+      {/* Panel de depuración */}
       <div className="bg-gray-800 rounded-lg p-4 text-white">
         <h3>Depuración de Actividades</h3>
         <pre>{JSON.stringify(activities, null, 2)}</pre>
@@ -148,175 +151,30 @@ export default function ActivitiesDashboard() {
         </div>
       </div>
 
-      {/* Estadísticas rápidas */}
+      {/* Estadísticas */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="text-gray-400 text-sm">Total Actividades</h3>
-          <p className="text-2xl font-bold text-white">{activityList.length}</p>
-        </div>
+        <StatsCard 
+          title="Total Actividades" 
+          value={activityList.length} 
+        />
       </div>
 
-      {/* Tabla de Actividades */}
-      <div className="bg-gray-800 rounded-xl overflow-hidden">
-        <div className="p-6 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Lista de Actividades</h2>
-          <button 
-            onClick={() => setIsCreateModalOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-          >
-            <Plus className="mr-2 h-5 w-5" /> Crear Actividad
-          </button>
-        </div>
-        
-        <table className="w-full">
-          <thead className="bg-gray-900/50">
-            <tr>
-              {['TÍTULO', 'DESCRIPCIÓN', 'IMAGEN', 'ACCIONES'].map((header) => (
-                <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {filteredActivities.map((activity: Activity) => (
-              <tr key={activity.id} className="hover:bg-gray-700/50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                  {activity.title}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                  {activity.description}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {activity.imagenUrl ? (
-                    <Image 
-                      src={activity.imagenUrl} 
-                      alt={activity.title} 
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-gray-500">Sin imagen</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                  <div className="flex space-x-3">
-                    <button 
-                      onClick={() => {
-                        // Lógica de edición
-                        console.log('Editar actividad', activity.id);
-                      }}
-                      className="hover:text-white"
-                    >
-                      <Edit className="h-5 w-5" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteActivity(activity.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Tabla */}
+      <ActivitiesTable 
+        activities={filteredActivities}
+        onCancel={handleDeleteActivity}
+        onEdit={(id) => console.log('Editar', id)}
+        onCreateClick={() => setIsCreateModalOpen(true)}
+      />
 
-      {isCreateModalOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsCreateModalOpen(false);
-            }
-          }}
-        >
-          <div 
-            className="bg-gray-800 rounded-xl p-8 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold text-white mb-6">Crear Nueva Actividad</h2>
-            <form onSubmit={handleCreateActivity} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Título</label>
-                <input
-                  type="text"
-                  value={newActivity.title}
-                  onChange={(e) => setNewActivity({...newActivity, title: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Descripción</label>
-                <textarea
-                  value={newActivity.description}
-                  onChange={(e) => setNewActivity({...newActivity, description: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Fecha</label>
-                <input
-                  type="date"
-                  value={newActivity.date}
-                  onChange={(e) => setNewActivity({...newActivity, date: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Hora</label>
-                <input
-                  type="time"
-                  value={newActivity.hour}
-                  onChange={(e) => setNewActivity({...newActivity, hour: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Máximo de Personas</label>
-                <input
-                  type="number"
-                  value={newActivity.maxPeople}
-                  onChange={(e) => setNewActivity({...newActivity, maxPeople: parseInt(e.target.value)})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">URL de Imagen</label>
-                <input
-                  type="text"
-                  value={newActivity.imagenUrl}
-                  onChange={(e) => setNewActivity({...newActivity, imagenUrl: e.target.value})}
-                  className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Crear Actividad
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Modal */}
+      <CreateActivityModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateActivity}
+        newActivity={newActivity}
+        setNewActivity={setNewActivity}
+      />
     </div>
   );
 }

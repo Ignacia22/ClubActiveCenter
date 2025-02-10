@@ -26,12 +26,12 @@ export class SpaceService {
     }
     const newSpace = this.spaceRepository.create({
       title: spaces.title,
-      img: imageUrl ? [imageUrl] : [],
-      description: spaces.descripcion,
-      details: [],
-      characteristics: [],
-      price_hour: spaces.price_hours,
-      status: spaces.status ?? false,
+      img: imageUrl ? [imageUrl] : [],  
+      description: spaces.description,
+      details: spaces.details,
+      characteristics: spaces.characteristics,
+      price_hour: spaces.price_hour,
+      status: spaces.status ?? true,
     });
     return await this.spaceRepository.save(newSpace);
   }
