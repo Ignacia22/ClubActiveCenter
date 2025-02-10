@@ -18,6 +18,7 @@ const config: DataSourceOptions = {
   // ssl: {
   //   rejectUnauthorized: false,
   // },
-}
+};
+
 export default registerAs('typeorm', () => config);
 export const connectionSource = new DataSource(config);

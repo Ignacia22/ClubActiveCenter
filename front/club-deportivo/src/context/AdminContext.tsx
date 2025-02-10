@@ -41,7 +41,7 @@ interface AdminContextType {
   getActivityById: (id: string) => Promise<Activity>;
   createActivity: (activityData: Omit<Activity, 'id'>) => Promise<void>;
   updateActivityRegistration: (id: string, activityData: Partial<Activity>) => Promise<void>;
-  deleteActivity: (id: string) => Promise<void>;
+  cancelActivity: (id: string) => Promise<void>;
   
   // Funciones de Productos
   getAllProducts: () => Promise<IProducts[]>;
@@ -174,22 +174,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Funciones de Actividades (previous implementation remains the same)
   const getAllActivities = async () => {
     try {
-      // Obtener el token del localStorage
       const token = localStorage.getItem('token');
-  
-      // Registrar información de depuración DETALLADA
-      console.log('Token:', token);
-      console.log('Token type:', typeof token);
-      console.log('Token length:', token?.length);
-      console.log('API_URL:', API_URL);
-      console.log('Full request URL:', `${API_URL}/activity`);
-  
-      // Validar token antes de hacer la solicitud
       if (!token) {
         throw new Error('No se encontró token de autenticación');
       }
   
-      // Realizar la solicitud con el token
       const response = await axios.get(`${API_URL}/activity`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -197,18 +186,35 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         }
       });
   
-      // Registrar la respuesta
-      console.log('Response status:', response.status);
-      console.log('Response data:', response.data);
+      // Log para ver la estructura exacta de la respuesta
+      console.log('Estructura de response.data:', {
+        type: typeof response.data,
+        value: response.data
+      });
   
-      // Actualizar el estado con los datos
-      setActivities(response.data);
-      return response.data;
+      // Asegurarnos de que estamos manejando correctamente el array de actividades
+      let activitiesArray;
+      if (Array.isArray(response.data)) {
+        activitiesArray = response.data;
+      } else if (response.data.activities) {
+        activitiesArray = response.data.activities;
+      } else if (response.data.data) {
+        activitiesArray = response.data.data;
+      } else {
+        activitiesArray = [];
+        console.error('Estructura de datos inesperada:', response.data);
+      }
+  
+      console.log('Array de actividades procesado:', activitiesArray);
+  
+      // Actualizar el estado solo si tenemos un array válido
+      if (Array.isArray(activitiesArray)) {
+        setActivities(activitiesArray);
+      }
+  
+      return activitiesArray;
     } catch (error) {
-      // Manejo detallado de errores
       console.error('Error completo al obtener actividades:', error);
-  
-      // Si es un error de Axios, mostrar detalles específicos
       if (axios.isAxiosError(error)) {
         console.error('Detalles del error Axios:', {
           status: error.response?.status,
@@ -219,7 +225,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         });
       }
   
-      // Lanzar un error con un mensaje descriptivo
       const errorMessage = error instanceof Error 
         ? error.message 
         : 'Error desconocido al obtener actividades';
@@ -302,14 +307,36 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const deleteActivity = async (id: string) => {
+  const cancelActivity = async (id: string) => {
     try {
-      await axios.delete(`${API_URL}/activity/delete-activity/${id}`);
-      setActivities(prev => prev.filter(activity => activity.id !== id));
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
+      }
+
+      await axios.delete(`${API_URL}/activity/delete-activity/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      
+
+      // Actualizar el estado local
+      setActivities(prevActivities => 
+        prevActivities.map(activity => 
+          activity.id === id 
+            ? { ...activity, status: false }
+            : activity
+        )
+      );
+
     } catch (error) {
-      throw new Error('Error al eliminar actividad');
+      console.error('Error al cancelar actividad:', error);
+      throw error;
     }
-  };
+};
 
   // Funciones de Productos (previous implementation remains the same)
   const getAllProducts = async () => {
@@ -401,7 +428,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     getActivityById,
     createActivity,
     updateActivityRegistration,
-    deleteActivity,
+    cancelActivity,
     // Funciones de Productos
     getAllProducts,
     getProductById,

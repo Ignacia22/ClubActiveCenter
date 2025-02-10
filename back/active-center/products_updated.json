@@ -1,6 +1,4 @@
-import { images } from "./imgurl";
-
-export const Products = [
+[
   {
     "name": "Raqueta de Tenis Wilson Pro Staff",
     "price": 199.99,
@@ -541,25 +539,4 @@ export const Products = [
     "stock": 12,
     "rate": 4.7
   }
-
-];
-
-
-const fs = require('fs');
-
-Products.forEach((product) => {
-  const productNameFormatted = product.name.toLowerCase().replace(/\s+/g, '-');
-
-  const image = images.find((img) =>
-    productNameFormatted.split('-').some(keyword => img.public_id.toLowerCase().includes(keyword))
-  );
-
-  if (image) {
-    product.img = image.url;
-  } else {
-    console.log(`No se encontró imagen para: ${product.name}`);
-  }
-});
-fs.writeFileSync('products_updated.json', JSON.stringify(Products, null, 2), 'utf-8');
-
-console.log('Archivo actualizado con las URLs de las imágenes.');
+]

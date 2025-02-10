@@ -1,21 +1,40 @@
-// components/admin/ActivitiesTable.tsx
+import { useState } from 'react';
 import { Activity } from '@/interface/IActivity';
 import { Edit, Trash2, Plus } from 'lucide-react';
 import Image from 'next/image';
 
 interface ActivitiesTableProps {
   activities: Activity[];
-  onDelete: (id: string) => Promise<void>;
+  onCancel: (id: string) => Promise<void>;
   onEdit: (id: string) => void;
   onCreateClick: () => void;
 }
 
 export const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
   activities,
-  onDelete,
+  onCancel,
   onEdit,
   onCreateClick
 }) => {
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+
+  const handleCancelActivity = async (id: string) => {
+    try {
+      const confirmCancel = window.confirm('¿Estás seguro de que quieres cancelar esta actividad?');
+      
+      if (confirmCancel) {
+        setIsDeletingId(id);
+        await onCancel(id);
+        alert('Actividad cancelada con éxito');
+      }
+    } catch (error) {
+      console.error('Error al cancelar actividad:', error);
+      alert('Error al cancelar la actividad. Por favor, intenta de nuevo.');
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
+
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden">
       <div className="p-6 flex justify-between items-center">
@@ -40,7 +59,10 @@ export const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
         </thead>
         <tbody className="divide-y divide-gray-700">
           {activities.map((activity) => (
-            <tr key={activity.id} className="hover:bg-gray-700/50">
+            <tr 
+              key={activity.id} 
+              className={`hover:bg-gray-700/50 ${isDeletingId === activity.id ? 'opacity-50' : ''}`}
+            >
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                 {activity.title}
               </td>
@@ -56,26 +78,43 @@ export const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                     height={40}
                     className="h-10 w-10 object-cover rounded"
                   />
+                ) : activity.img ? (
+                  <Image 
+                    src={activity.img}
+                    alt={activity.title} 
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 object-cover rounded"
+                  />
                 ) : (
                   <span className="text-gray-500">Sin imagen</span>
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                <div className="flex space-x-3">
-                  <button 
-                    onClick={() => onEdit(activity.id)}
-                    className="hover:text-white"
-                  >
-                    <Edit className="h-5 w-5" />
-                  </button>
-                  <button 
-                    onClick={() => onDelete(activity.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </td>
+               <div className="flex space-x-3">
+                 <button 
+                   onClick={() => onEdit(activity.id)}
+                   className="hover:text-white"
+                   disabled={!activity.status}
+                 >
+                   <Edit className="h-5 w-5" />
+                 </button>
+                 <button 
+                   onClick={() => handleCancelActivity(activity.id)}
+                   className={`text-red-500 hover:text-red-700 ${
+                     !activity.status ? 'opacity-50 cursor-not-allowed' : ''
+                   }`}
+                   disabled={!activity.status}
+                 >
+                   <Trash2 className="h-5 w-5" />
+                 </button>
+                 <span className={`px-2 py-1 rounded ${
+                   activity.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                 }`}>
+                   {activity.status ? 'Activa' : 'Cancelada'}
+                 </span>
+               </div>
+             </td>
             </tr>
           ))}
         </tbody>

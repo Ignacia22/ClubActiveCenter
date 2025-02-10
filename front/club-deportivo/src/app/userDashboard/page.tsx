@@ -7,17 +7,19 @@ export default function UserPage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    console.log("user:", user); // Verifica si el usuario está disponible
+    console.log("Estado actual de user:", user);
   }, [user]);
 
-  if (!user) {
+  // Verificamos que `user.userInfo` esté definido antes de acceder a `id`
+  if (!user || !user.userInfo || !user.userInfo.id) {
+    console.log("Esperando a que user tenga un ID válido...", user);
     return <p>Cargando usuario...</p>;
   }
 
-  // Renderiza el componente UserDashboard cuando el usuario esté disponible
   return (
     <div>
-      <UserDashboard userId={user.id} /> {/* Pasa el userId como prop */}
+      <UserDashboard userId={user.userInfo.id} />{" "}
+      {/* Ahora pasamos el ID correcto */}
     </div>
   );
 }
