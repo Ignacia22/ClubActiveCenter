@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://active-center-db-3rfj.onrender.com/api";
+const BASE_URL = "https://active-center-db-3rfj.onrender.com";
 
 export const AuthService = {
   async login(credentials: { email: string; password: string }) {
