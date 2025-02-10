@@ -1,9 +1,32 @@
 import { Reservation } from "@/interface/reservation";
+import Swal from "sweetalert2";
 
 export const createReservaService = async (reserva: Reservation) => {
   const token = localStorage.getItem("token");
+  const userData = localStorage.getItem("user"); // Obtener el objeto user almacenado
+
   if (!token) {
-    throw new Error("Token no disponible o no válido.");
+    Swal.fire("⚠️ Error", "Token no disponible o no válido.", "warning");
+    return;
+  }
+  if (!userData) {
+    Swal.fire(
+      "⚠️ Error",
+      "Datos del usuario no encontrados en localStorage.",
+      "warning"
+    );
+    return;
+  }
+
+  // Parseamos el objeto `user` para extraer `userId`
+  let userId: string;
+  try {
+    const parsedUser = JSON.parse(userData);
+    userId = parsedUser.userInfo.id; // Extraemos `id`
+  } catch (error) {
+    Swal.fire("❌ Error", "No se pudo obtener el userId.", "error");
+    console.error("Error al parsear los datos del usuario:", error);
+    return;
   }
 
   const headers = {
@@ -11,53 +34,55 @@ export const createReservaService = async (reserva: Reservation) => {
     Authorization: `Bearer ${token}`,
   };
 
-  // Desestructuración sin usar el `status`
+  // Eliminar `status` ya que no se usa
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { status, ...reservaWithoutStatus } = reserva;
+  const reservaFinal = { ...reservaWithoutStatus, userId }; // Agregar userId
 
   console.log(
-    "Datos enviados al backend:",
-    JSON.stringify(reservaWithoutStatus, null, 2)
+    "📤 Enviando datos al backend:",
+    JSON.stringify(reservaFinal, null, 2)
   );
 
   try {
     const response = await fetch("http://localhost:3001/reservation/create", {
       method: "POST",
-      headers: headers,
-      body: JSON.stringify(reservaWithoutStatus),
+      headers,
+      body: JSON.stringify(reservaFinal),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Respuesta del servidor con error:", errorText);
+      console.error("❌ Respuesta del servidor con error:", errorText);
 
       try {
         const errorData = JSON.parse(errorText);
-        throw new Error(
-          errorData.message || errorData.error || "Error desconocido"
+        Swal.fire(
+          "❌ Error",
+          errorData.message || "Error desconocido",
+          "error"
         );
       } catch (jsonError) {
         console.error(
-          "No se pudo parsear el JSON del error:",
+          "❌ No se pudo parsear el JSON del error:",
           jsonError,
           errorText
         );
-        throw new Error("Error en la solicitud al backend.");
+        Swal.fire("❌ Error", "Error en la solicitud al backend.", "error");
       }
+      return;
     }
 
     const data = await response.json();
-    console.log("Respuesta del backend:", data);
+    console.log("✅ Respuesta del backend:", data);
+    Swal.fire("✅ Éxito", "Reserva creada correctamente.", "success");
     return data;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error en el servicio de reserva:", error);
-      throw new Error(
-        error.message || "Error desconocido en el servicio de reserva."
-      );
-    } else {
-      console.error("Error inesperado:", error);
-      throw new Error("Error inesperado en el servicio de reserva.");
-    }
+    console.error("❌ Error en el servicio de reserva:", error);
+    Swal.fire(
+      "❌ Error inesperado",
+      "Error en la solicitud al backend.",
+      "error"
+    );
   }
 };

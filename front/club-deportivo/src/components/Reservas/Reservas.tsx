@@ -10,7 +10,7 @@ interface Space {
   title: string;
   description: string;
   price: number;
-  img: string[]; // Suponiendo que las imágenes son un arreglo
+  img: string[];
 }
 
 const Reservas = () => {
@@ -85,6 +85,8 @@ const Reservas = () => {
       }
 
       const paymentLink = reservaResponse.paymentLink;
+      console.log("🔗 Redirigiendo a la URL de pago:", paymentLink); // 👈 Agregado para ver la ruta del pago
+
       const stripe = await stripePromise;
       if (!stripe) {
         throw new Error("Error al inicializar Stripe.");
@@ -218,7 +220,6 @@ const Reservas = () => {
   );
 };
 
-// Función para verificar si una URL es válida
 const isValidUrl = (url: string) => {
   try {
     new URL(url);
