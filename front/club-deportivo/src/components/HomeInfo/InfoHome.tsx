@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ActivitiesSection from "./ActivitiesSection";
 import BeneficiosInfo from "./BeneficiosInfo";
+import Map from "../Map";
+
 
 export default function InfoHome() {
   return (
@@ -104,6 +106,36 @@ export default function InfoHome() {
 
       <div>
         <BeneficiosInfo />
+      </div>
+
+      {/* Sección del Mapa */}
+      <div className="bg-black py-10 px-6 md:px-4">
+        <div className="container mx-auto">
+          <h2 className="text-4xl md:text-5xl font-sans font-bold mb-8 text-white text-center">
+            Encuéntranos
+          </h2>
+          <div className="rounded-lg overflow-hidden">
+            <Map 
+              center={{ lat: 19.4326, lng: -99.1332 }} // Cambia estas coordenadas por la ubicación real de tu club
+              zoom={15}
+              markers={[
+                {
+                  lat: 19.4326,
+                  lng: -99.1332,
+                  title: "Club Active Center"
+                }
+              ]}
+            />
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-white mb-4">Visítanos en nuestras instalaciones</p>
+            <Link href="/contacto">
+              <button className="bg-white hover:bg-slate-300 text-black font-sans font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
+                Cómo llegar
+              </button>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
