@@ -49,26 +49,88 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (storedUser && storedToken) {
         try {
-          const parsedUser = JSON.parse(storedUser);
 
-          if (parsedUser && typeof parsedUser === "object") {
-            // Verificamos isAdmin en userInfo si existe
-            const isAdminValue = parsedUser.userInfo?.isAdmin ?? false;
-
-            setUser(parsedUser);
-            setToken(storedToken);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, form, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (!response.data || !response.data.token) {
+                throw new Error("Respuesta de inicio de sesión inválida: falta token");
+            }
+    
+            const userData = response.data;
+            const isAdminValue = userData.userInfo?.isAdmin ?? false;
+            
+            // Extraer el ID del usuario desde userInfo
+            const userId = userData.userInfo?.id;
+            if (!userId) {
+                throw new Error("Respuesta de inicio de sesión inválida: falta id de usuario");
+            }
+    
+            const userToStore = {
+                ...userData,
+                isAdmin: isAdminValue,
+            };
+    
+            // Actualizar estado
+            setUser(userToStore);
+            setToken(userData.token);
             setIsAuthenticated(true);
             setIsAdmin(isAdminValue);
-
-            console.log("Estado actualizado:", {
-              isAdmin: isAdminValue,
+    
+            // Almacenar en localStorage
+            localStorage.setItem("user", JSON.stringify(userToStore));
+            localStorage.setItem("token", userData.token);
+            localStorage.setItem("isAdmin", isAdminValue.toString());
+            localStorage.setItem("userId", userId); // Guardamos el ID desde userInfo
+    
+            console.log("Datos guardados en localStorage:", {
+                token: !!userData.token,
+                userId,
+                isAdmin: isAdminValue
             });
-          } else {
-            resetAuthState();
-          }
-        } catch (parseError) {
-          console.error("Error al parsear usuario:", parseError);
-          resetAuthState();
+    
+            // Configurar interceptor de Axios
+            axios.interceptors.request.use(
+                (config) => {
+                    config.headers['Authorization'] = `Bearer ${userData.token}`;
+                    return config;
+                },
+                (error) => Promise.reject(error)
+            );
+    
+            setTimeout(() => {
+                handleRedirect(isAdminValue);
+            }, 100);
+    
+        } catch (error) {
+            // Limpiar datos de autenticación
+            setUser(null);
+            setToken(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("isAdmin");
+            localStorage.removeItem("userId");
+    
+            if (axios.isAxiosError(error)) {
+                console.error("Error de Axios en login:", {
+                    mensaje: error.message,
+                    codigo: error.response?.status,
+                    datos: error.response?.data
+                });
+    
+                if (error.response?.status === 401) {
+                    throw new Error("Credenciales incorrectas. Por favor, verifica tu email y contraseña.");
+                } else if (error.response?.status === 500) {
+                    throw new Error("Error del servidor. Por favor, intenta de nuevo más tarde.");
+                }
+            }
+            throw error;
+
         }
       } else {
         resetAuthState();
