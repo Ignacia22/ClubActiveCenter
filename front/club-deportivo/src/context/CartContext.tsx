@@ -115,8 +115,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         setItems([]);
       }
     };
-
-    loadCart();
+  
+    // Ejecutar con manejo de errores adicional
+    loadCart().catch(error => {
+      console.error('💥 Error no manejado en loadCart:', {
+        error,
+        message: error.message,
+        stack: error.stack
+      });
+    });
   }, []);
 
   const addItemToCart = async (item: IProducts): Promise<void> => {
