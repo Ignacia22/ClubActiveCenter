@@ -10,8 +10,27 @@ export default function CartPage() {
     items, 
     updateItemQuantity, 
     removeItemFromCart, 
-    getCartTotal 
+    getCartTotal,
+    processPayment,
+    isProcessingPayment
   } = useCart();
+
+
+  const handlePayment = async () => {
+    try {
+      await processPayment();
+    } catch (error: unknown) {
+      // Manejo de error con type guard
+      if (error instanceof Error) {
+        console.error('Error al procesar el pago:', error.message);
+        // Mostrar mensaje de error al usuario
+        alert(`Error al procesar el pago: ${error.message}`);
+      } else {
+        console.error('Error desconocido al procesar el pago', error);
+        alert('Ocurrió un error desconocido al procesar el pago');
+      }
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -100,6 +119,7 @@ export default function CartPage() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow p-6 sticky top-24">
             <h2 className="text-lg font-bold mb-4 text-black">Resumen del pedido</h2>
+
             
             <div className="space-y-2 mb-4">
               {items.map((item) => (
@@ -113,16 +133,26 @@ export default function CartPage() {
             <div className="border-t pt-4 mb-6">
               <div className="flex justify-between font-bold">
                 <span className='text-black'>Total</span>
-                <span>${Number(getCartTotal()).toFixed(2)}</span>
+                <span className='text-black'>${Number(getCartTotal()).toFixed(2)}</span>
               </div>
             </div>
 
-            <Link
-              href="/checkout"
-              className="block w-full text-center bg-black text-white py-3 rounded-md hover:bg-black/90 transition-colors"
-            >
-              Proceder al pago
-            </Link>
+            <button
+          onClick={handlePayment}
+          disabled={isProcessingPayment || items.length === 0}
+          className={`
+            w-full py-3 rounded-md text-center 
+            ${isProcessingPayment || items.length === 0
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-black text-white hover:bg-black/90 transition-colors'
+            }
+          `}
+        >
+          {isProcessingPayment 
+            ? 'Procesando...' 
+            : 'Proceder al pago'
+          }
+        </button>
             
             <Link
               href="/tienda"
