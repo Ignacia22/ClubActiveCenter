@@ -149,7 +149,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
         };
       }, []); // Array de dependencias vacío para que se ejecute solo una vez
 
-      const login = async (form: ILogin) => {
+      const login = async (form: ILogin): Promise<void> => {
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, form, {
                 headers: {
