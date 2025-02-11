@@ -45,11 +45,14 @@ export const createReservaService = async (reserva: Reservation) => {
   );
 
   try {
-    const response = await fetch("http://localhost:3001/reservation/create", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(reservaFinal),
-    });
+    const response = await fetch(
+      "https://active-center-db-3rfj.onrender.com/reservation/create",
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(reservaFinal),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();

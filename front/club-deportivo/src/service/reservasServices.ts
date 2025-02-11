@@ -1,8 +1,11 @@
 export const fetchSpaces = async () => {
   try {
-    const response = await fetch("http://localhost:3001/space/allSpaces", {
-      method: "GET",
-    });
+    const response = await fetch(
+      "https://active-center-db-3rfj.onrender.com/space/allSpaces",
+      {
+        method: "GET",
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();

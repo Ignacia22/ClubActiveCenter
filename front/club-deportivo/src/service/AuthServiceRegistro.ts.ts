@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = "https://active-center-db-3rfj.onrender.com";
 
 interface RegisterData {
   name: string;

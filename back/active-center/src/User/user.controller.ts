@@ -37,15 +37,60 @@ export class UserController {
       'Este endpoint se encarga de obtener todos los usuarios almacenados en la base de datos y paginarlos. Solo para administradores.',
   })
   @ApiBearerAuth()
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Número de página para paginación. Por defecto es 1.' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Número de elementos por página. Por defecto es 5.' })
-  @ApiQuery({ name: 'name', required: false, type: String, description: 'Filtra por nombre del usuario.' })
-  @ApiQuery({ name: 'email', required: false, type: String, description: 'Filtra por correo electrónico del usuario.' })
-  @ApiQuery({ name: 'phone', required: false, type: String, description: 'Filtra por teléfono del usuario.' })
-  @ApiQuery({ name: 'address', required: false, type: String, description: 'Filtra por dirección del usuario.' })
-  @ApiQuery({ name: 'dni', required: false, type: Number, description: 'Filtra por DNI del usuario.' })
-  @ApiQuery({ name: 'userStatus', required: false, type: String, description: 'Filtra por estado del usuario.' })
-  @ApiQuery({ name: 'isAdmin', required: false, type: String, description: 'Filtra por el rol de administrador.' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número de página para paginación. Por defecto es 1.',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Número de elementos por página. Por defecto es 5.',
+  })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: String,
+    description: 'Filtra por nombre del usuario.',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: String,
+    description: 'Filtra por correo electrónico del usuario.',
+  })
+  @ApiQuery({
+    name: 'phone',
+    required: false,
+    type: String,
+    description: 'Filtra por teléfono del usuario.',
+  })
+  @ApiQuery({
+    name: 'address',
+    required: false,
+    type: String,
+    description: 'Filtra por dirección del usuario.',
+  })
+  @ApiQuery({
+    name: 'dni',
+    required: false,
+    type: Number,
+    description: 'Filtra por DNI del usuario.',
+  })
+  @ApiQuery({
+    name: 'userStatus',
+    required: false,
+    type: String,
+    description: 'Filtra por estado del usuario.',
+  })
+  @ApiQuery({
+    name: 'isAdmin',
+    required: false,
+    type: String,
+    description: 'Filtra por el rol de administrador.',
+  })
   async getAllUsers(
     @Query('page') page: number,
     @Query('limit') limit: number,

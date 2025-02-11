@@ -1,11 +1,13 @@
 import axios from "axios";
 
+const BASE_URL = "https://active-center-db-3rfj.onrender.com";
+
 export const AuthService = {
   async login(credentials: { email: string; password: string }) {
     try {
       // Realizamos la solicitud POST al backend con las credenciales
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, // Ruta corregida
+        `${BASE_URL}/auth/SignIn`,
         credentials,
         {
           headers: { "Content-Type": "application/json" },
@@ -27,7 +29,6 @@ export const AuthService = {
         throw new Error("No se recibieron los datos correctos.");
       }
     } catch (error) {
-      // Si hay un error, lo mostramos en consola
       console.error("Error en la llamada de login:", error);
       throw error; // Lanza el error para que lo maneje el componente
     }

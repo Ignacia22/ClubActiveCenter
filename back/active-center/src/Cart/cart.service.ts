@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cart } from 'src/Entities/Cart.entity';
 import { CartItem } from 'src/Entities/CartItem.entity';
@@ -44,26 +48,44 @@ export class CartService {
     const cart = await this.getOrCreateCart(userId);
 
     for (const { productId, quantity } of products) {
+
+      if (quantity < 0) {
+        throw new BadRequestException(`La cantidad no puede ser negativa`);
+      }
       const product = await this.productRepository.findOne({
         where: { id: productId },
       });
       if (!product) {
-        throw new NotFoundException(`Producto con ID ${productId} no encontrado`);
+        throw new NotFoundException(
+          `Producto con ID ${productId} no encontrado`,
+        );
       }
       let cartItem = await this.cartItemRepository.findOne({
         where: { cart: { id: cart.id }, product: { id: productId } },
       });
       if (cartItem) {
-        cartItem.quantity += quantity;
+        if (quantity === 0) {
+          await this.cartItemRepository.remove(cartItem);
+        } else {
+          if (cartItem.quantity + quantity > product.stock) {
+            throw new BadRequestException(
+              `No hay suficiente stock para el producto ${product.name}. Disponible: ${product.stock}`,
+            );
+          }
+          cartItem.quantity += quantity;
+          await this.cartItemRepository.save(cartItem);
+        }
       } else {
         if (quantity > product.stock) {
           throw new BadRequestException(
             `No hay suficiente stock para el producto ${product.name}. Disponible: ${product.stock}`,
           );
         }
-        cartItem = this.cartItemRepository.create({ cart, product, quantity });
+        if (quantity > 0) {
+          cartItem = this.cartItemRepository.create({ cart, product, quantity });
+          await this.cartItemRepository.save(cartItem);
+        }
       }
-      await this.cartItemRepository.save(cartItem);
     }
     return this.getCart(userId);
   }
@@ -89,13 +111,29 @@ export class CartService {
     productId: string,
     quantity: number,
   ): Promise<CartDTO> {
+    if (quantity < 0) {
+      throw new BadRequestException('La cantidad no puede ser negativa');
+    }  
     const cart = await this.getOrCreateCart(userId);
     const cartItem = await this.cartItemRepository.findOne({
       where: { cart: { id: cart.id }, product: { id: productId } },
-    });
-    if (!cartItem) throw new NotFoundException('Producto no encontrado en el carrito');
-    cartItem.quantity = quantity;
-    await this.cartItemRepository.save(cartItem);
+      relations: ['product'],
+    });  
+    if (!cartItem) {
+      throw new NotFoundException('Producto no encontrado en el carrito');
+    }  
+    if (quantity === 0) {
+      await this.cartItemRepository.remove(cartItem);
+    } else {
+      if (quantity > cartItem.product.stock) {
+        throw new BadRequestException(
+          `No hay suficiente stock para el producto ${cartItem.product.name}. Disponible: ${cartItem.product.stock}`,
+        );
+      }
+      cartItem.quantity = quantity;
+      await this.cartItemRepository.save(cartItem);
+    }  
+
     return this.getCart(userId);
   }
 

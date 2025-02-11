@@ -13,7 +13,12 @@ import { SendGridModule } from 'src/SendGrid/sendGrid.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Reservation,Space,User]),PaymentModule, SendGridModule, CloudinaryModule],
+  imports: [
+    TypeOrmModule.forFeature([Reservation, Space, User]),
+    PaymentModule,
+    SendGridModule,
+    CloudinaryModule,
+  ],
   controllers: [ReservationController],
   providers: [ReservationService, UserService, SpaceService],
 })
