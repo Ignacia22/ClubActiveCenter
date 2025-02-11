@@ -10,6 +10,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { Max } from 'class-validator';
 import { User } from './User.entity';
+import { StatusActivity } from 'src/Activity/activitiesDTO/Activity.dto';
 
 @Entity({ name: 'activities' })
 export class Activity {
@@ -42,6 +43,6 @@ export class Activity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ type: 'boolean', default: true, nullable: false })
-  status?: boolean;
+  @Column({ type: 'enum', enum: StatusActivity, nullable: false })
+  status?: StatusActivity;
 }

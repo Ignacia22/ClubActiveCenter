@@ -1,18 +1,21 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
-  Put,
   Req,
+  SetMetadata,
+  UseGuards,
 } from '@nestjs/common';
 import { SubscriptionService } from './subscriptions.service';
-import { ApiOperation } from '@nestjs/swagger';
-import { Subscription } from 'src/Entities/Subscription.entity';
-import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CreateSubscriptionDTO } from './SubscriptionDTO/subscription.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/User/UserDTO/Role.enum';
+import { RolesGuard } from 'src/Auth/Guard/roles.guard';
+import {  SubscribeResponseDTO, SubscriptionResponseDTO } from './SubscriptionDTO/Subscription.enum';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -23,7 +26,8 @@ export class SubscriptionController {
     summary: 'Obtener todas las suscripciones',
     description: 'Retorna una lista con todas las suscripciones disponibles.',
   })
-  async getSubscriptions(): Promise<Subscription[]> {
+  @SetMetadata('isPublic', true)
+  async getSubscriptions(): Promise<SubscriptionResponseDTO[]> {
     return await this.subscriptionService.getSubscriptions();
   }
 
@@ -32,7 +36,8 @@ export class SubscriptionController {
     summary: 'Obtener una suscripción por ID',
     description: 'Busca y devuelve una suscripción específica según su ID.',
   })
-  async getSubscriptionById(@Param('id') id: string): Promise<Subscription> {
+  @SetMetadata('isPublic', true)
+  async getSubscriptionById(@Param('id') id: string): Promise<SubscriptionResponseDTO> {
     return this.subscriptionService.getSubscriptionById(id);
   }
 
@@ -41,29 +46,34 @@ export class SubscriptionController {
     summary: 'Craer una subscripción.',
     description: 'Este endpoint permite crear una nueva suscripción.',
   })
-  async createSubscrition(data: CreateSubscriptionDTO): Promise<Subscription> {
+  @ApiBearerAuth()
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
+  async createSubscrition(data: CreateSubscriptionDTO): Promise<SubscriptionResponseDTO> {
     return await this.subscriptionService.createSubscription(data);
   }
 
-  @Post('subscribe')
+  @Post('subscribe/:id')
   @ApiOperation({
     summary: 'Suscribirse a una suscripción',
     description:
       'Permite a un usuario suscribirse a una suscripción específica.',
   })
+  @ApiBearerAuth()
   async subscribe(
     @Req() req: any,
-    @Body() subId: string,
-  ): Promise<SubscriptionDetail> {
+    @Param('id', ParseUUIDPipe) subId: string,
+  ): Promise<SubscribeResponseDTO> {
     const userId: string = req.access.id;
     return this.subscriptionService.subscribe(userId, subId);
   }
 
-  @Put('unsubscribe/:id')
+  @Delete('unsubscribe/:id')
   @ApiOperation({
     summary: 'Cancelar suscripción',
     description: 'Cambia el estado de la suscripción a inactiva.',
   })
+  @ApiBearerAuth()
   async unsubscribe(@Param('id') id: string): Promise<string> {
     return this.subscriptionService.unsubscribe(id);
   }
@@ -73,6 +83,9 @@ export class SubscriptionController {
     summary: 'Eliminar una suscripción',
     description: 'Borra una suscripción del sistema.',
   })
+  @Roles(Role.admin)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   async deleteSubscription(@Param('id') id: string): Promise<string> {
     return this.subscriptionService.deleteSubscription(id);
   }

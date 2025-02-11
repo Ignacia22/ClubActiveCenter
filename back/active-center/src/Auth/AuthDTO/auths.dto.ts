@@ -117,6 +117,16 @@ export class TokenRefreshPayloadDTO {
     description: 'Roles para la validación de tokens.',
   })
   roles: string[];
+
+  @ApiProperty({
+    description: 'Si el usuario cuenta con alguna suscripción.'
+  })
+  isSubscribed: boolean;
+
+  @ApiProperty({
+    description: 'Suscripciones para validar.'
+  })
+  subscribe: string[];
 }
 
 export class RefreshTokenDTO {

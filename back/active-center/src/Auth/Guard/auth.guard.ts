@@ -11,6 +11,7 @@ import { TokenRefreshPayloadDTO } from '../AuthDTO/auths.dto';
 import { SECRET_SECRET_WORD } from 'src/config/config.envs';
 import { Role } from 'src/User/UserDTO/Role.enum';
 import { UserStatus } from 'src/User/UserDTO/users.dto';
+import { Subscriptions } from 'src/Subscription/SubscriptionDTO/Subscription.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -52,9 +53,9 @@ export class AuthGuard implements CanActivate {
           'Esta cuenta no existe. No tienes acceso al sistema crea un usuario por favor.',
         );
 
-      if (payload.isAdmin) payload.roles = [Role.admin];
-      else payload.roles = [Role.user];
-
+      payload.isAdmin ? payload.roles = [Role.admin] : payload.roles = [Role.user];
+      payload.isSubscribed ? payload.subscribe = [Subscriptions.GOLD] : payload.subscribe = [Subscriptions.NULL];
+      
       req.access = {
         ...payload,
         exp: new Date(payload.exp * 1000),

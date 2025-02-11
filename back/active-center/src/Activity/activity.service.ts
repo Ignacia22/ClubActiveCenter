@@ -12,6 +12,7 @@ import {
   ActivitiesPageDTO,
   ActivityResponseDTO,
   CreateActivityDTO,
+  StatusActivity,
 } from './activitiesDTO/Activity.dto';
 import { User } from 'src/Entities/User.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
@@ -106,7 +107,7 @@ export class ActivityService {
             { where: { id: activityId }, relations: ['users'] },
           );
           if (!activity) throw new NotFoundException('No existe la actividad.');
-          if (!activity.status)
+          if (activity.status === StatusActivity.CANCEL)
             throw new BadRequestException(
               'Lo lamentamos esta actividad fue cancelada.',
             );
@@ -130,7 +131,7 @@ export class ActivityService {
             ...activity,
             users: updatedUsers,
             registeredPeople: updatedRegisteredPeople,
-            status: updatedRegisteredPeople < activity.maxPeople,
+            status: updatedRegisteredPeople < activity.maxPeople ? StatusActivity.ACTIVE : StatusActivity.Full,
           };
           await entityManger.save(Activity, updatedActivity);
           return `Te has registrado con exito a ${activity.title}.`;
@@ -164,7 +165,7 @@ export class ActivityService {
         ...activity,
         users: updatedUsers,
         registeredPeople: updatedRegisteredPeople,
-        status: updatedRegisteredPeople < activity.maxPeople,
+        status: updatedRegisteredPeople < activity.maxPeople ? StatusActivity.ACTIVE : StatusActivity.Full,
       };
       await entityManger.save(Activity, updateActivity);
       return `Has cancelo el registro a ${activity.title}.`;
@@ -179,7 +180,7 @@ export class ActivityService {
         id,
       });
       if (!exist) throw new NotFoundException('No existe la actividad.');
-      await this.activityRepository.save({ ...exist, status: false });
+      await this.activityRepository.save({ ...exist, status: StatusActivity.CANCEL });
       return 'Se cancelo la actividad.';
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

@@ -61,6 +61,11 @@ export class AuthService {
         orders,
         reservations,
         password,
+        activities,
+        cart,
+        isSubscribed,
+        subscriptionsDetails,
+        payments,
         ...partialUser
       } = registerUser;
       const { email }: { email: string } = user;
@@ -118,18 +123,21 @@ export class AuthService {
         email: validate.email,
         isAdmin: validate.isAdmin,
         userStatus: validate.userStatus,
+        isSubscribed: validate.isSubscribed
       });
       this.userRepository.save({ ...validate, userStatus: UserStatus.active });
       const {
         dni,
         cart,
+        chat,
         orders,
+        payments,
         password,
         updateUser,
-        reservations,
         createUser,
         activities,
-        payments,
+        reservations,
+        subscriptionsDetails,
         ...extra
       } = validate;
       return {
@@ -172,12 +180,14 @@ export class AuthService {
         token,
         { secret: SECRET_SECRET_WORD },
       );
+      const user: User | null = await this.userRepository.findOneBy({id: payload.id});
       const tokenRefresh: string = this.jwtService.sign({
-        sub: payload.sub,
-        email: payload.email,
-        id: payload.id,
-        isAdmin: payload.isAdmin,
-        userStatus: payload.userStatus,
+        sub: user?.id,
+        email: user?.email,
+        id: user?.id,
+        isAdmin: user?.isAdmin,
+        userStatus: user?.userStatus,
+        isSubscribed: user?.isSubscribed
       });
       return { tokenAccess: tokenRefresh };
     } catch (error) {
@@ -300,18 +310,21 @@ export class AuthService {
         email: user.email,
         isAdmin: user.isAdmin,
         userStatus: user.userStatus,
+        isSubscribed: user.isSubscribed
       });
       this.userRepository.save({ ...user, userStatus: UserStatus.active });
       const {
         dni,
         cart,
+        chat,
         orders,
+        payments,
         password,
         updateUser,
-        reservations,
         createUser,
         activities,
-        payments,
+        reservations,
+        subscriptionsDetails,
         ...extra
       } = user;
       return {
