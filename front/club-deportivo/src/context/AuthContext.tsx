@@ -37,47 +37,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkLocalStorage = () => {
     try {
-      const storedUser = localStorage.getItem("user");
-      const storedToken = localStorage.getItem("token");
-      const storedIsAdmin = localStorage.getItem("isAdmin");
+        const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+        const storedIsAdmin = localStorage.getItem("isAdmin");
 
-      console.log("Datos en localStorage:", {
-        user: storedUser ? JSON.parse(storedUser) : null,
-        token: storedToken,
-        isAdmin: storedIsAdmin,
-      });
+        console.log("Datos en localStorage:", {
+            user: storedUser ? JSON.parse(storedUser) : null,
+            token: storedToken,
+            isAdmin: storedIsAdmin,
+        });
 
-      if (storedUser && storedToken) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
+        if (storedUser && storedToken) {
+            try {
+                const parsedUser = JSON.parse(storedUser);
 
-          if (parsedUser && typeof parsedUser === "object") {
-            // Verificamos isAdmin en userInfo si existe
-            const isAdminValue = parsedUser.userInfo?.isAdmin ?? false;
+                if (parsedUser && typeof parsedUser === 'object') {
+                    // Verificamos isAdmin en userInfo si existe
+                    const isAdminValue = parsedUser.userInfo?.isAdmin ?? false;
 
-            setUser(parsedUser);
-            setToken(storedToken);
-            setIsAuthenticated(true);
-            setIsAdmin(isAdminValue);
-
-            console.log("Estado actualizado:", {
-              isAdmin: isAdminValue,
-            });
-          } else {
+                    setUser(parsedUser);
+                    setToken(storedToken);
+                    setIsAuthenticated(true);
+                    setIsAdmin(isAdminValue);
+                    
+                    console.log("Estado actualizado:", {
+                        isAdmin: isAdminValue
+                    });
+                } else {
+                    resetAuthState();
+                }
+            } catch (parseError) {
+                console.error("Error al parsear usuario:", parseError);
+                resetAuthState();
+            }
+        } else {
             resetAuthState();
-          }
-        } catch (parseError) {
-          console.error("Error al parsear usuario:", parseError);
-          resetAuthState();
         }
-      } else {
-        resetAuthState();
-      }
     } catch (error) {
-      console.error("Error al verificar localStorage:", error);
-      resetAuthState();
+        console.error("Error al verificar localStorage:", error);
+        resetAuthState();
     }
-  };
+};
 
   // Función auxiliar para resetear el estado
   const resetAuthState = () => {
