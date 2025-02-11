@@ -50,19 +50,24 @@ export class PaymentController {
       'Recibe y maneja los eventos enviados por Stripe a través de webhooks. Verifica la firma del webhook utilizando el `stripe-signature` y procesa el cuerpo de la solicitud para confirmar el estado del pago.',
   })
   @Post('webhook')
-  @SetMetadata('isPublic', true)
-  async handleWebhook(
-    @Req() req: any,
-    @Headers('stripe-signature') sig: string,
-    @Res() res: Response,
-  ) {
-    try {
-      const rawBody = req.rawBody;
-      await this.paymentService.handleWebhook(rawBody, sig);
-
-      res.status(200).send('Webhook recibido');
-    } catch (err) {
-      res.status(400).send(`Webhook Error: ${err.message}`);
+@SetMetadata('isPublic', true)
+async handleWebhook(
+  @Req() req: any, 
+  @Headers('stripe-signature') sig: string,
+  @Res() res: Response,
+) {
+  try {
+    const rawBody = req.rawBody;
+    if (!rawBody) {
+      console.error(' No se encontró rawBody en la solicitud.');
+      return res.status(400).send('rawBody no encontrado');
     }
+
+    await this.paymentService.handleWebhook(rawBody, sig);
+    res.status(200).send('Webhook recibido');
+  } catch (err) {
+    console.error(' Error en el webhook:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
+}
 }
