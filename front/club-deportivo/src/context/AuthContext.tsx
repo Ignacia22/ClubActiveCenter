@@ -155,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`,
+        `${process.env.NEXT_PUBLIC_API_URL}auth/SignIn`,
         form,
         {
           headers: {

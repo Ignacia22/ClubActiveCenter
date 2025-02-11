@@ -87,44 +87,40 @@ export class SubscriptionService {
         }
         throw new InternalServerErrorException('Hubo un error al suscribirse.', error.message || error);
     }
-}
-
-
-  
-
-async subscriptionDetail(
-  user: User,
-  subscription: Subscription,
-): Promise<SubscriptionDetail> {
-  try {
-      if (!subscription.duration) {
-          throw new InternalServerErrorException('La suscripción no tiene una duración válida.');
-      }
-      if (!subscription.price) {
-          throw new InternalServerErrorException('La suscripción no tiene un precio válido.');
-      }
-
-      const newSubscriptionDetail = this.subscriptionDetailRepository.create({
-          dayInit: new Date(),
-          dayEnd: new Date(new Date().setDate(new Date().getDate() + subscription.duration)),
-          price: subscription.price,
-          user: {...user, isSubscribed: true},
-          subscription: subscription,
-      });
-
-      const detail = await this.subscriptionDetailRepository.save(newSubscriptionDetail);
-
-      await this.userRepository.save({...user, isSubscribed: true});
-
-      return detail;
-  } catch (error) {
-      throw new InternalServerErrorException(
-          'Error al crear los detalles de la suscripción.',
-          error.message || error,
-      );
   }
-}
 
+  async subscriptionDetail(
+    user: User,
+    subscription: Subscription,
+  ): Promise<SubscriptionDetail> {
+    try {
+        if (!subscription.duration) {
+            throw new InternalServerErrorException('La suscripción no tiene una duración válida.');
+        }
+        if (!subscription.price) {
+            throw new InternalServerErrorException('La suscripción no tiene un precio válido.');
+        }
+
+        const newSubscriptionDetail = this.subscriptionDetailRepository.create({
+            dayInit: new Date(),
+            dayEnd: new Date(new Date().setDate(new Date().getDate() + subscription.duration)),
+            price: subscription.price,
+            user: {...user, isSubscribed: true},
+            subscription: subscription,
+        });
+
+        const detail = await this.subscriptionDetailRepository.save(newSubscriptionDetail);
+
+        await this.userRepository.save({...user, isSubscribed: true});
+
+        return detail;
+    } catch (error) {
+        throw new InternalServerErrorException(
+            'Error al crear los detalles de la suscripción.',
+            error.message || error,
+        );
+    }
+  }
 
   async unsubscribe(id: string): Promise<string> {
     try {
@@ -210,6 +206,6 @@ async subscriptionDetail(
     } catch (error) {
         throw new InternalServerErrorException('Hubo un error al activar la suscripción.', error?.message || error);
     }
-}
+  }
 
 }
