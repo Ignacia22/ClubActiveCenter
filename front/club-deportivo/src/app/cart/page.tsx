@@ -20,18 +20,13 @@ export default function CartPage() {
     try {
       await processPayment();
     } catch (error: unknown) {
-      console.error('Error detallado al procesar el pago:', error);
-      
-      // Manejo específico de diferentes tipos de errores
+      // Manejo de error con type guard
       if (error instanceof Error) {
-        // Si es un error con mensaje
+        console.error('Error al procesar el pago:', error.message);
+        // Mostrar mensaje de error al usuario
         alert(`Error al procesar el pago: ${error.message}`);
-      } else if (typeof error === 'object' && error !== null) {
-        // Si es un objeto de error sin mensaje
-        const errorString = JSON.stringify(error);
-        alert(`Error desconocido al procesar el pago: ${errorString}`);
       } else {
-        // Para cualquier otro tipo de error
+        console.error('Error desconocido al procesar el pago', error);
         alert('Ocurrió un error desconocido al procesar el pago');
       }
     }
@@ -130,16 +125,7 @@ export default function CartPage() {
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className='text-black'>{item.name} (x{item.quantity})</span>
-                  <span className='text-black'>
-                  ${(
-                    Number(
-                      // Intenta obtener el precio, primero de 'price', luego de 'productPrice'
-                      typeof item.price === 'string' 
-                        ? parseFloat(item.price) 
-                        : (item.price ?? item.productPrice)
-                    ) * item.quantity
-                  ).toFixed(2)}
-                </span>
+                  <span className='text-black'>${Number(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
