@@ -54,19 +54,18 @@ export class SubscriptionController {
   }
 
   @Post('subscribe/:id')
-  @ApiOperation({
-    summary: 'Suscribirse a una suscripción',
-    description:
-      'Permite a un usuario suscribirse a una suscripción específica.',
-  })
-  @ApiBearerAuth()
-  async subscribe(
-    @Req() req: any,
-    @Param('id', ParseUUIDPipe) subId: string,
-  ): Promise<SubscribeResponseDTO> {
-    const userId: string = req.access.id;
-    return this.subscriptionService.subscribe(userId, subId);
-  }
+@ApiOperation({
+  summary: 'Suscribirse a una suscripción',
+  description: 'Redirige al usuario a Stripe Checkout para completar el pago.',
+})
+@ApiBearerAuth()
+async subscribe(
+  @Req() req: any,
+  @Param('id', ParseUUIDPipe) subId: string,
+): Promise<{ url: string }> {
+  const userId: string = req.access.id;
+  return this.subscriptionService.subscribe(userId, subId);
+}
 
   @Delete('unsubscribe/:id')
   @ApiOperation({

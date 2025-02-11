@@ -1,0 +1,92 @@
+const processPayment = async () => {
+    if (items.length === 0) {
+      throw new Error('El carrito está vacío');
+    }
+
+    // Verificar si hay productos no disponibles
+    const unavailableItems = items.filter(
+      item => item.State !== ProductState.Disponible
+    );
+    if (unavailableItems.length > 0) {
+      throw new Error('Hay productos no disponibles en el carrito');
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      // Obtener token y datos de usuario
+      const token = localStorage.getItem("token");
+      const userJson = localStorage.getItem("user");
+      
+      if (!token || !userJson) {
+        throw new Error("No se encontró token de autenticación o datos de usuario");
+      }
+
+      // Parsear datos de usuario
+      let user: IUser;
+      try {
+        user = JSON.parse(userJson);
+      } catch (e) {
+        throw new Error("Error al procesar datos de usuario");
+      }
+
+      const userId = user.userInfo?.id;
+      if (!userId) {
+        throw new Error("No se encontró ID de usuario");
+      }
+
+      // Verificar stock antes de procesar
+      const itemsWithInsufficientStock = items.filter(
+        item => item.quantity > item.stock
+      );
+      if (itemsWithInsufficientStock.length > 0) {
+        throw new Error('Algunos productos exceden el stock disponible');
+      }
+
+      // Log de verificación
+      console.log("Items antes de pagar:", items);
+      items.forEach((item) => {
+        console.log("Detalle de item:", {
+          id: item.id,
+          price: item.price,
+          productPrice: item.productPrice,
+          quantity: item.quantity,
+          state: item.State,
+        });
+      });
+
+      // Realizar petición al API
+      const response = await axios.post(
+        `${API_URL}/order/${userId}/convert-cart`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Verificar y procesar respuesta
+      if (response.data?.checkoutUrl) {
+        emptyCart();
+        window.location.href = response.data.checkoutUrl;
+      } else {
+        throw new Error("No se recibió la URL de checkout");
+      }
+
+    } catch (error: any) {
+      console.error("Error al procesar pago:", {
+        mensaje: error.message,
+        respuesta: error.response?.data,
+        detalles: error.response?.data?.details,
+      });
+
+      // Construir mensaje de error
+      const errorMessage = error.response?.data?.message || error.message;
+      throw new Error(errorMessage);
+
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };

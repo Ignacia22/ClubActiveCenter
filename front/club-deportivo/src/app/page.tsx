@@ -27,14 +27,9 @@ export default function WelcomePage() {
           comunidad apasionada por el deporte.
         </p>
         <div className="mt-6 flex flex-col md:flex-row gap-4">
-          <Link href="/instalaciones-2">
+          <Link href="/home">
             <button className="bg-white hover:bg-slate-300 hover:text-black text-black font-bold py-3 px-6 rounded-md transition-colors duration-300">
-              Ver Canchas
-            </button>
-          </Link>
-          <Link href="/Membresias">
-            <button className="bg-transparent border-2 border-white hover:bg-white hover:text-black text-white font-bold py-3 px-6 rounded-md transition-colors duration-300">
-              Quiero ser socio!
+              HOME
             </button>
           </Link>
         </div>

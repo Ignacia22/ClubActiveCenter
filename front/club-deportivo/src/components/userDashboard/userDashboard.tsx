@@ -14,6 +14,7 @@ import {
 import { getUserById, getUserReservations } from "../../service/user";
 import { IUser } from "../../interface/IUser";
 import Swal from "sweetalert2";
+import { Order } from "@/interface/Orders";
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
@@ -158,18 +159,51 @@ const UserActivities = ({ activities }: { activities: string[] }) => (
   </div>
 );
 
-const UserOrders = ({ orders }: { orders: string[] }) => (
+const UserOrders = ({ orders }: { orders: Order[] }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6 text-primary">
       Productos Comprados
     </h2>
-    <ul className="space-y-4">
-      {orders.map((order, index) => (
-        <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
-          {order}
-        </li>
-      ))}
-    </ul>
+    {orders.length === 0 ? (
+      <p className="text-gray-600">No has realizado ninguna compra aún.</p>
+    ) : (
+      <ul className="space-y-4">
+        {orders.map((order) => (
+          <li key={order.id} className="bg-gray-300 p-4 rounded-lg shadow-md">
+            <p className="font-semibold">Orden ID: {order.id}</p>
+            <p className="flex items-center gap-2">
+              <FaCalendarAlt /> <span>Fecha: {order.date}</span>
+            </p>
+            <p className="flex items-center gap-2">
+              <FaDollarSign /> <span>Total: ${order.totalPrice}</span>
+            </p>
+            <p
+              className={`font-medium ${
+                order.status === "completed"
+                  ? "text-green-600"
+                  : "text-yellow-500"
+              }`}
+            >
+              Estado:{" "}
+              {order.status === "completed" ? "Completada" : "Pendiente"}
+            </p>
+            <h3 className="mt-4 font-semibold">Productos:</h3>
+            <ul className="mt-2 space-y-2">
+              {order.orderItems.map((item) => (
+                <li key={item.id} className="bg-gray-200 p-3 rounded-lg">
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-700">{item.description}</p>
+                  <p>
+                    <span className="font-semibold">Precio:</span> ${item.price}{" "}
+                    x {item.quantity}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 );
 
