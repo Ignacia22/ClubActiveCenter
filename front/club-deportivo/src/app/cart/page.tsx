@@ -10,8 +10,32 @@ export default function CartPage() {
     items, 
     updateItemQuantity, 
     removeItemFromCart, 
-    getCartTotal 
+    getCartTotal,
+    processPayment,
+    isProcessingPayment
   } = useCart();
+
+
+  const handlePayment = async () => {
+    try {
+      await processPayment();
+    } catch (error: unknown) {
+      console.error('Error detallado al procesar el pago:', error);
+      
+      // Manejo específico de diferentes tipos de errores
+      if (error instanceof Error) {
+        // Si es un error con mensaje
+        alert(`Error al procesar el pago: ${error.message}`);
+      } else if (typeof error === 'object' && error !== null) {
+        // Si es un objeto de error sin mensaje
+        const errorString = JSON.stringify(error);
+        alert(`Error desconocido al procesar el pago: ${errorString}`);
+      } else {
+        // Para cualquier otro tipo de error
+        alert('Ocurrió un error desconocido al procesar el pago');
+      }
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -100,12 +124,22 @@ export default function CartPage() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow p-6 sticky top-24">
             <h2 className="text-lg font-bold mb-4 text-black">Resumen del pedido</h2>
+
             
             <div className="space-y-2 mb-4">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className='text-black'>{item.name} (x{item.quantity})</span>
-                  <span className='text-black'>${Number(item.price * item.quantity).toFixed(2)}</span>
+                  <span className='text-black'>
+                  ${(
+                    Number(
+                      // Intenta obtener el precio, primero de 'price', luego de 'productPrice'
+                      typeof item.price === 'string' 
+                        ? parseFloat(item.price) 
+                        : (item.price ?? item.productPrice)
+                    ) * item.quantity
+                  ).toFixed(2)}
+                </span>
                 </div>
               ))}
             </div>
@@ -113,16 +147,26 @@ export default function CartPage() {
             <div className="border-t pt-4 mb-6">
               <div className="flex justify-between font-bold">
                 <span className='text-black'>Total</span>
-                <span>${Number(getCartTotal()).toFixed(2)}</span>
+                <span className='text-black'>${Number(getCartTotal()).toFixed(2)}</span>
               </div>
             </div>
 
-            <Link
-              href="/checkout"
-              className="block w-full text-center bg-black text-white py-3 rounded-md hover:bg-black/90 transition-colors"
-            >
-              Proceder al pago
-            </Link>
+            <button
+          onClick={handlePayment}
+          disabled={isProcessingPayment || items.length === 0}
+          className={`
+            w-full py-3 rounded-md text-center 
+            ${isProcessingPayment || items.length === 0
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-black text-white hover:bg-black/90 transition-colors'
+            }
+          `}
+        >
+          {isProcessingPayment 
+            ? 'Procesando...' 
+            : 'Proceder al pago'
+          }
+        </button>
             
             <Link
               href="/tienda"

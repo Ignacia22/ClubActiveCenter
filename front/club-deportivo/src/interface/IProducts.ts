@@ -8,7 +8,7 @@ export interface IProducts {
   id: string;
   name: string;
   description: string;
-  price: number;
+  price: number | string;
   stock: number;
   image: string;
   State?: ProductState;

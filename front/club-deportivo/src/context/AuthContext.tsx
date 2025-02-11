@@ -151,23 +151,12 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
 
       const login = async (form: ILogin) => {
         try {
-            console.log("Iniciando login con:", {
-                url: `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`,
-                datos: form
-            });
-    
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`, form, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
-            
-            console.log("Respuesta del servidor:", {
-                status: response.status,
-                data: response.data
-            });
     
-            // Validaciones más robustas
             if (!response.data || !response.data.token) {
                 throw new Error("Respuesta de inicio de sesión inválida: falta token");
             }
@@ -175,9 +164,15 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
             const userData = response.data;
             const isAdminValue = userData.userInfo?.isAdmin ?? false;
             
+            // Extraer el ID del usuario desde userInfo
+            const userId = userData.userInfo?.id;
+            if (!userId) {
+                throw new Error("Respuesta de inicio de sesión inválida: falta id de usuario");
+            }
+    
             const userToStore = {
                 ...userData,
-                isAdmin: isAdminValue
+                isAdmin: isAdminValue,
             };
     
             // Actualizar estado
@@ -190,8 +185,15 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
             localStorage.setItem("user", JSON.stringify(userToStore));
             localStorage.setItem("token", userData.token);
             localStorage.setItem("isAdmin", isAdminValue.toString());
+            localStorage.setItem("userId", userId); // Guardamos el ID desde userInfo
     
-            // Configurar interceptor de Axios con nuevo token
+            console.log("Datos guardados en localStorage:", {
+                token: !!userData.token,
+                userId,
+                isAdmin: isAdminValue
+            });
+    
+            // Configurar interceptor de Axios
             axios.interceptors.request.use(
                 (config) => {
                     config.headers['Authorization'] = `Bearer ${userData.token}`;
@@ -200,36 +202,12 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
                 (error) => Promise.reject(error)
             );
     
-            console.log("Login exitoso, redirigiendo...", {
-                isAdmin: isAdminValue
-            });
-    
-            // Redirigir con pequeño retraso
             setTimeout(() => {
                 handleRedirect(isAdminValue);
             }, 100);
     
         } catch (error) {
-            // Manejo detallado de errores
-            if (axios.isAxiosError(error)) {
-                console.error("Error de Axios en login:", {
-                    mensaje: error.message,
-                    codigo: error.response?.status,
-                    datos: error.response?.data,
-                    headers: error.response?.headers
-                });
-    
-                // Mensajes de error más específicos
-                if (error.response?.status === 401) {
-                    throw new Error("Credenciales incorrectas. Por favor, verifica tu email y contraseña.");
-                } else if (error.response?.status === 500) {
-                    throw new Error("Error del servidor. Por favor, intenta de nuevo más tarde.");
-                }
-            } else {
-                console.error("Error desconocido durante el login:", error);
-            }
-    
-            // Limpiar cualquier dato de autenticación previo
+            // Limpiar datos de autenticación
             setUser(null);
             setToken(null);
             setIsAuthenticated(false);
@@ -237,7 +215,21 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
             localStorage.removeItem("user");
             localStorage.removeItem("token");
             localStorage.removeItem("isAdmin");
+            localStorage.removeItem("userId");
     
+            if (axios.isAxiosError(error)) {
+                console.error("Error de Axios en login:", {
+                    mensaje: error.message,
+                    codigo: error.response?.status,
+                    datos: error.response?.data
+                });
+    
+                if (error.response?.status === 401) {
+                    throw new Error("Credenciales incorrectas. Por favor, verifica tu email y contraseña.");
+                } else if (error.response?.status === 500) {
+                    throw new Error("Error del servidor. Por favor, intenta de nuevo más tarde.");
+                }
+            }
             throw error;
         }
     };
