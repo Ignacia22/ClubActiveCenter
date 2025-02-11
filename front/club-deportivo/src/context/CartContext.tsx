@@ -75,12 +75,25 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const loadCart = async () => {
       try {
         const token = localStorage.getItem("token");
-        const user: IUser | any = localStorage.getItem("user");
-        const userId: string = user.userInfo.id;
+        const userJson = localStorage.getItem("user");
 
-        if (!token || !userId) {
-          console.log("No token or userId found");
-          return;
+        if (!token || !userJson) {
+          throw new Error(
+            "No se encontró token de autenticación o datos de usuario"
+          );
+        }
+
+        // Parsear datos de usuario
+        let user: IUser;
+        try {
+          user = JSON.parse(userJson);
+        } catch (e) {
+          throw new Error("Error al procesar datos de usuario");
+        }
+
+        const userId = user.userInfo?.id;
+        if (!userId) {
+          throw new Error("No se encontró ID de usuario");
         }
 
         const response = await axios.get(
