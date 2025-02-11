@@ -8,4 +8,5 @@ export interface Activity2 {
     img: string;
     registeredPeople: number;
     status: string;
+    productPrice?: number,
 }
