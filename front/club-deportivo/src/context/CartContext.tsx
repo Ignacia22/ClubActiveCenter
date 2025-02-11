@@ -72,29 +72,131 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
         
+        // Log de verificación inicial
+        console.log('Verificando credenciales:', {
+          token: token ? 'Presente' : 'Ausente',
+          userId,
+          API_URL
+        });
+  
         if (!token || !userId) {
-          console.log('No token or userId found');
+          console.log('⛔ Falta token o userId');
+          setItems([]);
           return;
         }
-
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/cart/${userId}`, {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+  
+        // Intenta obtener el carrito
+        try {
+          const getCartUrl = `${API_URL}/cart/${userId}`;
+          console.log('🛒 Intentando obtener carrito:', getCartUrl);
+  
+          const response = await axios.get(getCartUrl, {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+  
+          console.log('✅ Carrito obtenido:', response.data);
+  
+          if (response.data) {
+            const cartItems = Array.isArray(response.data) 
+              ? response.data.map((item: any) => ({
+                  ...item,
+                  quantity: item.quantity || 1,
+                  price: item.price || item.productPrice
+                }))
+              : [];
+            
+            setItems(cartItems);
           }
-        });
-
-        if (response.data) {
-          const cartItems = Array.isArray(response.data) ? response.data : [];
-          setItems(cartItems);
+        } catch (getCartError: any) {
+          // Log detallado del error al obtener carrito
+          console.log('❌ Error al obtener carrito:', {
+            status: getCartError.response?.status,
+            message: getCartError.message,
+            data: getCartError.response?.data,
+            url: getCartError.config?.url
+          });
+  
+          // Si el carrito no existe (404), intentamos crearlo
+          if (getCartError.response?.status === 404) {
+            console.log('🆕 Carrito no encontrado, creando uno nuevo...');
+            
+            const createCartUrl = `${API_URL}/cart/create`;
+            console.log('URL para crear carrito:', createCartUrl);
+  
+            try {
+              // Intenta crear el carrito con más detalles de debug
+              const createCartResponse = await axios.post(
+                createCartUrl,
+                { userId },
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  // Timeout más largo para debug
+                  timeout: 10000,
+                  // Permitir ver la respuesta completa para debug
+                  validateStatus: (status) => true
+                }
+              );
+  
+              // Log de la respuesta de creación
+              console.log('📝 Respuesta de creación de carrito:', {
+                status: createCartResponse.status,
+                data: createCartResponse.data,
+                headers: createCartResponse.headers
+              });
+  
+            } catch (createError: any) {
+              // Log muy detallado del error de creación
+              console.error('⚠️ Error detallado al crear carrito:', {
+                name: createError.name,
+                message: createError.message,
+                code: createError.code,
+                response: {
+                  status: createError.response?.status,
+                  statusText: createError.response?.statusText,
+                  data: createError.response?.data,
+                  headers: createError.response?.headers
+                },
+                request: {
+                  method: createError.config?.method,
+                  url: createError.config?.url,
+                  data: createError.config?.data,
+                  headers: createError.config?.headers
+                },
+                isAxiosError: createError.isAxiosError,
+                stack: createError.stack
+              });
+  
+              setItems([]);
+            }
+          }
+          setItems([]);
         }
-      } catch (error) {
-        console.error('Error loading cart:', error);
+      } catch (error: any) {
+        // Log del error general
+        console.error('🔥 Error general en loadCart:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          type: typeof error
+        });
         setItems([]);
       }
     };
-
-    loadCart();
+  
+    // Ejecutar con manejo de errores adicional
+    loadCart().catch(error => {
+      console.error('💥 Error no manejado en loadCart:', {
+        error,
+        message: error.message,
+        stack: error.stack
+      });
+    });
   }, []);
   
   const addItemToCart = async (item: IProducts): Promise<void> => {
