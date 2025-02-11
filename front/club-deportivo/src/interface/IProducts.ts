@@ -12,7 +12,7 @@ export interface IProducts {
   stock: number;
   image?: string;
   State?: ProductState;
-  category: string;
+  category?: string;
   file?: File;
 }
 
