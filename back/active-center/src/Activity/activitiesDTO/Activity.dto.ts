@@ -2,18 +2,22 @@ import { BadRequestException } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
-  IsDate,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Matches,
   Validate,
   ValidateIf,
 } from 'class-validator';
 import { Activity } from 'src/Entities/Activity.entity';
 import { InfoPageDTO } from 'src/User/UserDTO/users.dto';
 import { ConfirmationHour } from 'src/utils/dateAndHourValidate.pipe';
+
+export enum StatusActivity {
+  CANCEL = 'cancel',
+  ACTIVE = 'active',
+  Full = 'full'
+}
 
 export class ActivitiesPageDTO {
   @ApiProperty({
@@ -136,7 +140,8 @@ export class ActivityResponseDTO {
   @ApiProperty({
     description: 'Estado de la actividad (activa o inactiva)',
     required: false,
-    example: true,
+    enum: StatusActivity,
+    example: StatusActivity.ACTIVE,
   })
-  status?: boolean | undefined;
+  status?: StatusActivity;
 }
