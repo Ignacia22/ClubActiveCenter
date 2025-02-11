@@ -93,6 +93,7 @@ export class SpaceService {
       if (!existSpace.includes(spaceData.title)) {
         const newSpace = this.spaceRepository.create({
           title: spaceData.title,
+          img: spaceData.imgUrl,
           description: spaceData.descripcion,
           price_hour: spaceData.price_hours,
           details: spaceData.details,

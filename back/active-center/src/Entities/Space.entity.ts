@@ -12,7 +12,7 @@ export class Space {
   @Column({ type: 'varchar', length: 80, nullable: false })
   title: string;
 
-  @Column({ type: 'simple-array', default: 'iwmfiwmfiwfmwfw', nullable: false })
+  @Column({ type: 'simple-array', nullable: false })
   img: string[];
 
   @Column({ type: 'text', nullable: false })

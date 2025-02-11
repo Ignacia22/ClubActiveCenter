@@ -25,6 +25,9 @@ export class SubscriptionDetail {
   )
   subscription?: Subscription;
 
+  @Column({ type: 'int', nullable: false })
+duration?: number;
+
   @ManyToOne(() => User, (user) => user.subscriptionsDetails)
   user?: User;
 }

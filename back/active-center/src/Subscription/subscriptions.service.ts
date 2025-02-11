@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -11,7 +13,8 @@ import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { User } from 'src/Entities/User.entity';
 import { Repository } from 'typeorm';
 import { CreateSubscriptionDTO } from './SubscriptionDTO/subscription.dto';
-import { SubscribeResponseDTO, SubscriptionResponseDTO } from './SubscriptionDTO/Subscription.enum';
+import {  SubscriptionResponseDTO } from './SubscriptionDTO/Subscription.enum';
+import { PaymentService } from 'src/Payment/payment.service';
 
 @Injectable()
 export class SubscriptionService {
@@ -21,6 +24,7 @@ export class SubscriptionService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(SubscriptionDetail)
     private subscriptionDetailRepository: Repository<SubscriptionDetail>,
+    @Inject(forwardRef(() => PaymentService)) private readonly paymentService: PaymentService,
   ) {}
 
   async getSubscriptions(): Promise<SubscriptionResponseDTO[]> {
@@ -49,58 +53,78 @@ export class SubscriptionService {
     }
   }
 
-  async subscribe(userId: string, subId: string): Promise<SubscribeResponseDTO> {
+  async subscribe(userId: string, subId: string): Promise<{ url: string }> {
     try {
-      const User: User | null = await this.userRepository.findOneBy({
-        id: userId,
+
+        const user: User | null = await this.userRepository.findOneBy({ id: userId });
+
+        if (!user) {
+            console.error(`Usuario no encontrado: ${userId}`);
+            throw new NotFoundException('No existe el usuario.');
+        }
+        const existingSubscription: SubscriptionDetail | null = await this.subscriptionDetailRepository.findOne({
+            where: { user: { id: userId } },
+            relations: ['user'],
+        });
+
+        if (existingSubscription) {
+            if (existingSubscription.status !== false) {
+                throw new BadRequestException('Ya te encuentras suscrito.');
+            }
+        } else {
+        }
+        const subscription: Subscription | null = await this.subscriptionRepository.findOneBy({ id: subId });
+
+        if (!subscription) {
+            throw new NotFoundException('No existe la suscripción.');
+        }
+        const { url } = await this.paymentService.createCheckoutSessionSub(userId, subId);
+        return { url: url ?? '' };
+
+    } catch (error) {
+        if (error instanceof NotFoundException || error instanceof BadRequestException) {
+            throw error;
+        }
+        throw new InternalServerErrorException('Hubo un error al suscribirse.', error.message || error);
+    }
+}
+
+
+  
+
+async subscriptionDetail(
+  user: User,
+  subscription: Subscription,
+): Promise<SubscriptionDetail> {
+  try {
+      if (!subscription.duration) {
+          throw new InternalServerErrorException('La suscripción no tiene una duración válida.');
+      }
+      if (!subscription.price) {
+          throw new InternalServerErrorException('La suscripción no tiene un precio válido.');
+      }
+
+      const newSubscriptionDetail = this.subscriptionDetailRepository.create({
+          dayInit: new Date(),
+          dayEnd: new Date(new Date().setDate(new Date().getDate() + subscription.duration)),
+          price: subscription.price,
+          user: {...user, isSubscribed: true},
+          subscription: subscription,
       });
-      if (!User) throw new NotFoundException('No existe el usuario.');
-      const exist: SubscriptionDetail | null = await this.subscriptionDetailRepository.findOne({where: {user: {id: userId}}, relations: ['user']});
-      if(exist?.status !== false && exist) throw new BadRequestException('Ya te encuentras suscrito.');
-      const subscription: Subscription | null = await this.subscriptionRepository.findOneBy({ id: subId });
-      if (!subscription)
-        throw new NotFoundException('No existe la suscripción');
-      let detail: SubscriptionDetail = await this.subscriptionDetail(User, subscription);
-      const { user, ...extras} = detail;
-      const { id, isSubscribed, ...extra } = User;
-      return {...extras, user: {id, isSubscribed: true}};
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      if(error instanceof BadRequestException) throw error;
-      throw new InternalServerErrorException(
-        'Hubo un error al suscribirse a la subcripción.',
-        error.message || error,
-      );
-    }
-  }
 
-  async subscriptionDetail(
-    user: User,
-    subscription: Subscription,
-  ): Promise<SubscriptionDetail> {
-    try {
-      const newSubscriptionDetail: SubscriptionDetail = {
-        dayInit: new Date(),
-        dayEnd: new Date(
-          new Date().setDate(new Date().getDate() + subscription.duration),
-        ),
-        price: subscription.price,
-        user: {...user, isSubscribed: true},
-        subscription: subscription,
-      };
-      const detail: SubscriptionDetail = await this.subscriptionDetailRepository.save(
-        newSubscriptionDetail,
-      );
+      const detail = await this.subscriptionDetailRepository.save(newSubscriptionDetail);
+
       await this.userRepository.save({...user, isSubscribed: true});
-      return detail;
 
-    } catch (error) {
+      return detail;
+  } catch (error) {
       throw new InternalServerErrorException(
-        'Error al crear los detalles de la suscripción.',
-        error.message || error,
+          'Error al crear los detalles de la suscripción.',
+          error.message || error,
       );
-    }
   }
+}
+
 
   async unsubscribe(id: string): Promise<string> {
     try {
@@ -158,4 +182,34 @@ export class SubscriptionService {
           );
     }
   }
+
+  async activateSubscription(userId: string, subId: string) { 
+    try {
+
+        const subscription = await this.subscriptionRepository.findOne({ where: { id: subId } });
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+
+        if (!user || !subscription) {
+            throw new NotFoundException('Usuario o suscripción no encontrados');
+        }
+        const durationDays = subscription.duration ?? 31; 
+        const newSubscription = this.subscriptionDetailRepository.create({
+            user,
+            subscription,
+            duration: durationDays,
+            dayInit: new Date(),
+            dayEnd: new Date(new Date().setDate(new Date().getDate() + durationDays)),
+            price: subscription.price,
+            status: true, 
+        });
+
+        await this.subscriptionDetailRepository.save(newSubscription);
+        user.isSubscribed = true;
+        await this.userRepository.save(user);
+
+    } catch (error) {
+        throw new InternalServerErrorException('Hubo un error al activar la suscripción.', error?.message || error);
+    }
+}
+
 }
