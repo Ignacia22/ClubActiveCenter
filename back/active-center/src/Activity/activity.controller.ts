@@ -19,7 +19,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ActivityService } from './activity.service';
-import { Activity } from 'src/Entities/Activity.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/User/UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
@@ -36,6 +35,9 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SubscriptiondGuard } from 'src/Auth/Guard/subscriptionguard.guard';
+import { subscriptions } from 'src/decorators/subscriptions.decorator';
+import { Subscriptions } from 'src/Subscription/SubscriptionDTO/Subscription.enum';
 
 @Controller('activity')
 export class ActivityController {
@@ -150,6 +152,8 @@ export class ActivityController {
   }
 
   @Put('toggle-registration/:id')
+  @subscriptions(Subscriptions.GOLD)
+  @UseGuards(SubscriptiondGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Registrase o cancelar registro',

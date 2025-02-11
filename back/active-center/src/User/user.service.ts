@@ -105,7 +105,7 @@ export class UserService {
     try {
       const user: User | null = await this.userRepository.findOne({
         where: { id },
-        relations: ['orders', 'reservations', 'activities'],
+        relations: ['orders', 'reservations', 'activities', 'subscriptionsDetails'],
       });
       if (!user) throw new NotFoundException('El usuario buscado no existe.');
       const { password, updateUser, isAdmin, createUser, ...partialUser } =

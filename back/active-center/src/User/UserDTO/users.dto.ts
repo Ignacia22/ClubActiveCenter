@@ -21,6 +21,7 @@ import {
 import { Activity } from 'src/Entities/Activity.entity';
 import { Order } from 'src/Entities/Order.entity';
 import { Reservation } from 'src/Entities/Reservation.entity';
+import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { Confirmation } from 'src/utils/passwordConfimation.pipe';
 
 export enum UserStatus {
@@ -465,6 +466,12 @@ export class UserDTOResponseId {
     type: [Activity],
   })
   activities: Activity[];
+
+  @ApiProperty({
+    description: 'Suscripciones a las que se inscribio el usuario.',
+    type: [SubscriptionDetail],
+  })
+  subscriptionsDetails: SubscriptionDetail[]
 }
 
 export class UserDTOResponse {
