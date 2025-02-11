@@ -165,9 +165,9 @@ const UserOrders = ({ orders }: { orders: string[] }) => (
     </h2>
     <ul className="space-y-4">
       {orders.map((order, index) => (
-        <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+        <div key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
           {order}
-        </li>
+        </div>
       ))}
     </ul>
   </div>
