@@ -61,6 +61,11 @@ export class AuthService {
         orders,
         reservations,
         password,
+        activities,
+        cart,
+        isSubscribed,
+        subscriptionsDetails,
+        payments,
         ...partialUser
       } = registerUser;
       const { email }: { email: string } = user;
