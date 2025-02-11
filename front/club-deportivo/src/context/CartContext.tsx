@@ -6,7 +6,6 @@ import axios from "axios";
 import { IProducts, ProductState } from "@/interface/IProducts";
 import { createContext, useContext, useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { userInfo } from "os";
 import { IUser } from "@/interface/IUser";
 
 // Validar variables de entorno
@@ -238,29 +237,65 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const processPayment = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const user: IUser | any = localStorage.getItem("user");
-      const userId: string = user.userInfo.id;
+    if (items.length === 0) {
+      throw new Error("El carrito está vacío");
+    }
 
-      if (!token || !userId) {
+    // Verificar si hay productos no disponibles
+    const unavailableItems = items.filter(
+      (item) => item.State !== ProductState.Disponible
+    );
+    if (unavailableItems.length > 0) {
+      throw new Error("Hay productos no disponibles en el carrito");
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      // Obtener token y datos de usuario
+      const token = localStorage.getItem("token");
+      const userJson = localStorage.getItem("user");
+
+      if (!token || !userJson) {
         throw new Error(
-          "No se encontró token de autenticación o ID de usuario"
+          "No se encontró token de autenticación o datos de usuario"
         );
       }
 
-      console.log("Items antes de pagar:", items);
+      // Parsear datos de usuario
+      let user: IUser;
+      try {
+        user = JSON.parse(userJson);
+      } catch (e) {
+        throw new Error("Error al procesar datos de usuario");
+      }
 
-      // Log detallado de precios
+      const userId = user.userInfo?.id;
+      if (!userId) {
+        throw new Error("No se encontró ID de usuario");
+      }
+
+      // Verificar stock antes de procesar
+      const itemsWithInsufficientStock = items.filter(
+        (item) => item.quantity > item.stock
+      );
+      if (itemsWithInsufficientStock.length > 0) {
+        throw new Error("Algunos productos exceden el stock disponible");
+      }
+
+      // Log de verificación
+      console.log("Items antes de pagar:", items);
       items.forEach((item) => {
         console.log("Detalle de item:", {
           id: item.id,
           price: item.price,
           productPrice: item.productPrice,
           quantity: item.quantity,
+          state: item.State,
         });
       });
 
+      // Realizar petición al API
       const response = await axios.post(
         `${API_URL}/order/${userId}/convert-cart`,
         {},
@@ -272,6 +307,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
+      // Verificar y procesar respuesta
       if (response.data?.checkoutUrl) {
         emptyCart();
         window.location.href = response.data.checkoutUrl;
