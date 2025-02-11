@@ -10,6 +10,10 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 @Module({
   controllers: [ActivityController],
   providers: [ActivityService],
-  imports: [UserModule, TypeOrmModule.forFeature([Activity, User]), CloudinaryModule],
+  imports: [
+    UserModule,
+    TypeOrmModule.forFeature([Activity, User]),
+    CloudinaryModule,
+  ],
 })
 export class ActivityModule {}

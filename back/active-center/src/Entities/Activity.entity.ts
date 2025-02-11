@@ -23,23 +23,23 @@ export class Activity {
   @Column({ type: 'varchar', length: 90, nullable: false })
   title: string;
 
-  @Column({type: 'text', nullable: false})
+  @Column({ type: 'text', nullable: false })
   img: string;
 
-  @Column({type: 'integer', nullable: false, default: 20})
-  @Max(100, {message: 'El maximo de personas son 100.'})
+  @Column({ type: 'integer', nullable: false, default: 20 })
+  @Max(100, { message: 'El maximo de personas son 100.' })
   maxPeople: number;
 
-  @Column({type: 'integer', nullable: false, default: 0})
+  @Column({ type: 'integer', nullable: false, default: 0 })
   registeredPeople: number;
 
-  @Column({type: 'date', nullable: false})
+  @Column({ type: 'date', nullable: false })
   date: Date;
 
-  @Column({type: 'varchar', length: 5, nullable: false})
+  @Column({ type: 'varchar', length: 5, nullable: false })
   hour: string;
 
-  @Column({type: 'text', nullable: true})
+  @Column({ type: 'text', nullable: true })
   description?: string;
 
   @Column({ type: 'boolean', default: true, nullable: false })

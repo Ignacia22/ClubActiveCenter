@@ -1,5 +1,10 @@
 import { Controller, Post, Param, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Order } from 'src/Entities/Order.entity';
 import { OrderService } from './order.service';
 import { Role } from 'src/User/UserDTO/Role.enum';
@@ -15,9 +20,9 @@ export class OrderController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Convertir el carrito en una orden',
-    description: 
-      'Convierte el carrito del usuario en una orden de compra. ' + 
-      'Si el carrito tiene productos válidos, se genera una orden y ' + 
+    description:
+      'Convierte el carrito del usuario en una orden de compra. ' +
+      'Si el carrito tiene productos válidos, se genera una orden y ' +
       'se proporciona una URL de pago.',
   })
   @ApiResponse({
@@ -45,7 +50,6 @@ export class OrderController {
     };
   }
 
-
   @ApiResponse({
     status: 200,
     description: 'Lista de órdenes obtenida exitosamente.',
@@ -53,68 +57,67 @@ export class OrderController {
       'application/json': {
         example: [
           {
-            id: "1a2b3c",
+            id: '1a2b3c',
             price: 50.0,
             totalprice: 55.0,
-            status: "Completado",
-            date: "2024-01-01T12:00:00Z",
+            status: 'Completado',
+            date: '2024-01-01T12:00:00Z',
             user: {
-              id: "123",
-              username: "usuario123",
-              email: "usuario@example.com"
+              id: '123',
+              username: 'usuario123',
+              email: 'usuario@example.com',
             },
             orderItems: [
               {
-                id: "item1",
+                id: 'item1',
                 quantity: 2,
                 price: 25.0,
                 product: {
-                  id: "prod1",
-                  name: "Producto A"
-                }
-              }
-            ]
+                  id: 'prod1',
+                  name: 'Producto A',
+                },
+              },
+            ],
           },
           {
-            id: "4d5e6f",
+            id: '4d5e6f',
             price: 30.0,
             totalprice: 35.0,
-            status: "Pendiente",
-            date: "2024-01-02T15:30:00Z",
+            status: 'Pendiente',
+            date: '2024-01-02T15:30:00Z',
             user: {
-              id: "456",
-              username: "usuario456",
-              email: "user456@example.com"
+              id: '456',
+              username: 'usuario456',
+              email: 'user456@example.com',
             },
             orderItems: [
               {
-                id: "item2",
+                id: 'item2',
                 quantity: 1,
                 price: 30.0,
                 product: {
-                  id: "prod2",
-                  name: "Producto B"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    }
+                  id: 'prod2',
+                  name: 'Producto B',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
   })
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Obtener todas las órdenes (solo administradores)',
     description:
-      'Devuelve la lista de todas las órdenes generadas en la plataforma.'
+      'Devuelve la lista de todas las órdenes generadas en la plataforma.',
   })
   @Get('allOrders')
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
   async getAllOrder(): Promise<OrderDto[]> {
-    return this.orderService.getAllOrder()
+    return this.orderService.getAllOrder();
   }
-
 
   @ApiResponse({
     status: 200,
@@ -123,31 +126,31 @@ export class OrderController {
       'application/json': {
         example: [
           {
-            id: "7g8h9i",
+            id: '7g8h9i',
             price: 40.0,
             totalprice: 45.0,
-            status: "En proceso",
-            date: "2024-01-03T18:45:00Z",
+            status: 'En proceso',
+            date: '2024-01-03T18:45:00Z',
             user: {
-              id: "789",
-              username: "usuario789",
-              email: "usuario789@example.com"
+              id: '789',
+              username: 'usuario789',
+              email: 'usuario789@example.com',
             },
             orderItems: [
               {
-                id: "item3",
+                id: 'item3',
                 quantity: 3,
                 price: 15.0,
                 product: {
-                  id: "prod3",
-                  name: "Producto C"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    }
+                  id: 'prod3',
+                  name: 'Producto C',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
   })
   @ApiBearerAuth()
   @ApiOperation({
