@@ -68,7 +68,7 @@ export function CartButton() {
                     <div key={item.id} className="flex items-center space-x-4 bg-white/5 p-4 rounded-lg">
                       <div className="relative w-16 h-16">
                         <Image
-                          src={item.image}
+                          src={item.image || '/placeholder-image.jpg'}
                           alt={item.name}
                           fill
                           className="object-cover rounded"
