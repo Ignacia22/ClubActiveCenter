@@ -296,7 +296,7 @@ const UserSubscriptions = ({
 
             <p className="text-sm">
               Fecha de vencimiento:{" "}
-              {new Date(subscription.dayInit).toLocaleDateString()}
+              {new Date(subscription.dayEnd).toLocaleDateString()}
             </p>
 
             <p className="text-sm">Precio: {subscription.price}</p>
