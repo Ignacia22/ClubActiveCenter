@@ -1,4 +1,3 @@
-// Importa la interfaz Message
 import { io, Socket } from "socket.io-client";
 
 interface Message {
