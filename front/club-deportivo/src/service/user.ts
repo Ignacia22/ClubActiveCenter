@@ -90,7 +90,6 @@ export const getUserReservations = async (userId: string) => {
     if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 404) {
         // Mostrar mensaje informativo cuando no hay reservas
-        Swal.fire("📅 Sin Reservas", "Aún no tienes reservas.", "info");
       } else {
         // Mostrar el mensaje de error si el status es diferente
         Swal.fire(

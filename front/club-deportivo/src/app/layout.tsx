@@ -9,6 +9,7 @@ import SendUserData from "@/components/SendUserData";
 import { AdminProvider } from "@/context/AdminContext";
 import Nav from "@/components/Nav";
 import ExcludedWrapped from "@/components/ExcludedWrapped";
+import ChatComponent from "@/components/ChatComponent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
               <AdminProvider>
                 <ExcludedWrapped>
                   <Nav />
+                  <ChatComponent />
                 </ExcludedWrapped>
                 {children}
                 <Footer />
