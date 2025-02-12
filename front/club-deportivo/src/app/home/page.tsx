@@ -6,7 +6,7 @@ export default function Home() {
       {/* Container Section */}
       <div className="hero text-white">
         {/* Info Section */}
-      <InfoHome />
+        <InfoHome />
       </div>
     </main>
   );
