@@ -11,16 +11,18 @@ export function UserMenu() {
   const router = useRouter();
   const [localUser, setLocalUser] = useState<boolean | null>(null);
   const { isAdmin } = useAuth();
-  const { user, error } = useUser();
+  const { user, error, isLoading } = useUser();
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("user");
       setLocalUser(!!storedUser);
+      setIsAuthLoading(false);
     }
   }, []);
 
-  // Debugging logs
   useEffect(() => {
     console.log("UserMenu montado");
     console.log("Auth0 User:", user);
@@ -29,9 +31,13 @@ export function UserMenu() {
     console.log("isAuthenticated:", !!user || localUser);
   }, [user, localUser, error]);
 
-  if (error) return <div className="text-red-500">{error.message}</div>;
+  if (isAuthLoading || isLoading) return <div>Cargando...</div>; 
 
-  // Evitar renderizado hasta que se determine si hay usuario en localStorage
+  if (error) {
+    return <div className="text-red-500">Error al cargar usuario</div>;
+  }
+
+  
   if (localUser === null) return null;
 
   const isAuthenticated = !!user || localUser;
@@ -48,11 +54,11 @@ export function UserMenu() {
   };
 
   const handleDashboardClick = () => {
-    const userIsAdmin = isAdmin; // usando el valor del contexto
+    const userIsAdmin = isAdmin;
     console.log("Accediendo al dashboard como:", userIsAdmin ? "admin" : "usuario");
     const route = userIsAdmin ? "/admin/adminDashboard" : "/userDashboard";
     router.push(route);
-};
+  };
 
   return (
     <div className="relative flex items-center justify-center">
@@ -63,7 +69,10 @@ export function UserMenu() {
           </button>
         </DropdownMenu.Trigger>
 
-        <DropdownMenu.Content className="absolute right-0 mt-2 w-48 bg-gray-800 text-white rounded-lg shadow-lg border border-gray-700">
+        <DropdownMenu.Content
+          align="end"
+          className="absolute right-0 mt-2 w-48 bg-gray-800 text-white rounded-lg shadow-lg border border-gray-700"
+        >
           <div className="p-2 flex flex-col gap-2">
             {isAuthenticated ? (
               <>

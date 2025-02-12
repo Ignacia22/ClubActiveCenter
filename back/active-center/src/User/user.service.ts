@@ -11,6 +11,7 @@ import { User } from 'src/Entities/User.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
+  ReservationDTO,
   UpdateUserDTO,
   UserDTOPage,
   UserDTOREsponseGet,
@@ -21,6 +22,7 @@ import {
 import { SALT } from 'src/config/config.envs';
 import * as bcrypt from 'bcrypt';
 import { userMAin } from 'src/UserMain';
+import { Reservation } from 'src/Entities/Reservation.entity';
 
 @Injectable()
 export class UserService {
@@ -103,14 +105,18 @@ export class UserService {
 
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
-      const user: User | null = await this.userRepository.findOne({
+      const User: User | null = await this.userRepository.findOne({
         where: { id },
         relations: ['orders', 'reservations', 'activities', 'subscriptionsDetails'],
       });
-      if (!user) throw new NotFoundException('El usuario buscado no existe.');
-      const { password, updateUser, isAdmin, createUser, ...partialUser } =
-        user;
-      return partialUser;
+      if (!User) throw new NotFoundException('El usuario buscado no existe.');
+      const { password, updateUser, isAdmin, createUser, reservations, ...partialUser } =
+        User;
+      const filterReservations: ReservationDTO[] = reservations.map((reservation) => {
+        const { user, ...extra } = reservation;
+        return extra;
+      })
+      return {...partialUser, reservations: filterReservations};
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
