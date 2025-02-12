@@ -10,6 +10,7 @@ interface Space {
   title: string;
   description: string;
   price: number;
+  price_hour: string;
   img: string[];
 }
 
@@ -130,7 +131,7 @@ const Reservas = () => {
               <h2 className="text-lg font-bold text-black">{space.title}</h2>
               <p className="text-gray-600 text-sm">{space.description}</p>
               <p className="text-black font-semibold mt-2">
-                Precio: ${space.price}
+                Precio: ${space.price_hour}
               </p>
               <button
                 onClick={() => openModal(space)}
