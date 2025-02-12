@@ -1,21 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client"
-
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { MoreVertical } from 'lucide-react';
 import { IUser } from '@/interface/IUser';
 import { useAdmin } from '@/context/AdminContext';
-import { debounce } from 'lodash';
 
 export interface UsersTableProps {
   searchTerm: string;
 }
 
-// Enum para los estados de usuario
 export enum UserStatus {
   ACTIVE = 'ACTIVE',
-  BANNED = 'BANNED',
-  SUSPENDED = 'SUSPENDED'
+  BANNED = 'BANNED'
 }
 
 export default function UsersTable({ searchTerm }: UsersTableProps) {
@@ -24,46 +19,23 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllUsers();
-        const usersWithVerifiedStatus = await Promise.all(
-          data.map(async (user) => {
-            try {
-              const isBanned = await isBan(user.id);
-              return {
-                ...user,
-                userStatus: isBanned ? UserStatus.BANNED : (user.userStatus || UserStatus.ACTIVE)
-              };
-            } catch (banError) {
-              console.error(`Error verificando ban para usuario ${user.id}:`, banError);
-              return user;
-            }
-          })
-        );
-        setUsers(usersWithVerifiedStatus);
-      } catch (err) {
-        console.error('Error al cargar usuarios:', err);
-        setError('Error al cargar usuarios');
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    const debouncedFetch = debounce(fetchUsers, 300);
-    debouncedFetch();
-  
-    return () => debouncedFetch.cancel();
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getAllUsers();
+      console.log('Datos recibidos:', data);
+      setUsers(data);
+    } catch (err) {
+      console.error('Error al cargar usuarios:', err);
+      setError('Error al cargar usuarios');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Debugging adicional
-  console.log('Estado de usuarios:', { users, loading, error });
-
-  if (loading) return <div className="text-white">Cargando usuarios...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (users.length === 0) return <div className="text-white">No hay usuarios</div>;
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,13 +43,44 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
     user.dni.toString().includes(searchTerm)
   );
 
-  const handleBanUser = async (userId: string) => {
+  const handleStatusChange = useCallback(async (user: IUser) => {
     try {
-      await isBan(userId);
+      const response = await isBan(user.id);
+      console.log('Respuesta de isBan:', response);
+      setUsers(prevUsers => 
+        prevUsers.map(u => 
+          u.id === user.id ? { ...u, userStatus: response.newStatus } : u
+        )
+      );
     } catch (error) {
-      console.error('Error al actualizar estado:', error);
+      console.error('Error al cambiar estado del usuario:', error);
+    }
+  }, []);
+
+  const getStatusBadgeStyle = (status: UserStatus) => {
+    switch (status) {
+      case UserStatus.ACTIVE:
+        return 'bg-green-100 text-green-800';
+      case UserStatus.BANNED:
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const getStatusButtonText = (status: UserStatus) => {
+    return status === UserStatus.ACTIVE ? 'Banear' : 'Activar';
+  };
+
+  const getStatusButtonColor = (status: UserStatus) => {
+    return status === UserStatus.ACTIVE
+      ? 'text-red-400 hover:text-red-300'
+      : 'text-green-400 hover:text-green-300';
+  };
+
+  if (loading) return <div className="text-white">Cargando usuarios...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
+  if (users.length === 0) return <div className="text-white">No hay usuarios</div>;
 
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden shadow-xl">
@@ -88,24 +91,12 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
       <table className="w-full">
         <thead className="bg-gray-900/50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-              Usuario
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-              DNI
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-              Estado
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-              Teléfono
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-              Actividades
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-              Acciones
-            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Usuario</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">DNI</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Estado</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Teléfono</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actividades</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
@@ -122,31 +113,23 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                {user.dni}
-              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.dni}</td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  user.userStatus === UserStatus.ACTIVE
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {user.userStatus === UserStatus.ACTIVE ? 'Activo' : 'Suspendido'}
+                <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeStyle(user.userStatus)}`}>
+                  {user.userStatus === UserStatus.ACTIVE ? 'Activo' : 'Baneado'}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                {user.phone}
-              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.phone}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                 {user.activities?.length || 0} actividades
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                 <div className="flex space-x-3">
                   <button 
-                    onClick={() => handleBanUser(user.id)}
-                    className="hover:text-white"
+                    onClick={() => handleStatusChange(user)}
+                    className={`hover:text-white ${getStatusButtonColor(user.userStatus)}`}
                   >
-                    {user.userStatus === UserStatus.ACTIVE ? 'Suspender' : 'Activar'}
+                    {getStatusButtonText(user.userStatus)}
                   </button>
                   <button className="text-gray-400 hover:text-white">
                     <MoreVertical className="h-5 w-5" />
