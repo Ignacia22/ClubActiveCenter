@@ -23,16 +23,33 @@ class SocketService {
     });
   }
 
-  // Ahora la función espera un callback con Message
   listenToMessages(callback: (message: Message) => void) {
     if (this.socket) {
-      this.socket.on("mensajeserver", (data: any) => {
-        const newMessage: Message = {
-          content: data.content,
-          sender: data.sender,
-          createdAt: new Date(data.createdAt), // Asegura que sea un Date válido
-        };
-        callback(newMessage);
+      this.socket.on("mensajeserver", (data: unknown) => {
+        try {
+          if (
+            typeof data === "object" &&
+            data !== null &&
+            "content" in data &&
+            "sender" in data &&
+            "createdAt" in data &&
+            (typeof (data as { createdAt: unknown }).createdAt === "string" ||
+              typeof (data as { createdAt: unknown }).createdAt === "number")
+          ) {
+            const newMessage: Message = {
+              content: String((data as { content: unknown }).content),
+              sender: Boolean((data as { sender: unknown }).sender),
+              createdAt: new Date(
+                (data as { createdAt: string | number }).createdAt
+              ),
+            };
+            callback(newMessage);
+          } else {
+            console.error("Datos de mensaje inválidos:", data);
+          }
+        } catch (error) {
+          console.error("Error procesando mensaje:", error);
+        }
       });
     }
   }
