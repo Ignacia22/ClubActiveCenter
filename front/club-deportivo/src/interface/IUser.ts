@@ -1,3 +1,4 @@
+
 import { UserStatus } from "@/components/InfoAdmin/UsersTable";
 
 export interface Subscription {
@@ -21,6 +22,7 @@ export interface SubscriptionDetail {
   duration: number; // Duración de este detalle (en días)
   user?: IUser; // Relación con el usuario (opcional)
 }
+
 
 export interface IUser {
   userInfo: {
