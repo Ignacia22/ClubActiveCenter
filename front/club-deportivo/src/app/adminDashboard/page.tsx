@@ -1,31 +1,26 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, User, Search, MoreVertical } from 'lucide-react';
+import { Search, MoreVertical } from 'lucide-react';
 
 import { useAdmin } from '@/context/AdminContext';
 import Sidebar from '@/components/InfoAdmin/Sidebar';
-import Image from 'next/image';
+import { UserStatus } from '@/components/InfoAdmin/UsersTable';
 
 export default function UsersDashboard() {
-  // Cambio principal: usar métodos específicos del contexto
   const { 
     users, 
     loading, 
     error, 
     getAllUsers,  
     isBan,        
-    getAllProducts 
   } = useAdmin();
   
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Añadir useEffect para cargar usuarios si no están cargados
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Solo llama a getAllUsers si no hay usuarios cargados
         if (users.length === 0) {
           await getAllUsers();
         }
@@ -52,17 +47,7 @@ export default function UsersDashboard() {
 
   const handleSuspendUser = async (userId: string) => {
     try {
-      const user = users.find(u => u.id === userId);
-      if (!user) return;
-  
-      const newStatus = user.userStatus === 'active' ? 'inactive' : 'active';
-      
-      // Aquí deberías llamar al método de actualización de estado de usuario en tu contexto
-      // Por ejemplo:
-      // await updateUserStatus(userId, { userStatus: newStatus });
-      
-      // Nota: Asegúrate de que tu contexto tenga un método para actualizar el estado del usuario
-      // Si no existe, necesitarás agregarlo al contexto de admin
+      await isBan(userId);
     } catch (error) {
       console.error('Error al actualizar estado:', error);
     }
@@ -102,7 +87,7 @@ export default function UsersDashboard() {
           <div className="bg-gray-800 rounded-lg p-4">
             <h3 className="text-gray-400 text-sm">Usuarios Activos</h3>
             <p className="text-2xl font-bold text-white">
-              {users.filter(u => u.userStatus === 'active').length}
+              {users.filter(u => u.userStatus === UserStatus.ACTIVE).length}
             </p>
           </div>
           <div className="bg-gray-800 rounded-lg p-4">
@@ -129,11 +114,7 @@ export default function UsersDashboard() {
         <div className="bg-gray-800 rounded-xl overflow-hidden shadow-xl">
           <div className="p-6 flex justify-between items-center">
             <h2 className="text-xl font-bold text-white">Lista de Usuarios</h2>
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Agregar Usuario
-            </button>
+            
           </div>
           
           <table className="w-full">
@@ -166,39 +147,45 @@ export default function UsersDashboard() {
                     <div className="flex items-center">
                       <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-medium">
                         {user.name.charAt(0).toUpperCase()}
-                        </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-white">{user.name}</div>
-                              <div className="text-sm text-gray-400">{user.email}</div>
-                              </div>
-                              </div>
-                              </td>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-white">{user.name}</div>
+                        <div className="text-sm text-gray-400">{user.email}</div>
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {user.dni}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      user.userStatus === 'active' 
+                      user.userStatus === UserStatus.ACTIVE 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
                     }`}>
-                      {user.userStatus}
+                      {user.userStatus === UserStatus.ACTIVE 
+                        ? 'Activo' 
+                        : 'Baneado'}
                     </span>
+                  </td>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {user.phone}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                  {user.activities?.length || 0} actividades
+                    {user.activities?.length || 0} actividades
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                     <div className="flex space-x-3">
                       <button className="hover:text-white">Editar</button>
                       <button 
-                        onClick={() => handleSuspendUser(user.id)}
+                       onClick={() => handleSuspendUser(user.id)}
                         className="hover:text-white"
                       >
-                        {user.userStatus === 'active' ? 'Suspender' : 'Activar'}
+                        {user.userStatus === UserStatus.ACTIVE 
+                          ? 'Banear' 
+                          : 'Activar'}
                       </button>
                       <button className="text-gray-400 hover:text-white">
                         <MoreVertical className="h-5 w-5" />
