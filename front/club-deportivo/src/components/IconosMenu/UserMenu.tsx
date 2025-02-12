@@ -12,12 +12,14 @@ export function UserMenu() {
   const [localUser, setLocalUser] = useState<boolean | null>(null);
   const { isAdmin } = useAuth();
   const { user, error, isLoading } = useUser();
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("user");
       setLocalUser(!!storedUser);
+      setIsAuthLoading(false);
     }
   }, []);
 
@@ -29,7 +31,7 @@ export function UserMenu() {
     console.log("isAuthenticated:", !!user || localUser);
   }, [user, localUser, error]);
 
-  if (isLoading) return null; 
+  if (isAuthLoading || isLoading) return <div>Cargando...</div>; 
 
   if (error) {
     return <div className="text-red-500">Error al cargar usuario</div>;
