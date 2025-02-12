@@ -12,8 +12,6 @@ interface Message {
 const ChatComponent = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageContent, setMessageContent] = useState<string>("");
-  const [chatId, setChatId] = useState<string>("");
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -23,7 +21,10 @@ const ChatComponent = () => {
       SocketService.listenToMessages((newMessage: Message) => {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
+    } else {
+      console.warn("No se encontró un token en localStorage");
     }
+
     return () => {
       SocketService.disconnect();
     };
@@ -31,7 +32,7 @@ const ChatComponent = () => {
 
   const handleSendMessage = () => {
     if (messageContent.trim()) {
-      SocketService.sendMessage(messageContent, isAdmin, chatId);
+      SocketService.sendMessage(messageContent, false, ""); // isAdmin y chatId no se usan
       setMessageContent("");
     }
   };

@@ -1,16 +1,18 @@
+// Importa la interfaz Message
 import { io, Socket } from "socket.io-client";
+
+interface Message {
+  content: string;
+  sender: boolean;
+  createdAt: Date;
+}
 
 class SocketService {
   private socket: Socket | null = null;
 
-  constructor() {}
-
-  // Conectar al servidor WebSocket
   connect(token: string) {
     this.socket = io("https://active-center-db-3rfj.onrender.com", {
-      auth: {
-        token,
-      },
+      auth: { token },
     });
 
     this.socket.on("connect", () => {
@@ -22,21 +24,26 @@ class SocketService {
     });
   }
 
-  // Emitir un mensaje
+  // Ahora la función espera un callback con Message
+  listenToMessages(callback: (message: Message) => void) {
+    if (this.socket) {
+      this.socket.on("mensajeserver", (data: any) => {
+        const newMessage: Message = {
+          content: data.content,
+          sender: data.sender,
+          createdAt: new Date(data.createdAt), // Asegura que sea un Date válido
+        };
+        callback(newMessage);
+      });
+    }
+  }
+
   sendMessage(content: string, sender: boolean, chatId: string) {
     if (this.socket) {
       this.socket.emit("mensaje", { content, sender, chatId });
     }
   }
 
-  // Escuchar mensajes del servidor
-  listenToMessages(callback: (message: any) => void) {
-    if (this.socket) {
-      this.socket.on("mensajeserver", callback);
-    }
-  }
-
-  // Desconectar el socket
   disconnect() {
     if (this.socket) {
       this.socket.disconnect();
@@ -44,4 +51,5 @@ class SocketService {
   }
 }
 
-export default new SocketService();
+const socketServiceInstance = new SocketService();
+export default socketServiceInstance;
