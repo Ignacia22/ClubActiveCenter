@@ -1,3 +1,5 @@
+import { UserStatus } from "@/components/InfoAdmin/UsersTable";
+
 export interface Subscription {
   id: string; // ID de la suscripción
   name: string; // Nombre de la suscripción
