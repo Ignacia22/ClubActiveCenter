@@ -45,12 +45,11 @@ export class AuthService {
   async SignUp(
     user: Omit<RegisterUserDTO, 'passwordConfirmation'>,
   ): Promise<SingInDTOResponse> {
-    try {
+    try { 
       user.password = await this.userService.hashPassword(user.password);
       const exist: User | null = await this.userDeleted(user);
-      console.log(exist);
       if (exist) return await this.saveUser({ ...exist, ...user });
-      const registerUser: User = await this.userRepository.save(user);
+      const registerUser: User = await this.userRepository.save({...user, userStatus: UserStatus.active});
       const {
         updateUser,
         createUser,
@@ -73,7 +72,6 @@ export class AuthService {
       });
       const chat: Chat = this.chatRepository.create({user});
       await this.chatRepository.save(chat);
-      await this.userRepository.save({ ...registerUser, userStatus: UserStatus.active });
       const { email }: { email: string } = user;
       await this.sendGridService.wellcomeMail(email);
       return {
