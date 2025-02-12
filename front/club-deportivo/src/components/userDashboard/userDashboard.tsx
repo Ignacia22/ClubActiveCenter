@@ -168,6 +168,8 @@ const UserActivities = ({ activities }: { activities: string[] }) => (
   </div>
 );
 
+import { StatusOrder } from "@/interface/Orders"; // Asegúrate de importar StatusOrder
+
 const UserOrders = ({ orders }: { orders: Order[] }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6 text-primary">
@@ -188,13 +190,19 @@ const UserOrders = ({ orders }: { orders: Order[] }) => (
             </p>
             <p
               className={`font-medium ${
-                order.status === "completed"
+                order.status === StatusOrder.complete
                   ? "text-green-600"
-                  : "text-yellow-500"
+                  : order.status === StatusOrder.pending
+                  ? "text-yellow-500"
+                  : "text-red-600"
               }`}
             >
               Estado:{" "}
-              {order.status === "completed" ? "Completada" : "Pendiente"}
+              {order.status === StatusOrder.complete
+                ? "Completada"
+                : order.status === StatusOrder.pending
+                ? "Pendiente"
+                : "Cancelada"}
             </p>
             <h3 className="mt-4 font-semibold">Productos:</h3>
             <ul className="mt-2 space-y-2">
