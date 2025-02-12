@@ -9,7 +9,6 @@ import { IProducts } from '@/interface/IProducts';
 import { UserStatus } from '@/components/InfoAdmin/UsersTable';
 import { mapProductData } from '@/utils/mapProductData';
 import { getProduct } from '@/helpers/getProduct';
-import { getProducts } from '@/helpers/getProducts';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -364,22 +363,59 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const getAllProducts = async (page = 1, limit = 10) => {
     try {
       setLoading(true);
+      console.log(`Obteniendo productos - página ${page}, límite ${limit}`);
       
-      const { products: fetchedProducts, totalPages, total } = await getProducts(page, limit);
+      // Realizar la petición con los parámetros de paginación
+      const response = await axios.get(`${API_URL}/product`, {
+        params: { 
+          page,
+          limit
+        }
+      });
+  
+      console.log('Respuesta del servidor:', response.data);
+  
+      // Verificar la estructura de la respuesta
+      if (!response.data) {
+        throw new Error('No hay datos en la respuesta');
+      }
+  
+      let productsData;
+      let total;
       
-      setProducts(fetchedProducts);
-      setTotalPages(totalPages);
+      if (Array.isArray(response.data)) {
+        // Si la respuesta es un array directo
+        productsData = response.data;
+        total = response.data.length;
+      } else if (response.data.products && Array.isArray(response.data.products)) {
+        // Si la respuesta tiene una estructura con products y metadata
+        productsData = response.data.products;
+        total = response.data.total || response.data.products.length;
+      } else {
+        throw new Error('Formato de respuesta inválido');
+      }
+  
+      // Mapear los productos usando el helper existente
+      const mappedProducts = productsData.map(mapProductData);
+      console.log('Productos mapeados:', mappedProducts);
+  
+      // Calcular el total de páginas
+      const calculatedTotalPages = Math.ceil(total / limit);
+  
+      // Actualizar el estado
+      setProducts(mappedProducts);
+      setTotalPages(calculatedTotalPages);
       setCurrentPage(page);
   
       return {
-        products: fetchedProducts,
-        totalPages,
-        currentPage: page,
-        total
+        products: mappedProducts,
+        totalPages: calculatedTotalPages,
+        currentPage: page
       };
   
     } catch (error) {
       console.error('Error en getAllProducts:', error);
+      // Establecer valores por defecto en caso de error
       setProducts([]);
       setTotalPages(1);
       setCurrentPage(1);
