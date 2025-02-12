@@ -11,7 +11,7 @@ interface RegisterData {
 }
 
 export const AuthService = {
-  async register(data: RegisterData) {
+  async register(data: RegisterData) { 
     try {
       const response = await fetch(`${BASE_URL}/auth/SignUp`, {
         method: "POST",
