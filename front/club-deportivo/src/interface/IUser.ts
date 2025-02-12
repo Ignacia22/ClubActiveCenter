@@ -1,3 +1,5 @@
+import { UserStatus } from "@/components/InfoAdmin/UsersTable";
+
 export interface IUser {
   userInfo: {
     id: string; // ID del usuario (UUID)
@@ -18,7 +20,7 @@ export interface IUser {
   activities: []; // Relación ManyToMany con Activity
   reservations: []; // Relación OneToMany con Reservation
   orders: []; // Relación OneToMany con Order
-  userStatus: string; // Tipo enum
+  userStatus: UserStatus; // Tipo enum
   isAdmin: boolean;
   createUser?: Date;
   updateUser?: Date;

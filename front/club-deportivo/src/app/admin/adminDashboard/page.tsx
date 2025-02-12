@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Search, MoreVertical } from 'lucide-react';
 
 import { useAdmin } from '@/context/AdminContext';
+import { UserStatus } from '@/components/InfoAdmin/UsersTable';
 
 export default function UsersDashboard() {
   const { 
@@ -27,7 +29,7 @@ export default function UsersDashboard() {
     };
 
     fetchUsers();
-  }, [getAllUsers, users.length]);
+  }, []);
 
   if (loading) {
     return <div className="text-white">Cargando...</div>;
@@ -71,7 +73,7 @@ export default function UsersDashboard() {
         <div className="bg-gray-800 rounded-lg p-4">
           <h3 className="text-gray-400 text-sm">Usuarios Activos</h3>
           <p className="text-2xl font-bold text-white">
-            {users.filter(u => u.userStatus === 'active').length}
+            {users.filter(u => u.userStatus === UserStatus.ACTIVE).length}
           </p>
         </div>
         <div className="bg-gray-800 rounded-lg p-4">
@@ -132,11 +134,17 @@ export default function UsersDashboard() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    user.userStatus === 'active' 
+                    user.userStatus === UserStatus.ACTIVE 
                       ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
+                      : user.userStatus === UserStatus.SUSPENDED
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
                   }`}>
-                    {user.userStatus === 'active' ? 'Active' : 'Disconnected'}
+                    {user.userStatus === UserStatus.ACTIVE 
+                      ? 'Activo' 
+                      : user.userStatus === UserStatus.SUSPENDED
+                        ? 'Suspendido'
+                        : 'Baneado'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
@@ -149,7 +157,11 @@ export default function UsersDashboard() {
                   <div className="flex space-x-3">
                     <button className="hover:text-white">Editar</button>
                     <button className="hover:text-white">
-                      {user.userStatus === 'active' ? 'Suspender' : 'Activar'}
+                      {user.userStatus === UserStatus.ACTIVE 
+                        ? 'Suspender' 
+                        : user.userStatus === UserStatus.SUSPENDED
+                          ? 'Banear'
+                          : 'Activar'}
                     </button>
                     <button className="text-gray-400 hover:text-white">
                       <MoreVertical className="h-5 w-5" />
