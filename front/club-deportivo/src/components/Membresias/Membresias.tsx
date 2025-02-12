@@ -1,7 +1,54 @@
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import React from "react";
+import { getSubscription } from "@/service/membresiasServices";
+import { comprarMembresia } from "@/service/compraMembresia"; // Importar el servicio
+
+interface Membership {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  benefits: string[];
+  duration: number; // Duración en días
+  percentage: number; // Descuento en la tienda
+}
 
 const MembershipPlans = () => {
+  const [membership, setMembership] = useState<Membership | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchMembership = async () => {
+      setLoading(true);
+      const data = await getSubscription();
+      console.log("📢 Datos recibidos del backend:", data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        setMembership(data[0]); // Usamos el primer elemento del array
+      } else {
+        setMembership(null);
+      }
+
+      setLoading(false);
+    };
+
+    fetchMembership();
+  }, []);
+
+  // Función para manejar la compra
+  const handleBuy = async () => {
+    if (membership) {
+      try {
+        const stripeUrl = await comprarMembresia(membership.id);
+        // Redirigir al usuario a la URL de Stripe
+        window.location.href = stripeUrl;
+      } catch (error) {
+        console.error("Error al procesar la compra:", error);
+      }
+    }
+  };
+
   return (
     <div className="bg-black text-white min-h-screen py-12 px-6">
       <div className="max-w-7xl mx-auto">
@@ -30,30 +77,62 @@ const MembershipPlans = () => {
 
         {/* Membership Card */}
         <div className="flex justify-center">
-          <div className="bg-white text-black rounded-lg shadow-lg p-8 flex flex-col w-full max-w-xl transform transition-transform duration-300 hover:scale-105 hover:opacity-90">
-            <h2 className="text-2xl font-bold text-center mb-6">
-              Membresía Exclusiva
-            </h2>
-            <div className="text-center mb-8">
-              <p className="text-4xl font-extrabold">$200</p>
-              <p className="text-sm font-medium">ANUAL</p>
-              <p className="text-2xl font-bold">$60</p>
-              <p className="text-sm font-medium">TRIMESTRAL</p>
-              <p className="text-2xl font-bold">$25</p>
-              <p className="text-sm font-medium">MENSUAL</p>
-            </div>
-            <ul className="text-black text-base space-y-3 mb-8">
-              <li>✓ Acceso a áreas VIP .</li>
-              <li>✓ Descuentos exclusivos en la tienda.</li>
-              <li>✓ Inscripción a actividades del centro.</li>
-              <li>✓ Participación en eventos deportivos exclusivos.</li>
-              <li>✓ Acceso ilimitado al gimnasio y la piscina.</li>
-            </ul>
-            <div className="mt-auto">
-              <button className="bg-black text-white font-bold py-3 px-6 rounded w-full text-lg">
-                COMPRAR
-              </button>
-            </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            {loading ? (
+              <p className="text-center text-lg text-gray-600">Cargando...</p>
+            ) : membership ? (
+              <>
+                <h2 className="text-2xl font-bold text-center mb-2 text-black">
+                  {membership.name}
+                </h2>
+                <p className="text-gray-600 text-center mb-4">
+                  {membership.description}
+                </p>
+
+                {/* Precio y Duración */}
+                <div className="text-center mb-6">
+                  <p className="text-4xl font-extrabold text-gray-900">
+                    ${membership.price}
+                  </p>
+                  <p className="text-sm font-medium text-gray-500">PRECIO</p>
+                  <p className="text-lg font-medium text-gray-700 mt-2">
+                    ⏳ Duración: {membership.duration} días
+                  </p>
+                </div>
+
+                {/* Beneficios */}
+                <ul className="text-black text-base space-y-3 mb-6">
+                  {membership.benefits.length > 0 ? (
+                    membership.benefits.map((benefit, index) => (
+                      <li key={index} className="flex items-center">
+                        ✅ <span className="ml-2">{benefit}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li>❌ No hay beneficios disponibles.</li>
+                  )}
+                </ul>
+
+                {/* Descuento en tienda */}
+                <div className="text-center mb-6">
+                  <p className="text-xl font-semibold text-gray-900">
+                    🛍️ {membership.percentage}% de descuento en tienda
+                  </p>
+                </div>
+
+                {/* Botón de compra */}
+                <button
+                  className="w-full bg-black text-white font-bold py-3 px-6 rounded text-lg hover:opacity-90 transition"
+                  onClick={handleBuy} // Llamar a handleBuy cuando se haga clic
+                >
+                  COMPRAR
+                </button>
+              </>
+            ) : (
+              <p className="text-center text-lg text-gray-600">
+                ❌ No hay membresías disponibles.
+              </p>
+            )}
           </div>
         </div>
       </div>
