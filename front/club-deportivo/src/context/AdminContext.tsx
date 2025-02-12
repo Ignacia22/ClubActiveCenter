@@ -86,49 +86,21 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-    
       const response = await axios.get(`${API_URL}/user`, {
         params: { limit: 1000 },
         headers: { 'Authorization': `Bearer ${token}` }
       });
-  
       const usersList = response.data.users || response.data;
-      
-      // Mapear usuarios con los dos estados
-      const processedUsersList = usersList.map((user: IUser & { userStatus: string }) => {
-        // Mapeo simplificado de estados a ACTIVE o BANNED
-        const newStatus = user.userStatus  
-          ? UserStatus.ACTIVE 
-          : UserStatus.BANNED;
-  
-        return {
-          ...user,
-          userStatus: newStatus,
-          userInfo: {
-            ...user.userInfo,
-            userStatus: newStatus.toString()
-          }
-        };
-      });
-  
-      // Guardar en localStorage
-      localStorage.setItem('usersList', JSON.stringify(processedUsersList));
-      
+      const processedUsersList = usersList.map((user: IUser) => ({
+        ...user,
+        userStatus: user.userStatus ? UserStatus.ACTIVE : UserStatus.BANNED
+      }));
       setUsers(processedUsersList);
       setLoading(false);
       return processedUsersList;
     } catch (error) {
       setLoading(false);
       console.error('Error in getAllUsers:', error);
-      
-      // Intentar cargar usuarios desde localStorage si hay un error
-      const storedUsers = localStorage.getItem('usersList');
-      if (storedUsers) {
-        const parsedUsers = JSON.parse(storedUsers);
-        setUsers(parsedUsers);
-        return parsedUsers;
-      }
-  
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -139,32 +111,29 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const isBan = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      
       if (!token) {
         throw new Error('No se encontró token de autenticación');
       }
-  
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await axios.delete(`${API_URL}/auth/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+      console.log('Respuesta completa del servidor:', response.data);
   
-      console.log('Respuesta de cambio de estado:', response.data);
+      // Determinar el nuevo estado basado en el mensaje, no en el newStatus devuelto
+      const newStatus = response.data.message.toLowerCase().includes('desbaneado')
+        ? UserStatus.ACTIVE
+        : UserStatus.BANNED;
   
-      // Determinar el nuevo estado basado en el mensaje
-      const newStatus = response.data?.message?.includes('baneado') 
-        ? UserStatus.BANNED 
-        : UserStatus.ACTIVE;
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === id ? { ...user, userStatus: newStatus } : user
+        )
+      );
   
       return {
-        id: response.data?.user?.id || id,
-        message: response.data?.message || 'Estado cambiado',
+        id: response.data.id || id,
+        message: response.data.message,
         newStatus: newStatus
-      } as {
-        id: string;
-        message: string;
-        newStatus: UserStatus;
       };
     } catch (error) {
       console.error('Error al cambiar estado:', error);
