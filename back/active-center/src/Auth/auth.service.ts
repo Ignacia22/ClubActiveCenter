@@ -44,33 +44,40 @@ export class AuthService {
 
   async SignUp(
     user: Omit<RegisterUserDTO, 'passwordConfirmation'>,
-  ): Promise<UserDTOResponse> {
-    try {
+  ): Promise<SingInDTOResponse> {
+    try { 
       user.password = await this.userService.hashPassword(user.password);
       const exist: User | null = await this.userDeleted(user);
       if (exist) return await this.saveUser({ ...exist, ...user });
-      const registerUser: User = await this.userRepository.save(user);
-      
-      const chat = this.chatRepository.create({user});
-      await this.chatRepository.save(chat);
-
+      const registerUser: User = await this.userRepository.save({...user, userStatus: UserStatus.active});
       const {
         updateUser,
-        isAdmin,
         createUser,
         orders,
         reservations,
         password,
         activities,
         cart,
-        isSubscribed,
         subscriptionsDetails,
         payments,
         ...partialUser
       } = registerUser;
+      const token: string = this.jwtService.sign({
+        sub: registerUser.id,
+        id: registerUser.id,
+        email: registerUser.email,
+        isAdmin: registerUser.isAdmin,
+        userStatus: registerUser.userStatus,
+        isSubscribed: registerUser.isSubscribed
+      });
+      const chat: Chat = this.chatRepository.create({user});
+      await this.chatRepository.save(chat);
       const { email }: { email: string } = user;
       await this.sendGridService.wellcomeMail(email);
-      return partialUser;
+      return {
+        userInfo: { ...partialUser, userStatus: UserStatus.active },
+        token,
+      };
     } catch (error) {
       if (error.detail)
         throw new ConflictException(
@@ -80,23 +87,37 @@ export class AuthService {
     }
   }
 
-  async saveUser(user: User): Promise<UserDTOResponse> {
+  async saveUser(user: User): Promise<SingInDTOResponse> {
     const registerUser: User = await this.userRepository.save({
       ...user,
-      userStatus: UserStatus.disconect,
+      userStatus: UserStatus.active,
     });
     const {
       updateUser,
-      isAdmin,
       createUser,
       orders,
       reservations,
       password,
+      activities,
+      cart,
+      subscriptionsDetails,
+      payments,
       ...partialUser
     } = registerUser;
+    const token: string = this.jwtService.sign({
+      sub: registerUser.id,
+      id: registerUser.id,
+      email: registerUser.email,
+      isAdmin: registerUser.isAdmin,
+      userStatus: registerUser.userStatus,
+      isSubscribed: registerUser.isSubscribed
+    });
     const { email }: { email: string } = user;
     await this.sendGridService.wellcomeMail(email);
-    return partialUser;
+    return {
+      userInfo: { ...partialUser, userStatus: UserStatus.active },
+      token,
+    };
   }
 
   async userDeleted(

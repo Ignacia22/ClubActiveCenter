@@ -1,6 +1,6 @@
 const BASE_URL = "https://active-center-db-3rfj.onrender.com";
 
-interface RegisterData {
+interface FormularioAuth0 {
   name: string;
   email: string;
   phone: string;
@@ -10,8 +10,8 @@ interface RegisterData {
   passwordConfirmation: string;
 }
 
-export const AuthService = {
-  async register(data: RegisterData) { 
+export const AuthServices = {
+  async register(data: FormularioAuth0) {
     try {
       const response = await fetch(`${BASE_URL}/auth/SignUp`, {
         method: "POST",
@@ -20,6 +20,23 @@ export const AuthService = {
       });
 
       const result = await response.json();
+      if (!result || !result.token) {
+        throw new Error("Respuesta de inicio de sesión inválida: falta token");
+      }
+
+      const userD = result;
+      const isAdmin = userD.userInfo?.isAdmin ?? false;
+
+      const userToStore = {
+        ...userD,
+        isAdmin: isAdmin,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userToStore));
+      localStorage.setItem("token", userD.token);
+      localStorage.setItem("isAdmin", isAdmin.toString());
+
+      // Redirigir con pequeño retraso
 
       console.log("📌 Respuesta del servidor:", result);
 

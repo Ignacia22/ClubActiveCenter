@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
-  const { emptyCart } = useCart();
+
 
   const checkLocalStorage = () => {
     try {
@@ -238,7 +238,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(false);
       setIsAdmin(false);
       localStorage.clear();
-      emptyCart();
       router.replace("/Home");
     } catch (error) {
       console.error("Error during logout:", error);
