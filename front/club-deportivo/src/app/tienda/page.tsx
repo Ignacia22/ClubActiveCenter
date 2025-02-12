@@ -8,11 +8,14 @@ import Card from "../../components/Card/Card";
 
 export default function Tienda() {
   const { products, getAllProducts, totalPages, currentPage } = useAdmin();
-  const [page, setPage] = useState(1);
+  
+  // Usar currentPage del contexto en lugar de un estado local separado
+  const [page, setPage] = useState(currentPage);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        // Usar la página actual del estado
         await getAllProducts(page);
       } catch (error) {
         alert("Error al obtener los productos");
@@ -20,9 +23,9 @@ export default function Tienda() {
     };
 
     fetchProducts();
-  }, []);
+  }, []); // Añadir page como dependencia para recargar cuando cambie
 
-  // Función para generar los números de página
+  // Función para generar los números de página (sin cambios)
   const generatePageNumbers = () => {
     const pageNumbers = [];
     
@@ -59,6 +62,11 @@ export default function Tienda() {
     return pageNumbers;
   };
 
+  // Función para cambiar página que actualiza tanto el estado local como el contexto
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
   return (
     <div>
       <div className="bg-black text-white">
@@ -82,7 +90,7 @@ export default function Tienda() {
         <div className="flex justify-center items-center space-x-2 mt-8 bg-black py-4">
           {/* Botón de página anterior */}
           <button 
-            onClick={() => setPage(prev => Math.max(1, prev - 1))}
+            onClick={() => handlePageChange(Math.max(1, page - 1))}
             disabled={page === 1}
             className="px-3 py-1 bg-gray-800 text-gray-400 rounded disabled:opacity-50"
           >
@@ -95,7 +103,7 @@ export default function Tienda() {
             ) : (
               <button
                 key={pageNum}
-                onClick={() => setPage(pageNum)}
+                onClick={() => handlePageChange(pageNum)}
                 className={`px-4 py-2 rounded ${
                   pageNum === currentPage 
                     ? 'bg-blue-600 text-white' 
@@ -109,7 +117,7 @@ export default function Tienda() {
 
           {/* Botón de página siguiente */}
           <button 
-            onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
             className="px-3 py-1 bg-gray-800 text-gray-400 rounded disabled:opacity-50"
           >

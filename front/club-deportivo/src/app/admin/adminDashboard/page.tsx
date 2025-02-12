@@ -1,33 +1,38 @@
-'use client';
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 
-import { useState, useEffect } from 'react';
-import { Search, MoreVertical } from 'lucide-react';
-
+import React, { useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
+import { UserStatus } from '@/components/InfoAdmin/UsersTable';
+import Image from 'next/image';
 
-export default function UsersDashboard() {
+export default function AdminDashboard() {
   const { 
     users, 
+    activities,
+    products,
     loading, 
     error, 
     getAllUsers,
+    getAllActivities,
+    getAllProducts,
   } = useAdmin();
-  
-  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        if (users.length === 0) {
-          await getAllUsers();
-        }
+        await Promise.all([
+          getAllUsers(),
+          getAllActivities(),
+          getAllProducts(),
+        ]);
       } catch (fetchError) {
-        console.error('Error al cargar usuarios:', fetchError);
+        console.error('Error al cargar datos:', fetchError);
       }
     };
 
-    fetchUsers();
-  }, [getAllUsers, users.length]);
+    fetchData();
+  }, []);
 
   if (loading) {
     return <div className="text-white">Cargando...</div>;
@@ -37,129 +42,71 @@ export default function UsersDashboard() {
     return <div className="text-red-500">Error: {error}</div>;
   }
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const activeUsers = users.filter(u => u.userStatus === UserStatus.ACTIVE).length;
+  const adminUsers = users.filter(u => u.isAdmin).length;
+  const newUsersThisMonth = users.filter(u => {
+    const userDate = u.createUser ? new Date(u.createUser) : null;
+    const now = new Date();
+    return userDate && 
+      userDate.getMonth() === now.getMonth() && 
+      userDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  const stats = [
+    { name: 'Total Usuarios', value: users.length },
+    { name: 'Usuarios Activos', value: activeUsers },
+    { name: 'Administradores', value: adminUsers },
+    { name: 'Nuevos este mes', value: newUsersThisMonth },
+    { name: 'Total Actividades', value: activities.length },
+    { name: 'Total Productos', value: products.length },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <div className="text-gray-400 text-sm">/ Usuarios</div>
-          <h1 className="text-2xl font-bold text-white">Gestión de Usuarios</h1>
+      <div>
+        <div className="text-gray-400 text-sm">/ Dashboard</div>
+        <h1 className="text-2xl font-bold text-white">Estadísticas Generales</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            {stats.map((stat, index) => (
+              <div key={index} className="bg-gray-800 rounded-lg p-4">
+                <h3 className="text-gray-400 text-sm">{stat.name}</h3>
+                <p className="text-2xl font-bold text-white">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-4">
+            <h2 className="text-xl font-bold text-white mb-4">Resumen General</h2>
+            <div className="space-y-2">
+              {stats.map((stat, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-gray-400">{stat.name}</span>
+                  <div className="w-1/2 bg-gray-700 rounded-full h-4">
+                    <div 
+                      className="bg-blue-600 h-4 rounded-full" 
+                      style={{width: `${(stat.value / Math.max(...stats.map(s => s.value))) * 100}%`}}
+                    ></div>
+                  </div>
+                  <span className="text-white">{stat.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="relative">
-          <Search className="h-5 w-5 absolute left-3 top-2.5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar usuario..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-64 pl-10 pr-4 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+        <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+          <Image 
+            src="https://res.cloudinary.com/dqiehommi/image/upload/v1739393865/pexels-maksgelatin-4348638_glfjci.jpg" 
+            alt="Dashboard Illustration" 
+            className="max-w-full h-auto rounded-lg"
+            width={1100}
+            height={400}
           />
         </div>
-      </div>
-
-      {/* Estadísticas rápidas */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="text-gray-400 text-sm">Total Usuarios</h3>
-          <p className="text-2xl font-bold text-white">{users.length}</p>
-        </div>
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="text-gray-400 text-sm">Usuarios Activos</h3>
-          <p className="text-2xl font-bold text-white">
-            {users.filter(u => u.userStatus === 'active').length}
-          </p>
-        </div>
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="text-gray-400 text-sm">Administradores</h3>
-          <p className="text-2xl font-bold text-white">
-            {users.filter(u => u.isAdmin).length}
-          </p>
-        </div>
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="text-gray-400 text-sm">Nuevos este mes</h3>
-          <p className="text-2xl font-bold text-white">
-            {users.filter(u => {
-              const userDate = u.createUser ? new Date(u.createUser) : null;
-              const now = new Date();
-              return userDate && 
-                userDate.getMonth() === now.getMonth() && 
-                userDate.getFullYear() === now.getFullYear();
-            }).length}
-          </p>
-        </div>
-      </div>
-
-      {/* Tabla de Usuarios */}
-      <div className="bg-gray-800 rounded-xl overflow-hidden">
-        <div className="p-6 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Lista de Usuarios</h2>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Agregar Usuario
-          </button>   
-        </div>
-        
-        <table className="w-full">
-          <thead className="bg-gray-900/50">
-            <tr>
-              {['USUARIO', 'DNI', 'ESTADO', 'TELÉFONO', 'ACTIVIDADES', 'ACCIONES'].map((header) => (
-                <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-700/50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-medium">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-white">{user.name}</div>
-                      <div className="text-sm text-gray-400">{user.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                  {user.dni}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    user.userStatus === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {user.userStatus === 'active' ? 'Active' : 'Disconnected'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                  {user.phone}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                  {user.activities?.length || 0} actividades
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                  <div className="flex space-x-3">
-                    <button className="hover:text-white">Editar</button>
-                    <button className="hover:text-white">
-                      {user.userStatus === 'active' ? 'Suspender' : 'Activar'}
-                    </button>
-                    <button className="text-gray-400 hover:text-white">
-                      <MoreVertical className="h-5 w-5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   );

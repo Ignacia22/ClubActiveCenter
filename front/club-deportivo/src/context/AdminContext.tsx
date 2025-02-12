@@ -1,3 +1,5 @@
+
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
@@ -36,8 +38,11 @@ interface AdminContextType {
 
   // Funciones de Usuarios
   getAllUsers: () => Promise<IUser[]>;
-  isRetired: (userId: string) => Promise<boolean>;
-  isBan: (userId: string) => Promise<boolean>;
+  deleteUser: (userId: string) => Promise<boolean>;
+  isBan: (id: string) => Promise<{
+    message: string;
+    newStatus: UserStatus;
+  }>;
   isAdmin: (userId: string) => Promise<boolean>;
 
   // Funciones de Actividades
@@ -81,97 +86,139 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      console.log('Token:', token);
-  
-      console.log('API_URL:', API_URL);
-      console.log('Full request URL:', `${API_URL}/user`);
-      console.log('Request headers:', { 'Authorization': `Bearer ${token}` });
-  
       const response = await axios.get(`${API_URL}/user`, {
         params: { limit: 1000 },
         headers: { 'Authorization': `Bearer ${token}` }
       });
-  
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      console.log('Response data:', response.data);
-  
       const usersList = response.data.users || response.data;
-      console.log('Processed user list:', usersList);
-  
-      setUsers(usersList);
+      const processedUsersList = usersList.map((user: IUser) => ({
+        ...user,
+        userStatus: user.userStatus ? UserStatus.ACTIVE : UserStatus.BANNED
+      }));
+      setUsers(processedUsersList);
       setLoading(false);
-      return usersList;
+      return processedUsersList;
     } catch (error) {
       setLoading(false);
       console.error('Error in getAllUsers:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error details:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers,
-          message: error.message
-        });
-      }
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(errorMessage);
       throw new Error(errorMessage);
     }
   };
-
-  const getUserById = async (userId: string) => {
+  
+  // Modificar isBan para actualizar localStorage
+  const isBan = async (id: string) => {
     try {
-      const { data } = await axios.get(`${API_URL}/user/${userId}`);
-      return data;
-    } catch (error) {
-      // Verificar si es un error de Axios
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error al obtener usuario';
-        throw new Error(errorMessage);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
       }
-      
-      // Manejo de errores genéricos
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Error desconocido al obtener usuario';
-      
-      throw new Error(errorMessage);
-    }
-  };
-
+      const response = await axios.delete(`${API_URL}/auth/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      console.log('Respuesta completa del servidor:', response.data);
   
-
-  const isRetired = async (userId: string) => {
-    try {
-      const { data } = await axios.get(`${API_URL}/user/${userId}/isRetired`);
-      return data;
-    } catch (error) {
-      throw new Error('Error al verificar estado de jubilación');
-    }
-  };
-
-  const isBan = async (userId: string) => {
-    try {
-      const { data } = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/${userId}`);
-      
-      // Actualizar el estado local de usuarios
-      setUsers(users.map(user => 
-        user.id === userId 
-          ? {
-              ...user, 
-              userStatus: user.userStatus === UserStatus.ACTIVE 
-                ? UserStatus.BANNED 
-                : UserStatus.ACTIVE
-            } 
-          : user
-      ));
+      // Determinar el nuevo estado basado en el mensaje, no en el newStatus devuelto
+      const newStatus = response.data.message.toLowerCase().includes('desbaneado')
+        ? UserStatus.ACTIVE
+        : UserStatus.BANNED;
   
-      return data;
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === id ? { ...user, userStatus: newStatus } : user
+        )
+      );
+  
+      return {
+        id: response.data.id || id,
+        message: response.data.message,
+        newStatus: newStatus
+      };
     } catch (error) {
-      console.error('Error al cambiar estado del usuario:', error);
+      console.error('Error al cambiar estado:', error);
       throw error;
     }
   };
+  
+  
+  const deleteUser = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('No se encontró token de autenticación');
+    }
+
+    const { data } = await axios.delete(`${API_URL}/user/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Obtener usuarios actuales de localStorage
+    const storedUsers = localStorage.getItem('usersList');
+    let usersList = storedUsers ? JSON.parse(storedUsers) : [];
+
+    // Filtrar el usuario eliminado
+    const updatedUsers = usersList.filter((user: IUser) => user.id !== userId);
+
+    // Guardar usuarios actualizados en localStorage
+    localStorage.setItem('usersList', JSON.stringify(updatedUsers));
+
+    // Actualizar estado local
+    setUsers(updatedUsers);
+
+    return data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Error al eliminar usuario';
+        console.error('Error detallado al eliminar usuario:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: errorMessage
+        });
+  
+        // Manejar errores específicos
+        switch (error.response?.status) {
+          case 401:
+            throw new Error('No autorizado. Verifica tus permisos.');
+          case 404:
+            throw new Error('Usuario no encontrado.');
+          case 403:
+            throw new Error('No tienes permiso para eliminar este usuario.');
+            default:
+            throw new Error(errorMessage);
+          }
+        }
+        
+        // Manejar errores que no son de Axios
+        throw new Error('Error inesperado al eliminar usuario');
+    }
+  };
+
+
+
+  const getUserById = async (userId: string) => {
+      try {
+        const { data } = await axios.get(`${API_URL}/user/${userId}`);
+        return data;
+      } catch (error) {
+        // Verificar si es un error de Axios
+        if (error instanceof AxiosError) {
+          const errorMessage = error.response?.data?.message || error.message || 'Error al obtener usuario';
+          throw new Error(errorMessage);
+        }
+        
+        // Manejo de errores genéricos
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Error desconocido al obtener usuario';
+        
+        throw new Error(errorMessage);
+      }
+  };
+
 
   const isAdmin = async (userId: string) => {
     try {
@@ -572,7 +619,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     currentPage,
     // Añadir nuevas funciones de usuario
     getAllUsers,
-    isRetired,
+    deleteUser,
     isBan,
     isAdmin,
     // Funciones de Actividades
