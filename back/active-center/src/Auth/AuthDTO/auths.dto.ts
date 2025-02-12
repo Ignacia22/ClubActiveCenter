@@ -49,6 +49,14 @@ class UserInfoDTO {
     example: 'active',
   })
   userStatus: string;
+  
+  @ApiProperty({
+    description:
+    'Muestra si el usuario esta suscrito.',
+    example: true,
+    default: true
+  })
+  isSubscribed: boolean;
 }
 
 export class SingInDTOResponse {

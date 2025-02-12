@@ -10,9 +10,10 @@ import {
   FaDollarSign,
   FaCheckCircle,
   FaExclamationTriangle,
+  FaRss,
 } from "react-icons/fa";
 import { getUserById, getUserReservations } from "../../service/user";
-import { IUser } from "../../interface/IUser";
+import { IUser, SubscriptionDetail } from "../../interface/IUser";
 import Swal from "sweetalert2";
 import { Order } from "@/interface/Orders";
 
@@ -21,6 +22,7 @@ const menuOptions = [
   { id: "activities", label: "Actividades", icon: <FaBasketballBall /> },
   { id: "orders", label: "Productos comprados", icon: <FaShoppingCart /> },
   { id: "reservations", label: "Reservas", icon: <FaCalendarAlt /> },
+  { id: "subscriptions", label: "Suscripciones", icon: <FaRss /> }, // Nueva opción
 ];
 
 interface UserDashboardProps {
@@ -39,7 +41,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
       status: string;
     }[]
   >([]);
-  const [selectedOption, setSelectedOption] = useState<string>("reservations");
+  const [selectedOption, setSelectedOption] = useState<string>("profile");
 
   useEffect(() => {
     const fetchUserAndReservations = async () => {
@@ -128,6 +130,9 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
           {selectedOption === "reservations" && (
             <UserReservations reservations={reservations} />
           )}
+          {selectedOption === "subscriptions" && (
+            <UserSubscriptions subscriptions={user.subscriptionsDetails} />
+          )}
         </main>
       </div>
     </div>
@@ -149,13 +154,17 @@ const UserProfile = ({ user }: { user: IUser }) => (
 const UserActivities = ({ activities }: { activities: string[] }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
-    <ul className="space-y-4">
-      {activities.map((activity, index) => (
-        <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
-          {activity}
-        </li>
-      ))}
-    </ul>
+    {activities.length === 0 ? (
+      <p className="text-gray-600">No tienes actividades registradas.</p>
+    ) : (
+      <ul className="space-y-4">
+        {activities.map((activity, index) => (
+          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+            {activity}
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 );
 
@@ -221,41 +230,83 @@ const UserReservations = ({
 }) => (
   <div>
     <h2 className="text-2xl font-bold mb-6 text-primary">Reservas</h2>
-    <ul className="space-y-4">
-      {reservations.map((reservation) => (
-        <li
-          key={reservation.id}
-          className="bg-gray-300 p-4 rounded-lg shadow-md"
-        >
-          <p className="flex items-center gap-2">
-            <FaCalendarAlt /> <span>Fecha: {reservation.date}</span>
-          </p>
-          <p className="flex items-center gap-2">
-            <FaClock />{" "}
-            <span>
-              Horario: {reservation.startTime} - {reservation.endTime}
-            </span>
-          </p>
-          <p className="flex items-center gap-2">
-            <FaDollarSign /> <span>Precio: ${reservation.price}</span>
-          </p>
-          <p
-            className={`flex items-center gap-2 ${
-              reservation.status === "confirmed"
-                ? "text-green-600"
-                : "text-yellow-500"
-            }`}
+    {reservations.length === 0 ? (
+      <p className="text-gray-600">No tienes reservas realizadas.</p>
+    ) : (
+      <ul className="space-y-4">
+        {reservations.map((reservation) => (
+          <li
+            key={reservation.id}
+            className="bg-gray-300 p-4 rounded-lg shadow-md"
           >
-            {reservation.status === "confirmed" ? (
-              <FaCheckCircle />
-            ) : (
-              <FaExclamationTriangle />
-            )}
-            {reservation.status === "confirmed" ? "Confirmada" : "Pendiente"}
-          </p>
-        </li>
-      ))}
-    </ul>
+            <p className="flex items-center gap-2">
+              <FaCalendarAlt /> <span>Fecha: {reservation.date}</span>
+            </p>
+            <p className="flex items-center gap-2">
+              <FaClock />{" "}
+              <span>
+                Horario: {reservation.startTime} - {reservation.endTime}
+              </span>
+            </p>
+            <p className="flex items-center gap-2">
+              <FaDollarSign /> <span>Precio: ${reservation.price}</span>
+            </p>
+            <p
+              className={`flex items-center gap-2 ${
+                reservation.status === "confirmed"
+                  ? "text-green-600"
+                  : "text-yellow-500"
+              }`}
+            >
+              {reservation.status === "confirmed" ? (
+                <FaCheckCircle />
+              ) : (
+                <FaExclamationTriangle />
+              )}
+              {reservation.status === "confirmed" ? "Confirmada" : "Pendiente"}
+            </p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
+const UserSubscriptions = ({
+  subscriptions,
+}: {
+  subscriptions: SubscriptionDetail[];
+}) => (
+  <div>
+    <h2 className="text-2xl font-bold mb-6 text-primary">Suscripciones</h2>
+    {subscriptions.length === 0 ? (
+      <p className="text-gray-600">No tienes suscripciones activas.</p>
+    ) : (
+      <ul className="space-y-4">
+        {subscriptions.map((subscription) => (
+          <li
+            key={subscription.id}
+            className="bg-gray-300 p-4 rounded-lg shadow-md"
+          >
+            <p className="font-semibold">Plan: Gold</p>
+            <p className="text-sm">
+              Fecha de inicio:{" "}
+              {new Date(subscription.dayInit).toLocaleDateString()}
+            </p>
+
+            <p className="text-sm">
+              Fecha de vencimiento:{" "}
+              {new Date(subscription.dayEnd).toLocaleDateString()}
+            </p>
+
+            <p className="text-sm">Precio: {subscription.price}</p>
+            <p className="text-sm">
+              Estado: {subscription.status ? "Activo" : "Inactivo"}
+            </p>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 );
 
