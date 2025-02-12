@@ -18,35 +18,25 @@ export const AuthServices = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       const result = await response.json();
       if (!result || !result.token) {
         throw new Error("Respuesta de inicio de sesión inválida: falta token");
       }
-
       const userD = result;
       const isAdmin = userD.userInfo?.isAdmin ?? false;
-
       const userToStore = {
         ...userD,
         isAdmin: isAdmin,
       };
-
       localStorage.setItem("user", JSON.stringify(userToStore));
       localStorage.setItem("token", userD.token);
       localStorage.setItem("isAdmin", isAdmin.toString());
-
-      // Redirigir con pequeño retraso
-
-      console.log("📌 Respuesta del servidor:", result);
-
       if (response.ok && result) {
-        return result.userInfo; // ⚠️ AQUÍ devolvemos el objeto result, que tiene el ID y demás datos.
+        return result.userInfo; 
       } else {
         throw new Error(result.message || "Error en el registro.");
       }
     } catch (error) {
-      console.error("❌ Error en la API:", error);
       throw error;
     }
   },

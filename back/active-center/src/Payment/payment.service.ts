@@ -205,9 +205,6 @@ async handleWebhook(rawBody: string, sig: string) {
           const session = event.data.object as Stripe.Checkout.Session;
           const metadata = session.metadata || {};
           const { orderId, userId, reservationId, subId } = metadata;
-
-          console.log('🔍 Metadata recibida:', metadata);
-
           if (orderId && userId) {
               await this.processOrderPayment(session, orderId, userId);
           } else if (reservationId) {
