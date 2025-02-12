@@ -81,8 +81,8 @@ private subscriptionDetailRepository: Repository<SubscriptionDetail>,
       line_items: lineItems,
       mode: 'payment',
       success_url:
-        'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://club-active-center.vercel.app/pago/cancel',
+        'https://club-active-center.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://club-active-center.vercel.app/payment/cancel',
       metadata: {
         orderId: orderId,
         userId: userId,
@@ -116,8 +116,8 @@ private subscriptionDetailRepository: Repository<SubscriptionDetail>,
     }
 
     const successUrl =
-      'https://club-active-center.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}';
-    const cancelUrl = 'https://club-active-center.vercel.app/payment/cancel';
+      'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = 'https://club-active-center.vercel.app/pago/cancel';
 
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
