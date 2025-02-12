@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { IProducts } from "@/interface/IProducts";
+import { usePrivate } from "@/Hooks/usePrivate";
 
 interface CardProps {
   product: IProducts;
@@ -9,6 +10,7 @@ interface CardProps {
 }
 
 export default function Card({ product, onAddToCart, disabled }: CardProps) {
+  usePrivate();
   return (
     <div className="bg-black text-white">
       <div>
@@ -41,10 +43,10 @@ export default function Card({ product, onAddToCart, disabled }: CardProps) {
               <span className="text-green-600 font-bold">${product.price}</span>
               <span
                 className={`text-sm font-medium ${
-                  product.stock > 0 ? 'text-gray-600' : 'text-red-500'
+                  product.stock > 0 ? "text-gray-600" : "text-red-500"
                 }`}
               >
-                {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
+                {product.stock > 0 ? `Stock: ${product.stock}` : "Out of Stock"}
               </span>
             </div>
 
@@ -56,7 +58,7 @@ export default function Card({ product, onAddToCart, disabled }: CardProps) {
                   onClick={onAddToCart}
                   disabled={disabled}
                 >
-                  {disabled ? 'Already in Cart' : 'Ver más detalles'}
+                  {disabled ? "Already in Cart" : "Ver más detalles"}
                 </button>
               </Link>
             </div>
@@ -66,4 +68,3 @@ export default function Card({ product, onAddToCart, disabled }: CardProps) {
     </div>
   );
 }
-
