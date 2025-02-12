@@ -15,10 +15,10 @@ export const usePrivate = () => {
       Swal.fire({
         icon: "warning",
         title: "¡Atención!",
-        text: "Debes loguearte para acceder al carrito.",
-        confirmButtonText: "OK",
+        text: "Debes loguearte para acceder.",
+        confirmButtonText: "Login",
       }).then(() => {
-        router.push("/home");
+        router.push("/Login2");
       });
     }
   }, [isAuthMemo, router]);
