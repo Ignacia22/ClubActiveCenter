@@ -1,3 +1,9 @@
+export enum StatusOrder {
+  pending = "Pending",
+  complete = "Complete",
+  cancel = "Canceled",
+}
+
 export interface OrderItem {
   id: string;
   name: string;
@@ -8,13 +14,10 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  userId: string; // ID del usuario relacionado con la orden
+  orderItems: OrderItem[];
   price: number;
   totalPrice: number;
-  status: string;
+  status: StatusOrder;
   date: string;
-  orderItems: OrderItem[];
-}
-
-export interface UserOrdersProps {
-  orders: Order[];
 }
