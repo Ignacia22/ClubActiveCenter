@@ -18,19 +18,14 @@ export const AuthService = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       const result = await response.json();
-
-      console.log("📌 Respuesta del servidor:", result);
-
       if (response.ok && result) {
-        return result.userInfo; // ⚠️ AQUÍ devolvemos el objeto result, que tiene el ID y demás datos.
+        return result.userInfo;  
       } else {
         throw new Error(result.message || "Error en el registro.");
       }
     } catch (error) {
-      console.error("❌ Error en la API:", error);
       throw error;
-    }
+    };
   },
 };

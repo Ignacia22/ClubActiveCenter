@@ -49,7 +49,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
       try {
         const userData = await getUserById(userId);
         setUser(userData);
-
         const reservationsData = await getUserReservations(userId);
         setReservations(reservationsData);
       } catch (error) {

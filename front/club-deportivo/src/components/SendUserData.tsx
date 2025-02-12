@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-const SendUserData = () => {
+const SendUserData =  () => {
   const { user } = useUser();
   const router = useRouter();
   useEffect(() => {
@@ -18,7 +18,7 @@ const SendUserData = () => {
         const userData = {
           email: user.email,
         };
-        const { data } = await axios.post(`${API_URL}auth/login`, userData, {
+        const { data } = await axios.post(`${API_URL}/auth/login`, userData, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -49,10 +49,7 @@ const SendUserData = () => {
           },
           (error) => Promise.reject(error)
         );
-
-        // Redirigir con pequeño retraso
-
-        const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
+        const route = isAdmin ? "/admin/adminDashboard" : "/home";
         router.push(route);
       } catch (error: any) {
         if (error.response.data.statusCode === 404) router.push("/Formulario");
@@ -60,8 +57,8 @@ const SendUserData = () => {
       }
     };
     sendUserData();
-  }, [user]); // 🔹 Se ejecuta cuando el usuario cambia
-  return null; // No renderiza nada
+  }, [user]); 
+  return null;  
 };
 
 export default SendUserData;

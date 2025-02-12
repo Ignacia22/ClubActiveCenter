@@ -84,8 +84,6 @@ const FormAuth = () => {
         passwordConfirmation: formData.passwordConfirmation,
       });
 
-      console.log("✅ Usuario registrado con éxito:", response);
-
       if (response?.id) {
         Swal.fire({
           icon: "success",
@@ -109,7 +107,7 @@ const FormAuth = () => {
         Swal.fire({
           icon: "error",
           title: "Error en el registro",
-          text: "El servidor no creó el usuario. Revisa los datos ingresados.",
+          text: "Hubo un error vuelve a intentarlo.",
         });
       }
     } catch (error) {

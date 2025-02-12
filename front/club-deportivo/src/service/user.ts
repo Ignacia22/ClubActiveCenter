@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 
 const BACK_URL = "https://active-center-db-3rfj.onrender.com";
 
-// ✅ FUNCIÓN ORIGINAL: Obtener datos del usuario por ID
 export const getUserById = async (userId: string): Promise<IUser | null> => {
   const token = localStorage.getItem("token");
 
@@ -23,13 +22,10 @@ export const getUserById = async (userId: string): Promise<IUser | null> => {
   }
 
   try {
-    console.log(`🔍 Fetching user with ID: ${userId}`);
     const headers = { Authorization: `Bearer ${token}` };
     const response = await axios.get<IUser>(`${BACK_URL}/user/${userId}`, {
       headers,
     });
-
-    console.log("✅ User data fetched:", response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -89,9 +85,7 @@ export const getUserReservations = async (userId: string) => {
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 404) {
-        // Mostrar mensaje informativo cuando no hay reservas
       } else {
-        // Mostrar el mensaje de error si el status es diferente
         Swal.fire(
           "❌ Error",
           `No se pudieron obtener las reservas. Código: ${error.response.status}`,

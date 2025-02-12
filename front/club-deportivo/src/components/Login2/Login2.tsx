@@ -1,62 +1,46 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Swal from "sweetalert2";
+import Link from "next/link";
 
 const Login = () => {
   const { login } = useAuth();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
   const [error, setError] = useState<string | null>(null);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    console.log("Formulario actualizado:", formData); // Ver los datos del formulario
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
       setError("Todos los campos son obligatorios.");
       return;
     }
-
-    console.log("Datos a enviar al login:", formData);
-
     try {
       await login(formData);
-      
       Swal.fire({
         icon: "success",
         title: "Inicio de sesión exitoso",
         text: "Bienvenido de nuevo!",
       });
-
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error en el login:", error);
       Swal.fire({
         icon: "error",
         title: "Error al iniciar sesión",
-        text: "Credenciales incorrectas o problema en el servidor.",
+        text: `${error.response.data.message}` || `Hubo un error desconocido ${error}`,
       });
-    }
-};
-
-  const handleGoogleLogin = () => {
-    console.log("Redirigiendo a login de Google...");
-    window.location.href = "/api/auth/login";
+    };
   };
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center"
       style={{ backgroundImage: "url('https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg')" }}>
@@ -103,12 +87,12 @@ const Login = () => {
 
         <div className="mt-6 text-center">
           <p className="text-gray-400">O inicia sesión con tu cuenta Gmail:</p>
-          <button
-            onClick={handleGoogleLogin}
+          <Link
+            href="/api/auth/login"
             className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition font-bold"
           >
             Iniciar sesión con Google
-          </button>
+          </Link>
         </div>
       </form>
     </div>
