@@ -43,6 +43,6 @@ export class Activity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ type: 'enum', enum: StatusActivity, nullable: false })
+  @Column({ type: 'enum', enum: StatusActivity, default: StatusActivity.ACTIVE, nullable: false })
   status?: StatusActivity;
 }

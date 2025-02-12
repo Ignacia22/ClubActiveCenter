@@ -1,6 +1,5 @@
 import InfoHome from "@/components/HomeInfo/InfoHome";
 
-
 export default function Home() {
   return (
     <main>

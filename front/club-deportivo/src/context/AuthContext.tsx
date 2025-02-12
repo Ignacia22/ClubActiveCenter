@@ -149,25 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (form: ILogin) => {
     try {
-      console.log("Iniciando login con:", {
-        url: "https://active-center-db-3rfj.onrender.com/auth/SignIn",
-        datos: form,
-      });
-
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`,
-        form,
+        form, 
         {
-          headers: {
+          headers: { 
             "Content-Type": "application/json",
           },
         }
       );
-
-      console.log("Respuesta del servidor:", {
-        status: response.status,
-        data: response.data,
-      });
 
       // Validaciones más robustas
       if (!response.data || !response.data.token) {
@@ -202,24 +192,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         (error) => Promise.reject(error)
       );
 
-      console.log("Login exitoso, redirigiendo...", {
-        isAdmin: isAdminValue,
-      });
-
       // Redirigir con pequeño retraso
       setTimeout(() => {
         handleRedirect(isAdminValue);
       }, 100);
     } catch (error) {
       // Manejo detallado de errores
+      console.error(error)
       if (axios.isAxiosError(error)) {
-        console.error("Error de Axios en login:", {
-          mensaje: error.message,
-          codigo: error.response?.status,
-          datos: error.response?.data,
-          headers: error.response?.headers,
-        });
-
         // Mensajes de error más específicos
         if (error.response?.status === 401) {
           throw new Error(
