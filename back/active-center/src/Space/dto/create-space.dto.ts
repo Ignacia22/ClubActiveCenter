@@ -1,4 +1,4 @@
-import { Transform } from "class-transformer";
+import { Transform } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -14,23 +14,30 @@ export class CreateSpaceDto {
   title: string;
 
   @IsArray()
-  @IsOptional() 
+  @IsOptional()
   img: string[];
 
   @IsString()
   description: string;
 
-  @IsArray()  
-  @ArrayNotEmpty() 
-  @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(',').map((item: string) => item.trim())))
-  details: string[];  
+  @IsArray()
+  @ArrayNotEmpty()
+  @Transform(({ value }) =>
+    Array.isArray(value)
+      ? value
+      : value?.split(',').map((item: string) => item.trim()),
+  )
+  details: string[];
 
-  @IsArray()  
-  @ArrayNotEmpty() 
-  @Transform(({ value }) => (Array.isArray(value) ? value : value?.split(',').map((item: string) => item.trim())))
+  @IsArray()
+  @ArrayNotEmpty()
+  @Transform(({ value }) =>
+    Array.isArray(value)
+      ? value
+      : value?.split(',').map((item: string) => item.trim()),
+  )
   characteristics: string[];
 
-  
   @IsNumber()
   @IsNotEmpty()
   @Transform(({ value }) => Number(value))

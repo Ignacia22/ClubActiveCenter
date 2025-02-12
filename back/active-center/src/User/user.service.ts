@@ -67,7 +67,8 @@ export class UserService {
       }
       const users: User[] = await query.getMany();
 
-      if (!users) throw new NotFoundException('No se encontró ningún usuario');
+      if (!users.length)
+        throw new NotFoundException('No se encontró ningún usuario');
 
       const partialUsers: UserDTOREsponseGet[] = users.map((user) => {
         const { password, ...partialUser } = user;
@@ -93,24 +94,28 @@ export class UserService {
 
       return Page;
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(`Hubo un error al obtener los usuarios. Error: ${error.message}`);
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Hubo un error al obtener los usuarios. Error: ${error.message}`,
+      );
     }
   }
-  
+
   async getUserById(id: string): Promise<UserDTOResponseId> {
     try {
       const user: User | null = await this.userRepository.findOne({
         where: { id },
-        relations: ['orders', 'reservations', 'activities'],
+        relations: ['orders', 'reservations', 'activities', 'subscriptionsDetails'],
       });
       if (!user) throw new NotFoundException('El usuario buscado no existe.');
       const { password, updateUser, isAdmin, createUser, ...partialUser } =
         user;
       return partialUser;
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(`Hubo un error al obtener al usuario. Error: ${error.message}`);
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Hubo un error al obtener al usuario. Error: ${error.message}`,
+      );
     }
   }
 
@@ -119,7 +124,9 @@ export class UserService {
       const user: User | null = await this.userRepository.findOneBy({ email });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(`Hubo un error al obtener al usuario. Error: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Hubo un error al obtener al usuario. Error: ${error.message}`,
+      );
     }
   }
 
@@ -128,7 +135,10 @@ export class UserService {
       const exist: User | null = await this.userRepository.findOneBy({ id });
       const admin: User | null = await this.getUserByEmail(userMAin.email);
       if (!exist) throw new NotFoundException('El usuario buscado, no existe.');
-      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.')
+      if (id === admin?.id)
+        throw new BadRequestException(
+          'Esta prohibido modificar de alguna forma este usuario.',
+        );
       await this.userRepository.save({
         ...exist,
         userStatus: UserStatus.delete,
@@ -136,8 +146,10 @@ export class UserService {
       });
       return 'Usuario eliminado';
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(`Hubo un error, al borrar el usuario. Error: ${error.message}`);
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Hubo un error, al borrar el usuario. Error: ${error.message}`,
+      );
     }
   }
 
@@ -149,7 +161,10 @@ export class UserService {
       const oldUser: User | null = await this.userRepository.findOneBy({ id });
       const admin: User | null = await this.getUserByEmail(userMAin.email);
       if (!oldUser) throw new NotFoundException('No existe el usuario.');
-      if(id === admin?.id) throw new BadRequestException('Esta prohibido modificar de alguna forma este usuario.');
+      if (id === admin?.id)
+        throw new BadRequestException(
+          'Esta prohibido modificar de alguna forma este usuario.',
+        );
       if (editUser.password) {
         const password: string = await this.hashPassword(editUser.password);
         await this.userRepository.save({
@@ -167,9 +182,11 @@ export class UserService {
       });
       return 'Se actualizo el perfil correctamente';
     } catch (error) {
-      if(error instanceof NotFoundException) throw error;
-      if(error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(`Hubo un error, al editar el usuario. Error: ${error.message}`);
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        `Hubo un error, al editar el usuario. Error: ${error.message}`,
+      );
     }
   }
 

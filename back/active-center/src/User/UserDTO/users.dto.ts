@@ -21,6 +21,7 @@ import {
 import { Activity } from 'src/Entities/Activity.entity';
 import { Order } from 'src/Entities/Order.entity';
 import { Reservation } from 'src/Entities/Reservation.entity';
+import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { Confirmation } from 'src/utils/passwordConfimation.pipe';
 
 export enum UserStatus {
@@ -64,6 +65,13 @@ export class UserDTOREsponseGet {
     example: 'Juan Pérez',
   })
   name: string;
+
+  @ApiProperty({
+    description: 'Indica si un usuario esta o no suscrito.',
+    example: false,
+    default: false,
+  })
+  isSubscribed: boolean;
 
   @ApiProperty({
     description: 'El correo electrónico del usuario.',
@@ -165,6 +173,10 @@ export class RegisterUserDTO {
     message: 'El correo electrónico es obligatorio y no puede estar vacío.',
   })
   email: string;
+
+  @ApiHideProperty()
+  @IsEmpty({ message: 'Esta propiedad no puede se mandada.' })
+  isSubscribed: boolean;
 
   @ApiProperty({
     description:
@@ -454,6 +466,12 @@ export class UserDTOResponseId {
     type: [Activity],
   })
   activities: Activity[];
+
+  @ApiProperty({
+    description: 'Suscripciones a las que se inscribio el usuario.',
+    type: [SubscriptionDetail],
+  })
+  subscriptionsDetails: SubscriptionDetail[]
 }
 
 export class UserDTOResponse {

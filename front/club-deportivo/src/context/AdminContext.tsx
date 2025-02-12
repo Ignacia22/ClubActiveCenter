@@ -7,6 +7,8 @@ import { IUser } from '@/interface/IUser';
 import { Activity } from '@/interface/IActivity';
 import { IProducts } from '@/interface/IProducts';
 import { UserStatus } from '@/components/InfoAdmin/UsersTable';
+import { mapProductData } from '@/utils/mapProductData';
+import { getProduct } from '@/helpers/getProduct';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -29,6 +31,8 @@ interface AdminContextType {
   products: IProducts[];
   loading: boolean;
   error: string | null;
+  totalPages: number;
+  currentPage: number;
 
   // Funciones de Usuarios
   getAllUsers: () => Promise<IUser[]>;
@@ -44,9 +48,13 @@ interface AdminContextType {
   cancelActivity: (id: string) => Promise<void>;
   
   // Funciones de Productos
-  getAllProducts: () => Promise<IProducts[]>;
+  getAllProducts: (page?: number, limit?: number) => Promise<{
+    products: IProducts[];
+    totalPages: number;
+    currentPage: number;
+  }>;
   getProductById: (id: string) => Promise<IProducts>;
-  createProduct: (productData: Omit<IProducts, 'id'>) => Promise<void>;
+  createProduct: (productData: Omit<IProducts, 'id'>) => Promise<IProducts>;
   updateProduct: (id: string, productData: Partial<IProducts>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
 
@@ -64,6 +72,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<IProducts[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
 
   // Funciones de Usuarios
   const getAllUsers = async () => {
@@ -179,40 +190,51 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No se encontró token de autenticación');
       }
   
-      const response = await axios.get(`${API_URL}/activity`, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      try {
+        const response = await axios.get(`${API_URL}/activity`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+  
+        // Log para ver la estructura exacta de la respuesta
+        console.log('Estructura de response.data:', {
+          type: typeof response.data,
+          value: response.data
+        });
+  
+        // Asegurarnos de que estamos manejando correctamente el array de actividades
+        let activitiesArray;
+        if (Array.isArray(response.data)) {
+          activitiesArray = response.data;
+        } else if (response.data.activities) {
+          activitiesArray = response.data.activities;
+        } else if (response.data.data) {
+          activitiesArray = response.data.data;
+        } else {
+          activitiesArray = [];
+          console.error('Estructura de datos inesperada:', response.data);
         }
-      });
   
-      // Log para ver la estructura exacta de la respuesta
-      console.log('Estructura de response.data:', {
-        type: typeof response.data,
-        value: response.data
-      });
+        console.log('Array de actividades procesado:', activitiesArray);
   
-      // Asegurarnos de que estamos manejando correctamente el array de actividades
-      let activitiesArray;
-      if (Array.isArray(response.data)) {
-        activitiesArray = response.data;
-      } else if (response.data.activities) {
-        activitiesArray = response.data.activities;
-      } else if (response.data.data) {
-        activitiesArray = response.data.data;
-      } else {
-        activitiesArray = [];
-        console.error('Estructura de datos inesperada:', response.data);
+        // Actualizar el estado solo si tenemos un array válido
+        if (Array.isArray(activitiesArray)) {
+          setActivities(activitiesArray);
+        }
+  
+        return activitiesArray;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          // Si es un error 404, establece un array vacío
+          console.warn('No se encontraron actividades (404)');
+          setActivities([]);
+          return []; // Devuelve un array vacío
+        }
+        // Si es otro tipo de error, lo relanza
+        throw error;
       }
-  
-      console.log('Array de actividades procesado:', activitiesArray);
-  
-      // Actualizar el estado solo si tenemos un array válido
-      if (Array.isArray(activitiesArray)) {
-        setActivities(activitiesArray);
-      }
-  
-      return activitiesArray;
     } catch (error) {
       console.error('Error completo al obtener actividades:', error);
       if (axios.isAxiosError(error)) {
@@ -293,9 +315,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
   
-  
-  
-  
 
 
   const updateActivityRegistration = async (id: string, activityData: Partial<Activity>) => {
@@ -338,32 +357,163 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
 };
 
-  // Funciones de Productos (previous implementation remains the same)
-  const getAllProducts = async () => {
+  // Funciones de Productos 
+
+
+  const getAllProducts = async (page = 1, limit = 10) => {
     try {
-      const { data } = await axios.get(`${API_URL}/product`);
-      setProducts(data);
-      return data;
+      setLoading(true);
+      console.log(`Obteniendo productos - página ${page}, límite ${limit}`);
+      
+      // Realizar la petición con los parámetros de paginación
+      const response = await axios.get(`${API_URL}/product`, {
+        params: { 
+          page,
+          limit
+        }
+      });
+  
+      console.log('Respuesta del servidor:', response.data);
+  
+      // Verificar la estructura de la respuesta
+      if (!response.data) {
+        throw new Error('No hay datos en la respuesta');
+      }
+  
+      let productsData;
+      let total;
+      
+      if (Array.isArray(response.data)) {
+        // Si la respuesta es un array directo
+        productsData = response.data;
+        total = response.data.length;
+      } else if (response.data.products && Array.isArray(response.data.products)) {
+        // Si la respuesta tiene una estructura con products y metadata
+        productsData = response.data.products;
+        total = response.data.total || response.data.products.length;
+      } else {
+        throw new Error('Formato de respuesta inválido');
+      }
+  
+      // Mapear los productos usando el helper existente
+      const mappedProducts = productsData.map(mapProductData);
+      console.log('Productos mapeados:', mappedProducts);
+  
+      // Calcular el total de páginas
+      const calculatedTotalPages = Math.ceil(total / limit);
+  
+      // Actualizar el estado
+      setProducts(mappedProducts);
+      setTotalPages(calculatedTotalPages);
+      setCurrentPage(page);
+  
+      return {
+        products: mappedProducts,
+        totalPages: calculatedTotalPages,
+        currentPage: page
+      };
+  
     } catch (error) {
-      throw new Error('Error al obtener productos');
+      console.error('Error en getAllProducts:', error);
+      // Establecer valores por defecto en caso de error
+      setProducts([]);
+      setTotalPages(1);
+      setCurrentPage(1);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const getProductById = async (id: string) => {
     try {
-      const { data } = await axios.get(`${API_URL}/product/${id}`);
-      return data;
+      setLoading(true);
+      const product = await getProduct(id);
+      if (!product) {
+        throw new Error('Producto no encontrado');
+      }
+      return product;
     } catch (error) {
-      throw new Error('Error al obtener producto');
+      console.error('Error en getProductById:', error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const createProduct = async (productData: Omit<IProducts, 'id'>) => {
+  const createProduct = async (productData: Omit<IProducts, 'id'>): Promise<IProducts> => {
     try {
-      const { data } = await axios.post(`${API_URL}/product`, productData);
-      setProducts(prev => [...prev, data]);
+      // Validaciones iniciales
+      const priceValue = Number(productData.price);
+      const stockValue = Number(productData.stock);
+  
+      if (isNaN(priceValue) || priceValue <= 0) {
+        throw new Error("El precio debe ser un valor mayor a 0.");
+      }
+  
+      // Crear un FormData
+      const formData = new FormData();
+      formData.append('name', productData.name);
+      formData.append('description', productData.description);
+      formData.append('price', String(priceValue));
+      formData.append('stock', String(stockValue));
+      formData.append('category', productData.category || '');
+  
+      if (productData.file) {
+        formData.append('file', productData.file);
+      }
+  
+      // Obtener el token desde localStorage
+      const token = localStorage.getItem('token');
+  
+      // Verificar si el token existe
+      if (!token) {
+        throw new Error('No se encontró un token de autenticación.');
+      }
+  
+      // Enviar la solicitud POST al backend con el token en los encabezados
+      const response = await axios.post(`${API_URL}/product/create`, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
+      console.log('Respuesta del backend al crear producto:', response.data);
+  
+      if (!response.data) {
+        throw new Error(`Error al crear el producto: Respuesta vacía`);
+      }
+  
+      // Mapea el producto y lo devuelve
+      const newProduct = mapProductData(response.data);
+      
+      console.log('Producto mapeado:', newProduct);
+      
+      // Actualizar el estado de productos en el contexto
+      setProducts(prevProducts => {
+        console.log('Estado anterior de productos:', prevProducts);
+        
+        const productExists = prevProducts.some(p => p.id === newProduct.id);
+        
+        if (productExists) {
+          console.log('Producto ya existe, no se añade');
+          return prevProducts;
+        }
+        
+        const updatedProducts = [...prevProducts, newProduct];
+        console.log('Estado actualizado de productos:', updatedProducts);
+        
+        return updatedProducts;
+      });
+  
+      return newProduct; // Devuelve el producto mapeado
     } catch (error) {
-      throw new Error('Error al crear producto');
+      console.error('Error al crear producto:', error);
+      if (error instanceof Error) {
+        console.error('Detalles del error:', error.message);
+      }
+      throw error;
     }
   };
 
@@ -418,6 +568,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     products,
     loading,
     error,
+    totalPages, 
+    currentPage,
     // Añadir nuevas funciones de usuario
     getAllUsers,
     isRetired,

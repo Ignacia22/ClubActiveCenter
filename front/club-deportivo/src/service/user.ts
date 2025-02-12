@@ -55,7 +55,6 @@ export const getUserById = async (userId: string): Promise<IUser | null> => {
   }
 };
 
-// ✅ NUEVA FUNCIÓN: Obtener reservas del usuario por ID
 export const getUserReservations = async (userId: string) => {
   const token = localStorage.getItem("token");
 
@@ -80,20 +79,30 @@ export const getUserReservations = async (userId: string) => {
       headers,
     });
 
-    console.log("✅ Reservations fetched:", response.data);
-    return response.data; // Debería ser un array de reservas
+    if (response.data.length === 0) {
+      Swal.fire("📅 Sin Reservas", "No tienes reservas aún.", "info");
+    } else {
+      console.log("✅ Reservations fetched:", response.data);
+    }
+
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      Swal.fire(
-        "❌ Error",
-        `No se pudieron obtener las reservas. Código: ${error.response.status}`,
-        "error"
-      );
-      console.error(
-        "❌ Error fetching reservations:",
-        error.response.status,
-        error.response.data
-      );
+      if (error.response.status === 404) {
+        // Mostrar mensaje informativo cuando no hay reservas
+      } else {
+        // Mostrar el mensaje de error si el status es diferente
+        Swal.fire(
+          "❌ Error",
+          `No se pudieron obtener las reservas. Código: ${error.response.status}`,
+          "error"
+        );
+        console.error(
+          "❌ Error fetching reservations:",
+          error.response.status,
+          error.response.data
+        );
+      }
     } else {
       Swal.fire(
         "❌ Error inesperado",

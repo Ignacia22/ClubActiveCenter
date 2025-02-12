@@ -2,16 +2,16 @@ import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    domains: ['res.cloudinary.com'],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**", // Permite cualquier dominio HTTPS
+        hostname: "**",
       },
     ],
   },
   async rewrites() {
     return [
-      // Evitar que las rutas de Auth0 sean afectadas
       {
         source: "/api/auth/:path*",
         destination: "/api/auth/:path*", 

@@ -10,8 +10,10 @@ export interface IProducts {
   description: string;
   price: number;
   stock: number;
-  image: string;
+  image?: string;
   State?: ProductState;
+  category?: string;
+  file?: File;
 }
 
 export type CreateProductDto = Omit<IProducts, "id">;

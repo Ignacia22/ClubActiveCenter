@@ -34,7 +34,7 @@ export default function ActivitiesPage() {
         return false
       }
     })
-  }, [activities])
+  }, [])
 
   useEffect(() => {
     const loadActivities = async () => {

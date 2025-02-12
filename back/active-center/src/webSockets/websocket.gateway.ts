@@ -1,4 +1,4 @@
-import { NotFoundException, Request } from "@nestjs/common";
+import { Inject, NotFoundException} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
@@ -10,9 +10,11 @@ import { Message } from "src/Entities/Message.entity";
 import { Repository } from "typeorm";
 import { Chat } from "src/Entities/Chat.entity";
 import { User } from "src/Entities/User.entity";
+import respuestasPredefinidas from "./resPredifinidas";
+import { SendGridService } from "src/SendGrid/sendGrid.service";
 
-@WebSocketGateway()
-export class websockets implements  OnGatewayConnection , OnGatewayDisconnect {
+@WebSocketGateway({cors:{origin:"*"}})
+export class websockets implements OnGatewayInit , OnGatewayConnection , OnGatewayDisconnect {
     constructor(private readonly jwtService:JwtService,
         private readonly userService:UserService,
         @InjectRepository(Message) private messageRepository:Repository<Message>,
@@ -32,8 +34,7 @@ export class websockets implements  OnGatewayConnection , OnGatewayDisconnect {
      async handleConnection(client: Socket) {
 
         try{
-            const authHeader = client.handshake.headers.authorization;
-            const token = authHeader?.split(" ")[1];
+            const token = client.handshake.headers.authorization?.split(" ")[1] || client.handshake.auth.token;
             
             if(!token){
                 throw new NotFoundException("no se encontro el token")
@@ -42,7 +43,6 @@ export class websockets implements  OnGatewayConnection , OnGatewayDisconnect {
             const payload = await this.jwtService.verifyAsync(token,{
                 secret: SECRET_SECRET_WORD 
             })
-            
             
             const user = await this.userService.getUserById(payload.id)
             if(!user){
@@ -56,52 +56,55 @@ export class websockets implements  OnGatewayConnection , OnGatewayDisconnect {
             console.log('Usuarios conectados:', Array.from(this.users.keys()));
             
         }catch(error){
-            console.log("token invalido")
+            console.log(error);
         }
     }
 
     handleDisconnect(client: Socket) {
-    
+        
         console.log(`${client.data.user.name} se desconecto`)
         this.users.delete(client.id)
         console.log('Usuarios conectados:', Array.from(this.users.keys()))
     }
 
+    private pendingMessages = new Map<string, Message[]>();
+    
     @SubscribeMessage("mensaje")
     async handleMessage(@ConnectedSocket() Client:Socket ,@MessageBody() data:CreateMessageDto){
 
         try{
-            const authHeader = Client.handshake.headers.authorization;
-            const token = authHeader?.split(" ")[1];
+            const token =  Client.handshake.auth.token || Client.handshake.headers.authorization?.split(" ")[1];
             
             if(!token){
                 throw new NotFoundException("no se encontro el token")
             }
-
+            
             const payload = await this.jwtService.verifyAsync(token,{
                 secret: SECRET_SECRET_WORD 
             })
-            console.log(payload.isAdmin)
             
             const user = await this.userRepository.findOne({
                 where:{id:payload.id},
                 relations:["chat"]
             })
+            
             if(!user){
                 throw new NotFoundException("el usuario no existe")
             }
-            console.log(user);
-
-            const sender = payload.isAdmin;
+            
             const chatId = user.chat.id;
-              
             const chat = await this.chatRepository.findOne({
                 where:{id:chatId}
             })
             
             if(!chat){
-                throw new NotFoundException("el chat no existe");
+                const newChat = this.chatRepository.create({user})
+                
+                await this.chatRepository.save(newChat);
+                throw new NotFoundException("el usuario no tiene un chat asignado")
             }
+            
+            const sender = payload.isAdmin;
             
             const newMessage = this.messageRepository.create({
                 content:data.content,
@@ -109,26 +112,45 @@ export class websockets implements  OnGatewayConnection , OnGatewayDisconnect {
                 createdAt:new Date(),
                 chat,
             });
-            console.log(newMessage)
             
             await this.messageRepository.save(newMessage)
+            console.log(newMessage)
             
-            this.users.forEach((Client) => {
-                if((sender  && Client.data.user.id === user.id) || 
-                (!sender === true && Client.data.user.id === user.id)){
-                    
-                    Client.emit("mensajeserver" , newMessage)
+            this.server.emit("mensajeserver" , newMessage)
+            
+           function obtenerRespuestaAutomatica(mensaje: string): string | null {
+                const mensajeLower = mensaje.toLowerCase();
+                for (const { key, response } of respuestasPredefinidas) {
+                    if (key.some((palabra) => mensajeLower.includes(palabra))) {
+                        return response;
+                    }
                 }
-    
-         })
+                return null;
+            }
+            
+        
+        const respuestaBot = obtenerRespuestaAutomatica(data.content);
+        
+        if (respuestaBot) {
+        setTimeout(async () => {
+        const botMessage = this.messageRepository.create({
+            content: respuestaBot,
+            sender: true, 
+            createdAt: new Date(),
+            chat,
+        });
+        
+        await this.messageRepository.save(botMessage);
+        Client.emit("mensajeserver", botMessage);
+        }, 2000);
+        }
+
 
         }catch(error){
             console.log(error)
-        
+            
         }
+    }        
 
     }
-}
-
-
 

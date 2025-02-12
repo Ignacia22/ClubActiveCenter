@@ -6,7 +6,7 @@ import { Space } from 'src/Entities/Space.entity';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Space]),CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Space]), CloudinaryModule],
   controllers: [SpaceController],
   providers: [SpaceService],
 })

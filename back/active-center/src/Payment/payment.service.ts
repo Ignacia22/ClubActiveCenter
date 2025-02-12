@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
@@ -11,6 +16,10 @@ import {
   Reservation,
   ReservationStatus,
 } from 'src/Entities/Reservation.entity';
+import { SubscriptionService } from 'src/Subscription/subscriptions.service';
+import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
+import { Subscription } from 'src/Entities/Subscription.entity';
+
 
 @Injectable()
 export class PaymentService {
@@ -25,6 +34,13 @@ export class PaymentService {
     private orderRepository: Repository<Order>,
     @InjectRepository(Reservation)
     private reservationRepository: Repository<Reservation>,
+    @InjectRepository(Subscription)
+private subscriptionRepository: Repository<Subscription>,
+@InjectRepository(SubscriptionDetail)
+private subscriptionDetailRepository: Repository<SubscriptionDetail>,
+
+    private subscriptionService : SubscriptionService
+
   ) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
@@ -74,7 +90,9 @@ export class PaymentService {
     });
 
     if (!session.url) {
-      throw new InternalServerErrorException('No se pudo generar el enlace de pago.');
+      throw new InternalServerErrorException(
+        'No se pudo generar el enlace de pago.',
+      );
     }
 
     return session.url;
@@ -97,9 +115,9 @@ export class PaymentService {
       throw new NotFoundException('Usuario no encontrado en la reserva');
     }
 
-    const successUrl = 'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}';
-    const cancelUrl = 'https://club-active-center.vercel.app/pago/cancel';
-
+    const successUrl =
+      'https://club-active-center.vercel.app/payment/success?session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = 'https://club-active-center.vercel.app/payment/cancel';
 
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -127,47 +145,86 @@ export class PaymentService {
 
     return session;
   }
-
-  async handleWebhook(rawBody: string, sig: string) {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    if (!webhookSecret) {
-      throw new InternalServerErrorException('Webhook secret no está definido');
-    }
-
-    let event: Stripe.Event;
-
+  async createCheckoutSessionSub(userId: string, subId: string): Promise<{ sessionId: string; url: string | null; }> {
     try {
-      event = this.stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-    } catch (err) {
-      console.error('Error validando el webhook:', err.message);
-      throw new BadRequestException('Webhook no válido');
-    }
+        const subscription = await this.subscriptionRepository.findOne({
+            where: { id: subId },
+        });
 
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
-
-      const orderId = session.metadata?.orderId;
-      const userId = session.metadata?.userId;
-      const reservationId = session.metadata?.reservationId;
-
-      try {
-        if (orderId && userId) {
-          await this.processOrderPayment(session, orderId, userId);
-        } else if (reservationId) {
-          await this.processReservationPayment(session, reservationId);
-        } else {
-          console.error('Metadata faltante en el webhook');
-          throw new BadRequestException(
-            'Orden, usuario o reserva no especificados en el webhook',
-          );
-        }
-      } catch (err) {
-        console.error('Error procesando el evento:', err.message);
-        throw new InternalServerErrorException('Error procesando el evento');
+        if (!subscription) {
+          throw new NotFoundException('Suscripción no encontrada');
       }
+
+        const session = await this.stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          mode: 'payment',
+          line_items: [
+              {
+                  price_data: {
+                      currency: 'usd',
+                      product_data: {
+                          name: subscription.name,
+                          description: subscription.description,
+                      },
+                      unit_amount: Math.round(subscription.price * 100),
+                  },
+                  quantity: 1, 
+              },
+          ],
+          success_url: 'https://club-active-center.vercel.app/subsPayment/success?session_id={CHECKOUT_SESSION_ID}',
+          cancel_url: 'https://club-active-center.vercel.app/subsPayment/cancel',
+          metadata: {
+              userId,
+              subId,
+          },
+      });
+        return { sessionId: session.id, url: session.url };
+    } catch (error) {
+        throw new InternalServerErrorException('Hubo un error al crear la sesión de pago.', error?.message || error);
     }
+}
+
+
+
+async handleWebhook(rawBody: string, sig: string) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+      throw new InternalServerErrorException('Webhook secret no está definido');
   }
+
+  let event: Stripe.Event;
+
+  try {
+      event = this.stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+  } catch (err) {
+      console.error(' Error validando el webhook:', err.message);
+      throw new BadRequestException('Webhook no válido');
+  }
+  try {
+      if (event.type === 'checkout.session.completed') {
+          const session = event.data.object as Stripe.Checkout.Session;
+          const metadata = session.metadata || {};
+          const { orderId, userId, reservationId, subId } = metadata;
+
+          console.log('🔍 Metadata recibida:', metadata);
+
+          if (orderId && userId) {
+              await this.processOrderPayment(session, orderId, userId);
+          } else if (reservationId) {
+              await this.processReservationPayment(session, reservationId);
+          } else if (subId && userId) {
+              await this.subscriptionService.activateSubscription(userId, subId);
+          } else {
+              throw new BadRequestException('Datos insuficientes en la metadata del webhook');
+          }
+      } else {
+          console.log(`ℹ️ Evento de webhook no manejado: ${event.type}`);
+      }
+  } catch (err) {
+      throw new InternalServerErrorException('Error procesando el evento');
+  }
+}
+
 
   private async processOrderPayment(
     session: Stripe.Checkout.Session,
@@ -199,7 +256,7 @@ export class PaymentService {
       user: { id: userId },
       order: { id: orderId },
       paymentIntentId: paymentIntentId,
-      reservationId:null,
+      reservationId: null,
     });
 
     await this.paymentRepository.save(payment);
@@ -243,4 +300,22 @@ export class PaymentService {
     reservation.status = ReservationStatus.CONFIRMED;
     await this.reservationRepository.save(reservation);
   }
+  private async activateSubscription(userId: string, subId: string) {
+    const subscription = await this.subscriptionRepository.findOne({ where: { id: subId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user || !subscription) throw new NotFoundException('Usuario o suscripción no encontrados');
+
+    const newSubscription = this.subscriptionDetailRepository.create({
+      user,
+      subscription,
+      dayInit: new Date(),
+      dayEnd: new Date(new Date().setDate(new Date().getDate() + (subscription.duration ?? 31))),
+      price: subscription.price,
+      status: true, 
+    });
+
+    await this.subscriptionDetailRepository.save(newSubscription);
+    await this.userRepository.update(user.id, { isSubscribed: true });
+}
 }
