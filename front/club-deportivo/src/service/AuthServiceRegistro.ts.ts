@@ -24,7 +24,7 @@ export const AuthService = {
       console.log("📌 Respuesta del servidor:", result);
 
       if (response.ok && result) {
-        return result; // ⚠️ AQUÍ devolvemos el objeto result, que tiene el ID y demás datos.
+        return result.userInfo; // ⚠️ AQUÍ devolvemos el objeto result, que tiene el ID y demás datos.
       } else {
         throw new Error(result.message || "Error en el registro.");
       }
