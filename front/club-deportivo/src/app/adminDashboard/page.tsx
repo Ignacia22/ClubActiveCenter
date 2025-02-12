@@ -47,10 +47,6 @@ export default function UsersDashboard() {
 
   const handleSuspendUser = async (userId: string) => {
     try {
-      const user = users.find(u => u.id === userId);
-      if (!user) return;
-  
-      // Usar la lógica de cambio de estado con UserStatus
       await isBan(userId);
     } catch (error) {
       console.error('Error al actualizar estado:', error);
@@ -162,19 +158,17 @@ export default function UsersDashboard() {
                     {user.dni}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       user.userStatus === UserStatus.ACTIVE 
                         ? 'bg-green-100 text-green-800' 
-                        : user.userStatus === UserStatus.SUSPENDED
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                        : 'bg-red-100 text-red-800'
                     }`}>
                       {user.userStatus === UserStatus.ACTIVE 
                         ? 'Activo' 
-                        : user.userStatus === UserStatus.SUSPENDED
-                          ? 'Suspendido'
-                          : 'Baneado'}
+                        : 'Baneado'}
                     </span>
+                  </td>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {user.phone}
@@ -186,14 +180,12 @@ export default function UsersDashboard() {
                     <div className="flex space-x-3">
                       <button className="hover:text-white">Editar</button>
                       <button 
-                        onClick={() => handleSuspendUser(user.id)}
+                       onClick={() => handleSuspendUser(user.id)}
                         className="hover:text-white"
                       >
                         {user.userStatus === UserStatus.ACTIVE 
-                          ? 'Suspender' 
-                          : user.userStatus === UserStatus.SUSPENDED
-                            ? 'Banear'
-                            : 'Activar'}
+                          ? 'Banear' 
+                          : 'Activar'}
                       </button>
                       <button className="text-gray-400 hover:text-white">
                         <MoreVertical className="h-5 w-5" />
