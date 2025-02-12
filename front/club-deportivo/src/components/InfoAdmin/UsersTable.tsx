@@ -1,4 +1,3 @@
-
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
@@ -12,10 +11,8 @@ export interface UsersTableProps {
 }
 
 export enum UserStatus {
- ACTIVE = 'Conect',
- BANNED = 'Banned',
- SUSPENDED = 'Disconnected',
- DELETED = 'Elimined'
+ ACTIVE = 'ACTIVE',
+ BANNED = 'BANNED'
 }
 
 export default function UsersTable({ searchTerm }: UsersTableProps) {
@@ -30,34 +27,7 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
     const data = await getAllUsers();
     
     console.log('Datos recibidos:', data);
-
-    const usersWithVerifiedStatus = data.map(user => ({
-      ...user,
-      // Mapeo explícito de estados
-      userStatus: user.userStatus === 'Conect' 
-        ? UserStatus.ACTIVE 
-        : user.userStatus === 'Banned'
-          ? UserStatus.BANNED
-          : user.userStatus === 'Disconnected'
-            ? UserStatus.SUSPENDED
-            : user.userStatus === 'Elimined'
-              ? UserStatus.DELETED
-              : UserStatus.ACTIVE,
-      userInfo: {
-        ...user.userInfo,
-        userStatus: (user.userStatus === 'Conect' 
-          ? UserStatus.ACTIVE 
-          : user.userStatus === 'Banned'
-            ? UserStatus.BANNED
-            : user.userStatus === 'Disconnected'
-              ? UserStatus.SUSPENDED
-              : user.userStatus === 'Elimined'
-                ? UserStatus.DELETED
-                : UserStatus.ACTIVE).toString()
-      }
-    })) as IUser[];
-
-    setUsers(usersWithVerifiedStatus);
+    setUsers(data);
   } catch (err) {
     console.error('Error al cargar usuarios:', err);
     setError('Error al cargar usuarios');
@@ -96,34 +66,16 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
     const response = await isBan(userId);
     console.log('Respuesta completa de isBan:', response);
 
-    // Verificación de existencia del mensaje
-    const message = response?.message || '';
-    
+    // Actualizar el estado localmente sin recargar
     setUsers(prevUsers => 
-      prevUsers.map(prevUser => 
-        prevUser.id === userId 
-          ? {
-              ...prevUser,
-              userStatus: message.includes('desbaneado') 
-                ? UserStatus.ACTIVE 
-                : message.includes('baneado')
-                  ? UserStatus.BANNED
-                  : prevUser.userStatus,
-              userInfo: {
-                ...prevUser.userInfo,
-                userStatus: (message.includes('desbaneado') 
-                  ? UserStatus.ACTIVE 
-                  : message.includes('baneado')
-                    ? UserStatus.BANNED
-                    : prevUser.userStatus).toString()
-              }
-            }
-          : prevUser
+      prevUsers.map(u => 
+        u.id === userId 
+          ? { ...u, userStatus: response.newStatus } 
+          : u
       )
     );
   } catch (error) {
     console.error('Error al cambiar estado del usuario:', error);
-    // Opcional: mostrar un mensaje de error al usuario
   }
 }, [isBan]);
 
@@ -131,12 +83,8 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
   switch (status) {
     case UserStatus.ACTIVE:
       return 'bg-green-100 text-green-800';
-    case UserStatus.SUSPENDED:
-      return 'bg-yellow-100 text-yellow-800';
     case UserStatus.BANNED:
       return 'bg-red-100 text-red-800';
-    case UserStatus.DELETED:
-      return 'bg-gray-100 text-gray-500 line-through';
     default:
       return 'bg-gray-100 text-gray-800';
   }
@@ -145,13 +93,9 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
 const getStatusButtonText = (status: UserStatus) => {
   switch (status) {
     case UserStatus.ACTIVE:
-      return 'Suspender';
-    case UserStatus.SUSPENDED:
       return 'Banear';
     case UserStatus.BANNED:
       return 'Activar';
-    case UserStatus.DELETED:
-      return 'Eliminado';
     default:
       return 'Cambiar Estado';
   }
@@ -160,13 +104,9 @@ const getStatusButtonText = (status: UserStatus) => {
 const getStatusButtonColor = (status: UserStatus) => {
   switch (status) {
     case UserStatus.ACTIVE:
-      return 'text-yellow-400 hover:text-yellow-300';
-    case UserStatus.SUSPENDED:
       return 'text-red-400 hover:text-red-300';
     case UserStatus.BANNED:
       return 'text-green-400 hover:text-green-300';
-    case UserStatus.DELETED:
-      return 'text-gray-400 cursor-not-allowed';
     default:
       return 'text-gray-400 hover:text-white';
   }
@@ -226,11 +166,7 @@ const getStatusButtonColor = (status: UserStatus) => {
                <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeStyle(user.userStatus)}`}>
                  {user.userStatus === UserStatus.ACTIVE 
                    ? 'Activo' 
-                   : user.userStatus === UserStatus.SUSPENDED 
-                     ? 'Suspendido'
-                     : user.userStatus === UserStatus.BANNED
-                       ? 'Baneado'
-                       : 'Eliminado'}
+                   : 'Baneado'}
                </span>
              </td>
              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">

@@ -39,10 +39,9 @@ interface AdminContextType {
   // Funciones de Usuarios
   getAllUsers: () => Promise<IUser[]>;
   deleteUser: (userId: string) => Promise<boolean>;
-  isBan: (userId: string) => Promise<{
-    id: string;
+  isBan: (id: string) => Promise<{
     message: string;
-    newStatus?: UserStatus;
+    newStatus: UserStatus;
   }>;
   isAdmin: (userId: string) => Promise<boolean>;
 
@@ -95,28 +94,22 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   
       const usersList = response.data.users || response.data;
       
-      // Mapear usuarios con tipado explícito
-      const processedUsersList = usersList.map((user: IUser) => ({
-        ...user,
-        // Mapeo de estados del backend a frontend
-        userStatus: user.userStatus === 'Conect' 
+      // Mapear usuarios con los dos estados
+      const processedUsersList = usersList.map((user: IUser & { userStatus: string }) => {
+        // Mapeo simplificado de estados a ACTIVE o BANNED
+        const newStatus = user.userStatus  
           ? UserStatus.ACTIVE 
-          : user.userStatus === 'Banned'
-            ? UserStatus.BANNED
-            : user.userStatus === 'Disconnected'
-              ? UserStatus.SUSPENDED
-              : UserStatus.ACTIVE,
-        userInfo: {
-          ...user.userInfo,
-          userStatus: (user.userStatus === 'Conect' 
-            ? UserStatus.ACTIVE 
-            : user.userStatus === 'Banned'
-              ? UserStatus.BANNED
-              : user.userStatus === 'Disconnected'
-                ? UserStatus.SUSPENDED
-                : UserStatus.ACTIVE).toString()
-        }
-      }));
+          : UserStatus.BANNED;
+  
+        return {
+          ...user,
+          userStatus: newStatus,
+          userInfo: {
+            ...user.userInfo,
+            userStatus: newStatus.toString()
+          }
+        };
+      });
   
       // Guardar en localStorage
       localStorage.setItem('usersList', JSON.stringify(processedUsersList));
@@ -143,7 +136,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   };
   
   // Modificar isBan para actualizar localStorage
-  const isBan = async (userId: string) => {
+  const isBan = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
       
@@ -151,7 +144,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No se encontró token de autenticación');
       }
   
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/${userId}`, {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -159,15 +152,19 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   
       console.log('Respuesta de cambio de estado:', response.data);
   
-      // Asegurar que siempre hay un mensaje
+      // Determinar el nuevo estado basado en el mensaje
+      const newStatus = response.data?.message?.includes('baneado') 
+        ? UserStatus.BANNED 
+        : UserStatus.ACTIVE;
+  
       return {
-        id: response.data?.user?.id || userId,
+        id: response.data?.user?.id || id,
         message: response.data?.message || 'Estado cambiado',
-        newStatus: response.data?.message?.includes('baneado') 
-          ? UserStatus.BANNED 
-          : response.data?.message?.includes('desbaneado') 
-            ? UserStatus.ACTIVE 
-            : UserStatus.SUSPENDED
+        newStatus: newStatus
+      } as {
+        id: string;
+        message: string;
+        newStatus: UserStatus;
       };
     } catch (error) {
       console.error('Error al cambiar estado:', error);
