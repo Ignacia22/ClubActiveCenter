@@ -1,5 +1,4 @@
 import InfoHome from "@/components/HomeInfo/InfoHome";
-import ChatComponent from "../../components/ChatComponent";
 
 export default function Home() {
   return (
