@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { IProducts } from "@/interface/IProducts";
-import { usePrivate } from "@/Hooks/usePrivate";
 
 interface CardProps {
   product: IProducts;
@@ -10,7 +9,6 @@ interface CardProps {
 }
 
 export default function Card({ product, onAddToCart, disabled }: CardProps) {
-  usePrivate();
   return (
     <div className="bg-black text-white">
       <div>
