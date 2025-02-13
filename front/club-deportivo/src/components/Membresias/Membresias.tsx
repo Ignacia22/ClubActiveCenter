@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getSubscription } from "@/service/membresiasServices";
 import { comprarMembresia } from "@/service/compraMembresia"; // Importar el servicio
+import Swal from "sweetalert2";
 
 interface Membership {
   id: string;
@@ -45,6 +46,11 @@ const MembershipPlans = () => {
         window.location.href = stripeUrl;
       } catch (error) {
         console.error("Error al procesar la compra:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error al procesar la compra",
+          text: "Por favor, intenta de nuevo más tarde.",
+        });
       }
     }
   };

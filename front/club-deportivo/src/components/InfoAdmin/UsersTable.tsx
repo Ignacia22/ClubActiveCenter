@@ -1,33 +1,34 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useCallback } from 'react';
-import { MoreVertical } from 'lucide-react';
-import { IUser } from '@/interface/IUser';
-import { useAdmin } from '@/context/AdminContext';
+import React, { useEffect, useState, useCallback } from "react";
+import { MoreVertical } from "lucide-react";
+import { IUser } from "@/interface/IUser";
+import { useAdmin } from "@/context/AdminContext";
+import Swal from "sweetalert2";
 
 export interface UsersTableProps {
   searchTerm: string;
 }
 
 export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  BANNED = 'BANNED'
+  ACTIVE = "ACTIVE",
+  BANNED = "BANNED",
 }
 
 export default function UsersTable({ searchTerm }: UsersTableProps) {
   const { getAllUsers, isBan } = useAdmin();
   const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getAllUsers();
-      console.log('Datos recibidos:', data);
+      console.log("Datos recibidos:", data);
       setUsers(data);
     } catch (err) {
-      console.error('Error al cargar usuarios:', err);
-      setError('Error al cargar usuarios');
+      console.error("Error al cargar usuarios:", err);
+      setError("Error al cargar usuarios");
     } finally {
       setLoading(false);
     }
@@ -37,66 +38,85 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
     fetchUsers();
   }, [fetchUsers]);
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.dni.toString().includes(searchTerm)
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.dni.toString().includes(searchTerm)
   );
 
   const handleStatusChange = useCallback(async (user: IUser) => {
     try {
       const response = await isBan(user.id);
-      console.log('Respuesta de isBan:', response);
-      setUsers(prevUsers => 
-        prevUsers.map(u => 
+      console.log("Respuesta de isBan:", response);
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
           u.id === user.id ? { ...u, userStatus: response.newStatus } : u
         )
       );
     } catch (error) {
-      console.error('Error al cambiar estado del usuario:', error);
+      console.error("Error al cambiar estado del usuario:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al cambiar el estado del usuario",
+        text: "Por favor, intenta de nuevo más tarde.",
+      });
     }
   }, []);
 
   const getStatusBadgeStyle = (status: UserStatus) => {
     switch (status) {
       case UserStatus.ACTIVE:
-        return 'bg-green-100 text-green-800';
+        return "bg-green-100 text-green-800";
       case UserStatus.BANNED:
-        return 'bg-red-100 text-red-800';
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusButtonText = (status: UserStatus) => {
-    return status === UserStatus.ACTIVE ? 'Banear' : 'Activar';
+    return status === UserStatus.ACTIVE ? "Banear" : "Activar";
   };
 
   const getStatusButtonColor = (status: UserStatus) => {
     return status === UserStatus.ACTIVE
-      ? 'text-red-400 hover:text-red-300'
-      : 'text-green-400 hover:text-green-300';
+      ? "text-red-400 hover:text-red-300"
+      : "text-green-400 hover:text-green-300";
   };
 
   if (loading) return <div className="text-white">Cargando usuarios...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
-  if (users.length === 0) return <div className="text-white">No hay usuarios</div>;
+  if (users.length === 0)
+    return <div className="text-white">No hay usuarios</div>;
 
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden shadow-xl">
       <div className="p-6 flex justify-between items-center">
         <h2 className="text-xl font-bold text-white">Lista de Usuarios</h2>
       </div>
-      
+
       <table className="w-full">
         <thead className="bg-gray-900/50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Usuario</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">DNI</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Estado</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Teléfono</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actividades</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Acciones</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              Usuario
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              DNI
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              Estado
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              Teléfono
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              Actividades
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
+              Acciones
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
@@ -108,26 +128,38 @@ export default function UsersTable({ searchTerm }: UsersTableProps) {
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-white">{user.name}</div>
+                    <div className="text-sm font-medium text-white">
+                      {user.name}
+                    </div>
                     <div className="text-sm text-gray-400">{user.email}</div>
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.dni}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                {user.dni}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeStyle(user.userStatus)}`}>
-                  {user.userStatus === UserStatus.ACTIVE ? 'Activo' : 'Baneado'}
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeStyle(
+                    user.userStatus
+                  )}`}
+                >
+                  {user.userStatus === UserStatus.ACTIVE ? "Activo" : "Baneado"}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{user.phone}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                {user.phone}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                 {user.activities?.length || 0} actividades
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                 <div className="flex space-x-3">
-                  <button 
+                  <button
                     onClick={() => handleStatusChange(user)}
-                    className={`hover:text-white ${getStatusButtonColor(user.userStatus)}`}
+                    className={`hover:text-white ${getStatusButtonColor(
+                      user.userStatus
+                    )}`}
                   >
                     {getStatusButtonText(user.userStatus)}
                   </button>
