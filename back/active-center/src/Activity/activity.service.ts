@@ -108,24 +108,39 @@ export class ActivityService {
           });
           if (!activity) throw new NotFoundException('No existe la actividad.');
           if (activity.status === StatusActivity.CANCEL)
-            throw new BadRequestException('Lo lamentamos, esta actividad fue cancelada.');
+            throw new BadRequestException(
+              'Lo lamentamos, esta actividad fue cancelada.',
+            );
           const user = await entityManager.findOneBy(User, { email });
           if (!user) throw new NotFoundException('No existe el usuario.');
-          const messageCancel = await this.cancelRegister(entityManager, user, activity);
+          const messageCancel = await this.cancelRegister(
+            entityManager,
+            user,
+            activity,
+          );
           if (messageCancel) return messageCancel;
-  
+
           // Verificar cupo antes de actualizar
           if (activity.registeredPeople + 1 > activity.maxPeople)
-            throw new BadRequestException('Lo lamentamos, el cupo ya está lleno.');
+            throw new BadRequestException(
+              'Lo lamentamos, el cupo ya está lleno.',
+            );
           activity.users.push(user);
           activity.registeredPeople += 1;
-          activity.status = activity.registeredPeople < activity.maxPeople ? StatusActivity.ACTIVE : StatusActivity.Full;
+          activity.status =
+            activity.registeredPeople < activity.maxPeople
+              ? StatusActivity.ACTIVE
+              : StatusActivity.Full;
           await entityManager.save(Activity, activity);
           return `Te has registrado con éxito a ${activity.title}.`;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      )
+        throw error;
       throw new InternalServerErrorException(
         'Lo lamentamos hubo un error al registraese.',
         error.message || error,
@@ -151,7 +166,10 @@ export class ActivityService {
         ...activity,
         users: updatedUsers,
         registeredPeople: updatedRegisteredPeople,
-        status: updatedRegisteredPeople < activity.maxPeople ? StatusActivity.ACTIVE : StatusActivity.Full,
+        status:
+          updatedRegisteredPeople < activity.maxPeople
+            ? StatusActivity.ACTIVE
+            : StatusActivity.Full,
       };
       await entityManger.save(Activity, updateActivity);
       return `Has cancelo el registro a ${activity.title}.`;
@@ -166,7 +184,10 @@ export class ActivityService {
         id,
       });
       if (!exist) throw new NotFoundException('No existe la actividad.');
-      await this.activityRepository.save({ ...exist, status: StatusActivity.CANCEL });
+      await this.activityRepository.save({
+        ...exist,
+        status: StatusActivity.CANCEL,
+      });
       return 'Se cancelo la actividad.';
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

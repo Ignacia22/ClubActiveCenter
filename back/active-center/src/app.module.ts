@@ -22,7 +22,6 @@ import { SubscriptionModule } from './Subscription/subscription.module';
 import { SendGridController } from './SendGrid/sendGrid.controller';
 import { webSocketModule } from './webSockets/websocket.module';
 
-
 @Module({
   imports: [
     configModule,

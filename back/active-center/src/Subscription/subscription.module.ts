@@ -11,7 +11,10 @@ import { PaymentModule } from 'src/Payment/payment.module';
 @Module({
   controllers: [SubscriptionController],
   providers: [SubscriptionService],
-  imports: [TypeOrmModule.forFeature([Subscription, SubscriptionDetail, User]),forwardRef(() => PaymentModule),],
+  imports: [
+    TypeOrmModule.forFeature([Subscription, SubscriptionDetail, User]),
+    forwardRef(() => PaymentModule),
+  ],
   exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

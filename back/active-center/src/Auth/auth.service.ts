@@ -37,7 +37,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Chat) private chatRepository:Repository<Chat>,
+    @InjectRepository(Chat) private chatRepository: Repository<Chat>,
     private readonly jwtService: JwtService,
     private readonly sendGridService: SendGridService,
   ) {}
@@ -45,11 +45,14 @@ export class AuthService {
   async SignUp(
     user: Omit<RegisterUserDTO, 'passwordConfirmation'>,
   ): Promise<SingInDTOResponse> {
-    try { 
+    try {
       user.password = await this.userService.hashPassword(user.password);
       const exist: User | null = await this.userDeleted(user);
       if (exist) return await this.saveUser({ ...exist, ...user });
-      const registerUser: User = await this.userRepository.save({...user, userStatus: UserStatus.active});
+      const registerUser: User = await this.userRepository.save({
+        ...user,
+        userStatus: UserStatus.active,
+      });
       const {
         updateUser,
         createUser,
@@ -68,9 +71,9 @@ export class AuthService {
         email: registerUser.email,
         isAdmin: registerUser.isAdmin,
         userStatus: registerUser.userStatus,
-        isSubscribed: registerUser.isSubscribed
+        isSubscribed: registerUser.isSubscribed,
       });
-      const chat: Chat = this.chatRepository.create({user});
+      const chat: Chat = this.chatRepository.create({ user });
       await this.chatRepository.save(chat);
       const { email }: { email: string } = user;
       await this.sendGridService.wellcomeMail(email);
@@ -110,7 +113,7 @@ export class AuthService {
       email: registerUser.email,
       isAdmin: registerUser.isAdmin,
       userStatus: registerUser.userStatus,
-      isSubscribed: registerUser.isSubscribed
+      isSubscribed: registerUser.isSubscribed,
     });
     const { email }: { email: string } = user;
     await this.sendGridService.wellcomeMail(email);
@@ -144,7 +147,7 @@ export class AuthService {
         email: validate.email,
         isAdmin: validate.isAdmin,
         userStatus: validate.userStatus,
-        isSubscribed: validate.isSubscribed
+        isSubscribed: validate.isSubscribed,
       });
       this.userRepository.save({ ...validate, userStatus: UserStatus.active });
       const {
@@ -201,14 +204,16 @@ export class AuthService {
         token,
         { secret: SECRET_SECRET_WORD },
       );
-      const user: User | null = await this.userRepository.findOneBy({id: payload.id});
+      const user: User | null = await this.userRepository.findOneBy({
+        id: payload.id,
+      });
       const tokenRefresh: string = this.jwtService.sign({
         sub: user?.id,
         email: user?.email,
         id: user?.id,
         isAdmin: user?.isAdmin,
         userStatus: user?.userStatus,
-        isSubscribed: user?.isSubscribed
+        isSubscribed: user?.isSubscribed,
       });
       return { tokenAccess: tokenRefresh };
     } catch (error) {
@@ -331,7 +336,7 @@ export class AuthService {
         email: user.email,
         isAdmin: user.isAdmin,
         userStatus: user.userStatus,
-        isSubscribed: user.isSubscribed
+        isSubscribed: user.isSubscribed,
       });
       this.userRepository.save({ ...user, userStatus: UserStatus.active });
       const {
