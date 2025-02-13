@@ -211,7 +211,7 @@ export const UserActivities = ({ activities }: { activities: any[] }) => (
 
 const UserOrders = ({ orders }: { orders: Order[] }) => (
   <div>
-    <h2 className="text-2xl font-bold mb-6 text-primary">
+    <h2 className="text-2xl font-bold mb-6 text-primary">   
       Productos Comprados
     </h2>
     {orders.length === 0 ? (
