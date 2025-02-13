@@ -34,50 +34,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
-
   const checkLocalStorage = () => {
     try {
-        const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
-        const storedIsAdmin = localStorage.getItem("isAdmin");
+      const storedUser = localStorage.getItem("user");
+      const storedToken = localStorage.getItem("token");
+      const storedIsAdmin = localStorage.getItem("isAdmin");
 
-        console.log("Datos en localStorage:", {
-            user: storedUser ? JSON.parse(storedUser) : null,
-            token: storedToken,
-            isAdmin: storedIsAdmin,
-        });
+      console.log("Datos en localStorage:", {
+        user: storedUser ? JSON.parse(storedUser) : null,
+        token: storedToken,
+        isAdmin: storedIsAdmin,
+      });
 
-        if (storedUser && storedToken) {
-            try {
-                const parsedUser = JSON.parse(storedUser);
+      if (storedUser && storedToken) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
 
-                if (parsedUser && typeof parsedUser === 'object') {
-                    // Verificamos isAdmin en userInfo si existe
-                    const isAdminValue = parsedUser.userInfo?.isAdmin ?? false;
+          if (parsedUser && typeof parsedUser === "object") {
+            // Verificamos isAdmin en userInfo si existe
+            const isAdminValue = parsedUser.userInfo?.isAdmin ?? false;
 
-                    setUser(parsedUser);
-                    setToken(storedToken);
-                    setIsAuthenticated(true);
-                    setIsAdmin(isAdminValue);
-                    
-                    console.log("Estado actualizado:", {
-                        isAdmin: isAdminValue
-                    });
-                } else {
-                    resetAuthState();
-                }
-            } catch (parseError) {
-                console.error("Error al parsear usuario:", parseError);
-                resetAuthState();
-            }
-        } else {
+            setUser(parsedUser);
+            setToken(storedToken);
+            setIsAuthenticated(true);
+            setIsAdmin(isAdminValue);
+
+            console.log("Estado actualizado:", {
+              isAdmin: isAdminValue,
+            });
+          } else {
             resetAuthState();
+          }
+        } catch (parseError) {
+          console.error("Error al parsear usuario:", parseError);
+          resetAuthState();
         }
-    } catch (error) {
-        console.error("Error al verificar localStorage:", error);
+      } else {
         resetAuthState();
+      }
+    } catch (error) {
+      console.error("Error al verificar localStorage:", error);
+      resetAuthState();
     }
-};
+  };
 
   // Función auxiliar para resetear el estado
   const resetAuthState = () => {
@@ -134,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsAdmin(false);
 
           // Redirigir al login
-          router.push("/login");
+          router.push("/home");
         }
         return Promise.reject(error);
       }
@@ -151,9 +150,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/SignIn`,
-        form, 
+        form,
         {
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
           },
         }
@@ -198,7 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }, 100);
     } catch (error) {
       // Manejo detallado de errores
-      console.error(error)
+      console.error(error);
       if (axios.isAxiosError(error)) {
         // Mensajes de error más específicos
         if (error.response?.status === 401) {
