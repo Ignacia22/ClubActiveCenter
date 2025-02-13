@@ -1,5 +1,5 @@
 import { NextConfig } from "next";
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const nextConfig: NextConfig = {
   images: {
     domains: ["res.cloudinary.com"],
@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/api/:path*",
-        destination: `${apiBaseUrl}/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
       },
     ];
   },
