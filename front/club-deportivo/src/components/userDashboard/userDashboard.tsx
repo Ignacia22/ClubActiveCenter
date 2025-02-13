@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import {
@@ -15,6 +16,8 @@ import { IUser, SubscriptionDetail } from "../../interface/IUser";
 import Swal from "sweetalert2";
 import { Order, StatusOrder } from "@/interface/Orders";
 import { cancelarReserva } from "@/service/cancelarReserva";
+import { deletedUser } from "@/service/deletedUserService";
+import { useRouter } from "next/navigation";
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
@@ -30,7 +33,6 @@ interface UserDashboardProps {
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
   const [user, setUser] = useState<IUser | null>(null);
-  console.log(user)
   const [reservations, setReservations] = useState<
     {
       id: string;
@@ -178,17 +180,54 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
   );
 };
 
-const UserProfile = ({ user }: { user: IUser }) => (
-  <div>
-    <h2 className="text-2xl font-bold mb-6 text-primary">Datos Personales</h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <p className="font-medium text-lg">Nombre: {user.name}</p>
-      <p className="font-medium text-lg">Email: {user.email}</p>
-      <p className="font-medium text-lg">Teléfono: {user.phone}</p>
-      <p className="font-medium text-lg">Dirección: {user.address}</p>
+const UserProfile = ({ user }: { user: IUser }) => {
+  const route = useRouter()
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-primary">Datos Personales</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <p className="font-medium text-lg">Nombre: {user.name}</p>
+        <p className="font-medium text-lg">Email: {user.email}</p>
+        <p className="font-medium text-lg">Teléfono: {user.phone}</p>
+        <p className="font-medium text-lg">Dirección: {user.address}</p>
+      </div>
+      <button
+        onClick={async () => {
+          const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción eliminará permanentemente tu cuenta.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true, // Cambia el orden de los botones
+          });
+        
+          // Si el usuario confirma, eliminar la cuenta
+          if (result.isConfirmed) {
+            try {
+              const res: string | undefined = await deletedUser(user.id);
+              if (!res) {
+                Swal.fire('Lo lamentamos, hubo un error. Vuelva a intentar más tarde.');
+                return;
+              }
+              Swal.fire('Cuenta eliminada', 'Tu cuenta ha sido eliminada correctamente.', 'success');
+              route.push('/Login2');
+            } catch (error) {
+              Swal.fire('Lo lamentamos, hubo un error. Vuelva a intentar más tarde.');
+            }
+          } else {
+            return Swal.fire('Acción cancelada', 'Tu cuenta no fue eliminada.', 'info');
+          }
+        }
+        }
+        className="bg-gray-500 text-white px-4 py-2 rounded-md transition-colors duration-300 hover:bg-red-600 disabled:opacity-50"
+      >
+        Eliminar cuenta
+      </button>
     </div>
-  </div>
-);
+  )
+};
 
 export const UserActivities = ({ activities }: { activities: any[] }) => (
   <div>
