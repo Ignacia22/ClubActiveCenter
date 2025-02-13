@@ -95,14 +95,24 @@ export class CartService {
 
   async getCart(userId: string): Promise<CartDTO> {
     const cart = await this.getOrCreateCart(userId);
+  
+    
+    if (!cart.items || cart.items.length === 0) {
+      throw new NotFoundException('El carrito no tiene productos');
+    }
+  
+   
     return {
       id: cart.id,
       isActive: cart.isActive,
       items: cart.items.map((item) => ({
-        productId: item.product.id,
-        productName: item.product.name,
-        productPrice: item.product.price,
+        productId: item.product?.id, 
+        productName: item.product?.name,
+        productPrice: item.product?.price,
         quantity: item.quantity,
+        productImage: item.product?.img,
+        productDescription: item.product?.description,
+        productStock: item.product?.stock,
       })),
       userId: cart.user.id,
       userName: cart.user.name,

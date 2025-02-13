@@ -6,9 +6,13 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+
 
 export function UserMenu() {
+  
   const router = useRouter();
+  const { logout } = useCart();
   const [localUser, setLocalUser] = useState<boolean | null>(null);
   const { isAdmin } = useAuth();
   const { user, error, isLoading } = useUser();
@@ -42,11 +46,13 @@ export function UserMenu() {
 
   const isAuthenticated = !!user || localUser;
 
+
   const handleLogout = () => {
     if (typeof window !== "undefined" && localStorage.getItem("user")) {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       setLocalUser(false);
+      logout();
       router.push("/");
     } else {
       window.location.href = "/api/auth/logout";

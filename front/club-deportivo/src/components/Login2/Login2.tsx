@@ -3,10 +3,16 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Swal from "sweetalert2";
+import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 
 const Login = () => {
   const { login } = useAuth();
+  const { loadCart } = useCart();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,6 +35,8 @@ const Login = () => {
     }
     try {
       await login(formData);
+      loadCart();
+      
       Swal.fire({
         icon: "success",
         title: "Inicio de sesión exitoso",
