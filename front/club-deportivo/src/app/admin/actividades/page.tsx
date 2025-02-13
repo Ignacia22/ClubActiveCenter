@@ -1,7 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-// pages/admin/activities/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,17 +18,13 @@ export default function ActivitiesDashboard() {
     createActivity, 
     cancelActivity
   } = useAdmin();
-
-  console.log('Activities from context:', activities); // Log 1
   
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasLoaded, setHasLoaded] = useState(false);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   
+  // Asegurarse de que activities siempre sea un array
   const activityList: Activity[] = Array.isArray(activities) ? activities : [];
-  console.log('ActivityList after conversion:', activityList); // Log 2
 
   const [newActivity, setNewActivity] = useState<CreateActivityDto>({
     title: '',
@@ -45,24 +39,28 @@ export default function ActivitiesDashboard() {
     const fetchActivities = async () => {
       try {
         await getAllActivities();
-      } finally {
-        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
       }
     };
 
     fetchActivities();
   }, []);
 
+  // Mostrar loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-white">Cargando actividades...</div>
+      </div>
+    );
+  }
 
-  if (loading) return <div className="text-white">Cargando...</div>;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
-
-  const filteredActivities: Activity[] = activityList.filter((activity: Activity) => 
-    (activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     activity.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Filtrar actividades
+  const filteredActivities = activityList.filter((activity: Activity) => 
+    activity.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    activity.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  console.log('FilteredActivities:', filteredActivities); // Log 5
 
   const handleCreateActivity = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,46 +92,36 @@ export default function ActivitiesDashboard() {
     }
 
     try {
-      console.log('Creando actividad:', newActivity);
-      const result = await createActivity(newActivity);
-      console.log('Resultado de crear actividad:', result);
-      
+      await createActivity(newActivity);
       setIsCreateModalOpen(false);
-      // Resetear el formulario
       setNewActivity({
         title: '',
         description: '',
         date: '',
         hour: '',
         maxPeople: 0,
-        file: undefined, // Cambiar el tipo de string a undefined
+        file: undefined,
       });
-      
     } catch (error) {
       console.error('Error al crear actividad:', error);
       alert('No se pudo crear la actividad. Por favor, inténtalo de nuevo.');
     }
   };
 
-
   const handleDeleteActivity = async (id: string) => {
     try {
+      setIsDeletingId(id);
       await cancelActivity(id);
-      // No es necesario recargar las actividades aquí
     } catch (error) {
       console.error('Error al eliminar actividad:', error);
       alert('Error al eliminar la actividad. Por favor, intenta de nuevo.');
+    } finally {
+      setIsDeletingId(null);
     }
-};
+  };
 
   return (
     <div className="space-y-6">
-      {/* Panel de depuración */}
-      <div className="bg-gray-800 rounded-lg p-4 text-white">
-        <h3>Depuración de Actividades</h3>
-        <pre>{JSON.stringify(activities, null, 2)}</pre>
-      </div>
-
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -159,13 +147,25 @@ export default function ActivitiesDashboard() {
         />
       </div>
 
-      {/* Tabla */}
-      <ActivitiesTable 
-        activities={filteredActivities}
-        onCancel={handleDeleteActivity}
-        onEdit={(id) => console.log('Editar', id)}
-        onCreateClick={() => setIsCreateModalOpen(true)}
-      />
+      {/* Estado vacío o tabla */}
+      {activityList.length === 0 ? (
+        <div className="bg-gray-800 rounded-lg p-8 text-center">
+          <p className="text-gray-400 text-lg mb-4">No hay actividades disponibles</p>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Crear nueva actividad
+          </button>
+        </div>
+      ) : (
+        <ActivitiesTable 
+          activities={filteredActivities}
+          onCancel={handleDeleteActivity}
+          onEdit={(id) => console.log('Editar', id)}
+          onCreateClick={() => setIsCreateModalOpen(true)}
+        />
+      )}
 
       {/* Modal */}
       <CreateActivityModal 

@@ -152,7 +152,7 @@ const UserProfile = ({ user }: { user: IUser }) => (
   </div>
 );
 
-const UserActivities = ({ activities }: { activities: any[] }) => (
+export const UserActivities = ({ activities }: { activities: any[] }) => (
   <div>
       <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
       {activities.length === 0 ? (

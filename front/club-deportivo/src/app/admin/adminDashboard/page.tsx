@@ -5,9 +5,10 @@ import React, { useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
 import { UserStatus } from '@/components/InfoAdmin/UsersTable';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+
 import { useAuth } from '@/context/AuthContext';
 import Swal from 'sweetalert2';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const { 
