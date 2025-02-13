@@ -58,7 +58,7 @@ export default function InfoHome() {
               todos los niveles. Mantente activo, diviértete y forma parte de
               una comunidad apasionada por el movimiento.
             </p>
-            <Link href="/eventos">
+            <Link href="/bienestar">
               <button className="mt-4 bg-white hover:bg-slate-300 text-black font-sans font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
                 Aprender más
               </button>
@@ -89,7 +89,7 @@ export default function InfoHome() {
               competiciones, entrenamientos y actividades recreativas para que
               disfrutes al máximo.
             </p>
-            <Link href="/eventos">
+            <Link href="/ClubActiveCenter">
               <button className="mt-4 bg-white hover:bg-slate-300 text-black font-sans font-bold py-2 md:py-3 px-4 md:px-6 rounded-md transition-colors duration-300">
                 Aprender más
               </button>

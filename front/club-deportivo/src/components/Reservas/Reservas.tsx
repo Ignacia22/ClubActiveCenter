@@ -129,7 +129,7 @@ const Reservas = () => {
             />
             <div className="p-4">
               <h2 className="text-lg font-bold text-black">{space.title}</h2>
-              <p className="text-gray-600 text-sm">{space.description}</p>
+              <p className="text-black text-sm">{space.description}</p>
               <p className="text-black font-semibold mt-2">
                 Precio: ${space.price_hour}
               </p>
@@ -147,7 +147,7 @@ const Reservas = () => {
       {isModalOpen && selectedSpace && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 overflow-y-auto">
           <div className="bg-white p-6 rounded-lg w-1/2 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold">{selectedSpace.title}</h2>
+            <h2 className="text-2xl font-bold text-black">{selectedSpace.title}</h2>
             <Image
               src={
                 selectedSpace.img[0] && isValidUrl(selectedSpace.img[0])
@@ -157,9 +157,9 @@ const Reservas = () => {
               alt={selectedSpace.title}
               width={400}
               height={192}
-              className="w-full h-48 object-cover rounded-md my-4"
+              className="w-full h-48 object-cover rounded-md my-4 text-black"
             />
-            <p>{selectedSpace.description}</p>
+            <p className="text-black">{selectedSpace.description}</p>
             {reservationError && (
               <p className="text-red-500 mt-2">{reservationError}</p>
             )}
@@ -170,7 +170,7 @@ const Reservas = () => {
                 min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 value={selectedDate}
-                className="w-full px-4 py-2 mt-2 border rounded-md"
+                className="w-full px-4 py-2 mt-2 border rounded-md border-gray-500 text-black"
               />
               <label className="block text-gray-700 mt-4">
                 Hora de inicio:
@@ -181,7 +181,7 @@ const Reservas = () => {
                 max="22:00"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-4 py-2 mt-2 border rounded-md"
+                className="w-full px-4 py-2 mt-2 border rounded-md border-gray-500 text-black"
               />
               <label className="block text-gray-700 mt-4">
                 Hora de finalización:
@@ -192,7 +192,7 @@ const Reservas = () => {
                 max="22:00"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-4 py-2 mt-2 border rounded-md"
+                className="w-full px-4 py-2 mt-2 border rounded-md border-gray-500 text-black"
               />
             </div>
             <div className="mt-6 flex justify-between">
