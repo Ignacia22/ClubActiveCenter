@@ -1,33 +1,30 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-const SendUserData =  () => {
-  const { user } = useUser();
+const SendUserData = () => {
+  const { user, isLoading } = useUser();
   const router = useRouter();
+  const [dataSaved, setDataSaved] = useState(false);
+
   useEffect(() => {
     const sendUserData = async () => {
-      if (!user) return;
+      if (!user || isLoading || dataSaved) return;
+
       try {
-        const userData = {
-          email: user.email,
-        };
+        const userData = { email: user.email };
         const { data } = await axios.post(`${API_URL}/auth/login`, userData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         });
 
         if (!data || !data.token) {
-          throw new Error(
-            "Respuesta de inicio de sesión inválida: falta token"
-          );
+          throw new Error("Respuesta de inicio de sesión inválida: falta token");
         }
 
         const userD = data;
@@ -35,7 +32,7 @@ const SendUserData =  () => {
 
         const userToStore = {
           ...userD,
-          isAdmin: isAdmin,
+          isAdmin,
         };
 
         localStorage.setItem("user", JSON.stringify(userToStore));
@@ -49,16 +46,26 @@ const SendUserData =  () => {
           },
           (error) => Promise.reject(error)
         );
-        const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
-        router.push(route);
+
+        setDataSaved(true);
+
+        setTimeout(() => {
+          const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
+          router.push(route);
+        }, 500);
       } catch (error: any) {
-        if (error.response.data.statusCode === 404) router.push("/Formulario");
-        else alert("Hubo un error desconocido " + error);
+        if (error.response?.data?.statusCode === 404) {
+          router.push("/Formulario");
+        } else {
+          alert("Hubo un error desconocido: " + error);
+        }
       }
     };
+
     sendUserData();
-  }, [user]); 
-  return null;  
+  }, [user, isLoading, dataSaved]);
+
+  return null;
 };
 
 export default SendUserData;
