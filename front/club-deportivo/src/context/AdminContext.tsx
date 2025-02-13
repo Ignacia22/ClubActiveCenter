@@ -279,8 +279,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         } else if (error.response?.status === 401) {
           // Manejar token inválido o expirado
           localStorage.removeItem('token');
-          // Redirigir a login o mostrar mensaje de sesión expirada
-          window.location.href = '/login';
         }
       }
   
@@ -352,8 +350,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
   
-
-
   const updateActivityRegistration = async (id: string) => {
     try {
       const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`);
@@ -395,7 +391,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       console.error('Error al cancelar actividad:', error);
       throw error;
     }
-};
+  };
 
   // Funciones de Productos 
 

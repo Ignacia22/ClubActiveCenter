@@ -16,9 +16,13 @@ import { IUser, SubscriptionDetail } from "../../interface/IUser";
 import Swal from "sweetalert2";
 import { Order, StatusOrder } from "@/interface/Orders";
 import { cancelarReserva } from "@/service/cancelarReserva";
+
+import { Activity } from "@/interface/IActivity";
+
 import { deletedUser } from "@/service/deletedUserService";
 import { useRouter } from "next/navigation";
 import { CancelSub } from "@/service/CancelSubscriptionService";
+
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
@@ -230,8 +234,9 @@ const UserProfile = ({ user }: { user: IUser }) => {
   )
 };
 
-export const UserActivities = ({ activities }: { activities: any[] }) => (
-  <div>
+export const UserActivities: React.FC<{ activities: Activity[] }> = ({ activities }) => {
+  return (
+    <div>
       <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
       {activities.length === 0 ? (
         <p className="text-gray-600">No tienes actividades registradas.</p>
@@ -247,7 +252,8 @@ export const UserActivities = ({ activities }: { activities: any[] }) => (
         </ul>
       )}
     </div>
-);
+  );
+};
 
 const UserOrders = ({ orders }: { orders: Order[] }) => (
   <div>
@@ -315,50 +321,80 @@ const UserReservations = ({
     status: string;
   }[];
   onCancel: (id: string) => void;
-}) => (
-  <div>
-    <h2 className="text-2xl font-bold mb-6 text-primary">Mis Reservas</h2>
-    {reservations.length === 0 ? (
-      <p className="text-gray-600">No tienes reservas actuales.</p>
-    ) : (
-      <ul className="space-y-4">
-        {reservations.map((reservation) => (
-          <li
-            key={reservation.id}
-            className="bg-gray-300 p-4 rounded-lg shadow-md flex justify-between"
-          >
-            <div>
-              <p className="font-semibold">{reservation.date}</p>
-              <p>
-                <span className="font-medium">Horario:</span>{" "}
-                {reservation.startTime} - {reservation.endTime}
-              </p>
-              <p className="font-medium">Precio: ${reservation.price}</p>
-              <p
-                className={`font-medium ${
-                  reservation.status === "confirmed"
-                    ? "text-green-600"
-                    : reservation.status === "pending"
-                    ? "text-yellow-500"
-                    : "text-red-600"
-                }`}
-              >
-                Estado: {reservation.status}
-              </p>
-            </div>
-            <button
-              className="bg-red-500 text-white px-4 py-2 rounded-lg"
-              onClick={() => cancelarReserva(reservation.id)}
-              disabled= { reservation.status === "cancelled" || reservation.status === "pending" ? true : false}
+}) => {
+
+  const route = useRouter()
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-primary">Mis Reservas</h2>
+      {reservations.length === 0 ? (
+        <p className="text-gray-600">No tienes reservas actuales.</p>
+      ) : (
+        <ul className="space-y-4">
+          {reservations.map((reservation) => (
+            <li
+              key={reservation.id}
+              className="bg-gray-300 p-4 rounded-lg shadow-md flex justify-between"
             >
-              {reservation.status === "cancelled" ? 'Cancelado' :  'Cancelar'}
-            </button>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-);
+              <div>
+                <p className="font-semibold">{reservation.date}</p>
+                <p>
+                  <span className="font-medium">Horario:</span>{" "}
+                  {reservation.startTime} - {reservation.endTime}
+                </p>
+                <p className="font-medium">Precio: ${reservation.price}</p>
+                <p
+                  className={`font-medium ${
+                    reservation.status === "confirmed"
+                      ? "text-green-600"
+                      : reservation.status === "pending"
+                      ? "text-yellow-500"
+                      : "text-red-600"
+                  }`}
+                >
+                  Estado: {reservation.status}
+                </p>
+              </div>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                onClick={async () => {
+                  const result = await Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción cancelara tu reserva. No hay reembolso.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Cancelar reserva',
+                    cancelButtonText: 'No cancelar',
+                    reverseButtons: true, 
+                  });
+                  if (result.isConfirmed) {
+                    try {
+                      const res: string | undefined = await cancelarReserva(reservation.id);
+                      if (!res) {
+                        Swal.fire('Lo lamentamos, hubo un error. Vuelva a intentar más tarde.');
+                        return;
+                      }
+                      Swal.fire('Reserva cancelada', 'Tu reserva ha sido cancelada correctamente.', 'success');
+                      route.push('/home');
+                    } catch (error) {
+                      Swal.fire('Lo lamentamos, hubo un error. Vuelva a intentar más tarde.');
+                    };
+                  } else {
+                    return Swal.fire('Acción cancelada', 'Tu reserva no fué cancelada.', 'info');
+                  };
+                }}
+                disabled= { reservation.status === "cancelled" || reservation.status === "pending" ? true : false}
+              >
+                {reservation.status === "cancelled" ? 'Cancelado' :  'Cancelar'}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+};
 
 const UserSubscriptions = ({
   subscriptions,

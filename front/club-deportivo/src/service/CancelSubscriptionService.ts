@@ -10,6 +10,11 @@ export const CancelSub = async (id: string): Promise<string | undefined> => {
         const { data } = await axios.delete(`https://active-center-db-3rfj.onrender.com/subscription/unsubscribe/${id}`, {
             headers
         });
+        const {data: tokens} = await axios.put("https://active-center-db-3rfj.onrender.com/auth/tokenRefresh", {
+            headers
+        }); 
+        localStorage.removeItem("token")
+        localStorage.setItem("token", tokens.tokenAccess);
         return data;
     } catch (error) {
         console.log(error);
