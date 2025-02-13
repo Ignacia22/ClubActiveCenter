@@ -244,52 +244,46 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         }
       });
   
-      // Log para ver la estructura exacta de la respuesta
-      console.log('Estructura de response.data:', {
-        type: typeof response.data,
-        value: response.data
-      });
-  
-      // Asegurarnos de que estamos manejando correctamente el array de actividades
+      // Aseguramos que response.data contiene actividades válidas
       let activitiesArray = [];
+  
       if (Array.isArray(response.data)) {
         activitiesArray = response.data;
-      } else if (response.data.activities) {
+      } else if (Array.isArray(response.data.activities)) {
         activitiesArray = response.data.activities;
-      } else if (response.data.data) {
+      } else if (Array.isArray(response.data.data)) {
         activitiesArray = response.data.data;
       } else {
         console.error('Estructura de datos inesperada:', response.data);
       }
   
-      console.log('Array de actividades procesado:', activitiesArray);
+      console.log('Actividades obtenidas:', activitiesArray);
   
-      // Actualizar el estado 
+      // Actualizamos el estado
       setActivities(activitiesArray);
   
       return activitiesArray;
     } catch (error) {
-      console.error('Error al obtener actividades:', error);
-      
-      // Manejar específicamente errores de Axios
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           console.warn('No se encontraron actividades (404)');
           setActivities([]);
         } else if (error.response?.status === 401) {
-          // Manejar token inválido o expirado
-          localStorage.removeItem('token');
-          // Redirigir a login o mostrar mensaje de sesión expirada
-          window.location.href = '/login';
+          console.warn('No autorizado (401): Token inválido o expirado.');
+          setError('No tienes permisos para acceder a estas actividades.');
+          return;
+        } else {
+          console.error('Error en la solicitud:', error.response?.status, error.response?.data);
         }
+      } else {
+        console.error('Error desconocido:', error);
       }
   
       const errorMessage = error instanceof Error 
         ? error.message 
         : 'Error desconocido al obtener actividades';
-      
+  
       setError(errorMessage);
-      throw new Error(errorMessage);
     }
   };
 
