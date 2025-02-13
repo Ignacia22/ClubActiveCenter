@@ -7,6 +7,7 @@ import { useAdmin } from "@/context/AdminContext"
 import Image from "next/image"
 import type { Activity } from "@/interface/IActivity"
 import { ActivityDetailsPopup } from "@/components/admin/ActivityDetailsPopup"
+import Swal from "sweetalert2";
 
 
 export default function ActivitiesPage() {
