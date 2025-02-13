@@ -17,7 +17,7 @@ function RefreshTokenButton() {
     try {
       const token = localStorage.getItem("token"); // Obtener token actual
       console.log('este es el antiguo token', token);
-      const {data} = await axios.put("/auth/tokenRefresh", {
+      const {data} = await axios.put("active-center-db-3rfj.onrender.com/auth/tokenRefresh", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
