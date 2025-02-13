@@ -2,9 +2,11 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { usePrivate } from "@/Hooks/usePrivate";
 import Link from "next/link";
 
 export default function CartPage() {
+  usePrivate();
   const {
     getCartTotal,
     processPayment,
