@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 function RefreshTokenButton() {
   const [loading, setLoading] = useState(false);
@@ -15,25 +16,18 @@ function RefreshTokenButton() {
 
     try {
       const token = localStorage.getItem("token"); // Obtener token actual
-      console.log(token);
-      const response = await fetch("/auth/tokenRefresh", {
-        method: "PUT",
+      const {data} = await axios.put("https://active-center-db-3rfj.onrender.com/auth/tokenRefresh", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) {
-        throw new Error("Error al refrescar el token");
-      }
-      const data = await response.json();
-
-      console.log(data);
-
       localStorage.removeItem("token")
       localStorage.setItem("token", data.tokenAccess);
       router.push("/home");
     } catch (error) {
+      console.log(error);
+      
       setError((error as Error).message);
     } finally {
       setLoading(false);
