@@ -48,7 +48,6 @@ export class CartService {
     const cart = await this.getOrCreateCart(userId);
 
     for (const { productId, quantity } of products) {
-
       if (quantity < 0) {
         throw new BadRequestException(`La cantidad no puede ser negativa`);
       }
@@ -82,7 +81,11 @@ export class CartService {
           );
         }
         if (quantity > 0) {
-          cartItem = this.cartItemRepository.create({ cart, product, quantity });
+          cartItem = this.cartItemRepository.create({
+            cart,
+            product,
+            quantity,
+          });
           await this.cartItemRepository.save(cartItem);
         }
       }
@@ -113,15 +116,15 @@ export class CartService {
   ): Promise<CartDTO> {
     if (quantity < 0) {
       throw new BadRequestException('La cantidad no puede ser negativa');
-    }  
+    }
     const cart = await this.getOrCreateCart(userId);
     const cartItem = await this.cartItemRepository.findOne({
       where: { cart: { id: cart.id }, product: { id: productId } },
       relations: ['product'],
-    });  
+    });
     if (!cartItem) {
       throw new NotFoundException('Producto no encontrado en el carrito');
-    }  
+    }
     if (quantity === 0) {
       await this.cartItemRepository.remove(cartItem);
     } else {
@@ -132,7 +135,7 @@ export class CartService {
       }
       cartItem.quantity = quantity;
       await this.cartItemRepository.save(cartItem);
-    }  
+    }
 
     return this.getCart(userId);
   }

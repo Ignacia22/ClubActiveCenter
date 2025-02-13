@@ -21,7 +21,6 @@ import { Payment } from './Payment.entity';
 import { SubscriptionDetail } from './SubscriptionDetails.entity';
 import { Chat } from './Chat.entity';
 
-
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')

@@ -20,7 +20,6 @@ import { SubscriptionService } from 'src/Subscription/subscriptions.service';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { Subscription } from 'src/Entities/Subscription.entity';
 
-
 @Injectable()
 export class PaymentService {
   private stripe: Stripe;
@@ -35,12 +34,11 @@ export class PaymentService {
     @InjectRepository(Reservation)
     private reservationRepository: Repository<Reservation>,
     @InjectRepository(Subscription)
-private subscriptionRepository: Repository<Subscription>,
-@InjectRepository(SubscriptionDetail)
-private subscriptionDetailRepository: Repository<SubscriptionDetail>,
+    private subscriptionRepository: Repository<Subscription>,
+    @InjectRepository(SubscriptionDetail)
+    private subscriptionDetailRepository: Repository<SubscriptionDetail>,
 
-    private subscriptionService : SubscriptionService
-
+    private subscriptionService: SubscriptionService,
   ) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
@@ -145,83 +143,89 @@ private subscriptionDetailRepository: Repository<SubscriptionDetail>,
 
     return session;
   }
-  async createCheckoutSessionSub(userId: string, subId: string): Promise<{ sessionId: string; url: string | null; }> {
+  async createCheckoutSessionSub(
+    userId: string,
+    subId: string,
+  ): Promise<{ sessionId: string; url: string | null }> {
     try {
-        const subscription = await this.subscriptionRepository.findOne({
-            where: { id: subId },
-        });
+      const subscription = await this.subscriptionRepository.findOne({
+        where: { id: subId },
+      });
 
-        if (!subscription) {
-          throw new NotFoundException('Suscripción no encontrada');
+      if (!subscription) {
+        throw new NotFoundException('Suscripción no encontrada');
       }
 
-        const session = await this.stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
-          mode: 'payment',
-          line_items: [
-              {
-                  price_data: {
-                      currency: 'usd',
-                      product_data: {
-                          name: subscription.name,
-                          description: subscription.description,
-                      },
-                      unit_amount: Math.round(subscription.price * 100),
-                  },
-                  quantity: 1, 
+      const session = await this.stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        mode: 'payment',
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: subscription.name,
+                description: subscription.description,
               },
-          ],
-          success_url: 'https://club-active-center.vercel.app/subsPayment/success?session_id={CHECKOUT_SESSION_ID}',
-          cancel_url: 'https://club-active-center.vercel.app/subsPayment/cancel',
-          metadata: {
-              userId,
-              subId,
+              unit_amount: Math.round(subscription.price * 100),
+            },
+            quantity: 1,
           },
+        ],
+        success_url:
+          'https://club-active-center.vercel.app/subsPayment/success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: 'https://club-active-center.vercel.app/subsPayment/cancel',
+        metadata: {
+          userId,
+          subId,
+        },
       });
-        return { sessionId: session.id, url: session.url };
+      return { sessionId: session.id, url: session.url };
     } catch (error) {
-        throw new InternalServerErrorException('Hubo un error al crear la sesión de pago.', error?.message || error);
+      throw new InternalServerErrorException(
+        'Hubo un error al crear la sesión de pago.',
+        error?.message || error,
+      );
     }
-}
-
-
-
-async handleWebhook(rawBody: string, sig: string) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!webhookSecret) {
-      throw new InternalServerErrorException('Webhook secret no está definido');
   }
 
-  let event: Stripe.Event;
+  async handleWebhook(rawBody: string, sig: string) {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      throw new InternalServerErrorException('Webhook secret no está definido');
+    }
 
-  try {
+    let event: Stripe.Event;
+
+    try {
       event = this.stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-  } catch (err) {
+    } catch (err) {
       console.error(' Error validando el webhook:', err.message);
       throw new BadRequestException('Webhook no válido');
-  }
-  try {
+    }
+    try {
       if (event.type === 'checkout.session.completed') {
-          const session = event.data.object as Stripe.Checkout.Session;
-          const metadata = session.metadata || {};
-          const { orderId, userId, reservationId, subId } = metadata;
-          if (orderId && userId) {
-              await this.processOrderPayment(session, orderId, userId);
-          } else if (reservationId) {
-              await this.processReservationPayment(session, reservationId);
-          } else if (subId && userId) {
-              await this.subscriptionService.activateSubscription(userId, subId);
-          } else {
-              throw new BadRequestException('Datos insuficientes en la metadata del webhook');
-          }
+        const session = event.data.object as Stripe.Checkout.Session;
+        const metadata = session.metadata || {};
+        const { orderId, userId, reservationId, subId } = metadata;
+        if (orderId && userId) {
+          await this.processOrderPayment(session, orderId, userId);
+        } else if (reservationId) {
+          await this.processReservationPayment(session, reservationId);
+        } else if (subId && userId) {
+          await this.subscriptionService.activateSubscription(userId, subId);
+        } else {
+          throw new BadRequestException(
+            'Datos insuficientes en la metadata del webhook',
+          );
+        }
       } else {
-          console.log(`ℹ️ Evento de webhook no manejado: ${event.type}`);
+        console.log(`ℹ️ Evento de webhook no manejado: ${event.type}`);
       }
-  } catch (err) {
+    } catch (err) {
       throw new InternalServerErrorException('Error procesando el evento');
+    }
   }
-}
-
 
   private async processOrderPayment(
     session: Stripe.Checkout.Session,
@@ -298,21 +302,28 @@ async handleWebhook(rawBody: string, sig: string) {
     await this.reservationRepository.save(reservation);
   }
   private async activateSubscription(userId: string, subId: string) {
-    const subscription = await this.subscriptionRepository.findOne({ where: { id: subId } });
+    const subscription = await this.subscriptionRepository.findOne({
+      where: { id: subId },
+    });
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
-    if (!user || !subscription) throw new NotFoundException('Usuario o suscripción no encontrados');
+    if (!user || !subscription)
+      throw new NotFoundException('Usuario o suscripción no encontrados');
 
     const newSubscription = this.subscriptionDetailRepository.create({
       user,
       subscription,
       dayInit: new Date(),
-      dayEnd: new Date(new Date().setDate(new Date().getDate() + (subscription.duration ?? 31))),
+      dayEnd: new Date(
+        new Date().setDate(
+          new Date().getDate() + (subscription.duration ?? 31),
+        ),
+      ),
       price: subscription.price,
-      status: true, 
+      status: true,
     });
 
     await this.subscriptionDetailRepository.save(newSubscription);
     await this.userRepository.update(user.id, { isSubscribed: true });
-}
+  }
 }

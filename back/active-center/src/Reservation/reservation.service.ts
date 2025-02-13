@@ -186,7 +186,7 @@ export class ReservationService {
     return { message: 'Su reserva fue actualizada con éxito' };
   }
 
-  async cancelReservation(reservationId: string) {
+  async cancelReservation(reservationId: string): Promise<string> {
     const reservation = await this.reservationRepository.findOne({
       where: { id: reservationId },
     });
@@ -201,10 +201,9 @@ export class ReservationService {
         'Solo se pueden cancelar reservas confirmadas',
       );
     }
-
     reservation.status = ReservationStatus.CANCELLED;
     await this.reservationRepository.save(reservation);
 
-    return { message: 'La reserva fue cancelada con éxito' };
+    return 'La reserva fue cancelada con éxito';
   }
 }

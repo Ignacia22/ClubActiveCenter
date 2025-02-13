@@ -49,12 +49,11 @@ class UserInfoDTO {
     example: 'active',
   })
   userStatus: string;
-  
+
   @ApiProperty({
-    description:
-    'Muestra si el usuario esta suscrito.',
+    description: 'Muestra si el usuario esta suscrito.',
     example: true,
-    default: true
+    default: true,
   })
   isSubscribed: boolean;
 }
@@ -127,12 +126,12 @@ export class TokenRefreshPayloadDTO {
   roles: string[];
 
   @ApiProperty({
-    description: 'Si el usuario cuenta con alguna suscripción.'
+    description: 'Si el usuario cuenta con alguna suscripción.',
   })
   isSubscribed: boolean;
 
   @ApiProperty({
-    description: 'Suscripciones para validar.'
+    description: 'Suscripciones para validar.',
   })
   subscribe: string[];
 }
