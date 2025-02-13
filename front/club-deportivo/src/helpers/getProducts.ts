@@ -1,34 +1,30 @@
 import { IProducts } from "@/interface/IProducts";
 import axios from "axios";
 
-// Asegúrate de que siempre use la URL de producción si está disponible
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-export const getProducts = async (): Promise<IProducts[]> => {
+export const getProducts = async (page: number = 1): Promise<{ products: IProducts[], totalPages: number }> => {
   try {
-    // Log para verificar qué URL se está usando
-    console.log('API URL being used:', API_URL);
+    console.log('API URL:', API_URL);
+    console.log('Solicitando página:', page);
 
     const response = await axios.get(`${API_URL}/product`, {
-      params: {
-        limit: 10
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+      params: { 
+        page: page,
+        limit: 14,
+        pagination: true // 👀 Si la API lo necesita
       }
     });
 
-    return response.data;
+    console.log("Respuesta de la API:", response.data); // 📌 Verifica qué devuelve
+
+    const products = response.data.products ?? []; 
+    const totalItems = response.data.totalItems ?? 60; // ⚠️ Asegúrate de que la API devuelve esto
+    const totalPages = Math.ceil(totalItems / 10); 
+
+    return { products, totalPages };
   } catch (error) {
-    console.error("Error al obtener productos:", {
-      url: API_URL,
-      error: error,
-      envVars: {
-        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-        nodeEnv: process.env.NODE_ENV
-      }
-    });
-    return [];
+    console.error("Error al obtener productos:", error);
+    return { products: [], totalPages: 0 };
   }
 };

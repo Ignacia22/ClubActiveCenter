@@ -1,68 +1,60 @@
-// src/components/Map.tsx
-'use client';
+"use client"
 
-import React from 'react';
-import { useLoadScript, GoogleMap, Marker } from '@react-google-maps/api';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// components/Map.tsx
+import { useEffect } from 'react'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+// Importar los marcadores de Leaflet
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
+// Corregir el problema de los íconos en Next.js
+delete (L.Icon.Default.prototype as any)._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon.src, 
+  iconRetinaUrl: markerIcon2x.src,
+  shadowUrl: markerShadow.src,
+})
+
+interface MarkerData {
+  lat: number;
+  lng: number;
+  title: string;
+}
 
 interface MapProps {
   center: {
     lat: number;
     lng: number;
   };
-  zoom?: number;
-  markers?: Array<{
-    lat: number;
-    lng: number;
-    title?: string;
-  }>;
+  zoom: number;
+  markers: MarkerData[];
 }
 
-const Map: React.FC<MapProps> = ({ 
-  center, 
-  zoom = 12,
-  markers = []
-}) => {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-  });
+const Map = ({ center, zoom, markers }: MapProps) => {
+  useEffect(() => {
+    const map = L.map('map').setView([center.lat, center.lng], zoom)
 
-  if (loadError) {
-    return (
-      <div className="flex items-center justify-center h-[400px] bg-gray-100">
-        Error al cargar el mapa
-      </div>
-    );
-  }
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map)
 
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center h-[400px] bg-gray-100">
-        Cargando...
-      </div>
-    );
-  }
+    // Añadir todos los marcadores
+    markers.forEach(marker => {
+      L.marker([marker.lat, marker.lng])
+        .bindPopup(marker.title)
+        .addTo(map)
+    })
 
-  return (
-    <GoogleMap
-      mapContainerClassName="w-full h-[400px]"
-      center={center}
-      zoom={zoom}
-      options={{
-        disableDefaultUI: false,
-        zoomControl: true,
-        scrollwheel: true,
-        fullscreenControl: true,
-      }}
-    >
-      {markers.map((marker, index) => (
-        <Marker
-          key={index}
-          position={{ lat: marker.lat, lng: marker.lng }}
-          title={marker.title}
-        />
-      ))}
-    </GoogleMap>
-  );
-};
+    return () => {
+      map.remove()
+    }
+  }, [center, zoom, markers])
 
-export default Map;
+  return <div id="map" style={{ height: '500px', width: '100%' }} />
+}
+
+export default Map

@@ -22,11 +22,14 @@ export class SeeederDB {
     await queryRunner.connect();
     try {
       await queryRunner.startTransaction();
-      const existing: Subscription | null = await queryRunner.manager.findOneBy(Subscription ,{name: subscriptionGold.name});
-      if(!existing) await queryRunner.manager.save(Subscription, subscriptionGold);
+      const existing: Subscription | null = await queryRunner.manager.findOneBy(
+        Subscription,
+        { name: subscriptionGold.name },
+      );
+      if (!existing)
+        await queryRunner.manager.save(Subscription, subscriptionGold);
 
       console.log('Suscripción cargada con exito.');
-      
 
       const categories: string[] = Array.from(
         new Set(Products.map((product) => product.category)),

@@ -53,9 +53,13 @@ export class AuthGuard implements CanActivate {
           'Esta cuenta no existe. No tienes acceso al sistema crea un usuario por favor.',
         );
 
-      payload.isAdmin ? payload.roles = [Role.admin] : payload.roles = [Role.user];
-      payload.isSubscribed ? payload.subscribe = [Subscriptions.GOLD] : payload.subscribe = [Subscriptions.NULL];
-      
+      payload.isAdmin
+        ? (payload.roles = [Role.admin])
+        : (payload.roles = [Role.user]);
+      payload.isSubscribed
+        ? (payload.subscribe = [Subscriptions.GOLD])
+        : (payload.subscribe = [Subscriptions.NULL]);
+
       req.access = {
         ...payload,
         exp: new Date(payload.exp * 1000),

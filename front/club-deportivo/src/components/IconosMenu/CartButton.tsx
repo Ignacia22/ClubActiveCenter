@@ -10,13 +10,15 @@ import Image from "next/image";
 export function CartButton() {
   const [open, setOpen] = useState(false);
   const { items, itemCount, getCartTotal, removeItemFromCart, processPayment, isProcessingPayment, updateItemQuantity } = useCart();
+  
+  console.log(items); 
 
   const handleRemoveFromCart = (id: string) => {
     removeItemFromCart(id);
   };
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity < 0) return;
+    if (newQuantity <= 0) return; 
     updateItemQuantity(id, newQuantity);
   };
 
@@ -97,6 +99,7 @@ export function CartButton() {
                             value={item.quantity}
                             onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
                             className="w-12 text-center border rounded-md"
+                            min="1"
                           />
                           <button
                             onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
@@ -142,3 +145,5 @@ export function CartButton() {
     </Dialog.Root>
   );
 }
+
+

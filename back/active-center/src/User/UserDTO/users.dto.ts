@@ -21,7 +21,10 @@ import {
 import { Activity } from 'src/Entities/Activity.entity';
 import { Order } from 'src/Entities/Order.entity';
 import { Payment } from 'src/Entities/Payment.entity';
-import { Reservation, ReservationStatus } from 'src/Entities/Reservation.entity';
+import {
+  Reservation,
+  ReservationStatus,
+} from 'src/Entities/Reservation.entity';
 import { Space } from 'src/Entities/Space.entity';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { Confirmation } from 'src/utils/passwordConfimation.pipe';
@@ -473,7 +476,10 @@ export class UserDTOResponseId {
   @ApiProperty({ description: 'Ordenes del usuario.' })
   orders: Omit<Order[], 'user'>;
 
-  @ApiProperty({ description: 'Reservaciones del usuario.', type: [ReservationDTO]})
+  @ApiProperty({
+    description: 'Reservaciones del usuario.',
+    type: [ReservationDTO],
+  })
   reservations: ReservationDTO[];
 
   @ApiProperty({
@@ -486,7 +492,7 @@ export class UserDTOResponseId {
     description: 'Suscripciones a las que se inscribio el usuario.',
     type: [SubscriptionDetail],
   })
-  subscriptionsDetails: SubscriptionDetail[]
+  subscriptionsDetails: SubscriptionDetail[];
 }
 
 export class UserDTOResponse {

@@ -16,7 +16,7 @@ import { ConfirmationHour } from 'src/utils/dateAndHourValidate.pipe';
 export enum StatusActivity {
   CANCEL = 'cancel',
   ACTIVE = 'active',
-  Full = 'full'
+  Full = 'full',
 }
 
 export class ActivitiesPageDTO {

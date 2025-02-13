@@ -73,14 +73,13 @@ export class ReservationController {
     );
   }
 
-  @Delete()
+  @Delete(':id')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'cancela una reserva',
     description: 'Este endpoint permite cancelar una reserva.',
   })
-  cancelReservation(@Request() req: any) {
-    const userId = req.access.id;
-    return this.reservationService.cancelReservation(userId);
+  cancelReservation(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
+    return this.reservationService.cancelReservation(id);
   }
 }

@@ -107,16 +107,29 @@ export class UserService {
     try {
       const User: User | null = await this.userRepository.findOne({
         where: { id },
-        relations: ['orders', 'reservations', 'activities', 'subscriptionsDetails'],
+        relations: [
+          'orders',
+          'reservations',
+          'activities',
+          'subscriptionsDetails',
+        ],
       });
       if (!User) throw new NotFoundException('El usuario buscado no existe.');
-      const { password, updateUser, isAdmin, createUser, reservations, ...partialUser } =
-        User;
-      const filterReservations: ReservationDTO[] = reservations.map((reservation) => {
-        const { user, ...extra } = reservation;
-        return extra;
-      })
-      return {...partialUser, reservations: filterReservations};
+      const {
+        password,
+        updateUser,
+        isAdmin,
+        createUser,
+        reservations,
+        ...partialUser
+      } = User;
+      const filterReservations: ReservationDTO[] = reservations.map(
+        (reservation) => {
+          const { user, ...extra } = reservation;
+          return extra;
+        },
+      );
+      return { ...partialUser, reservations: filterReservations };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

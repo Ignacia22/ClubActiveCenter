@@ -24,7 +24,7 @@ export default function Tienda() {
         setLoading(false); // Desactiva el estado de carga después de la petición
       }
     };
-
+  
     fetchProducts();
   }, [page]);
 
@@ -33,6 +33,7 @@ export default function Tienda() {
     return (
       <div className="text-white text-2xl text-center py-20">Cargando...</div>
     );
+
 
   // Función para generar los números de página (sin cambios)
   const generatePageNumbers = () => {
@@ -72,9 +73,11 @@ export default function Tienda() {
   };
 
   // Función para cambiar página que actualiza tanto el estado local como el contexto
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = async (newPage: number) => {
     setPage(newPage);
+    await getAllProducts(newPage); // 👀 Hacer nueva petición con la página seleccionada
   };
+  
 
   return (
     <div>

@@ -13,10 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {
-  RegisterUserDTO,
-  SignInUserDTO,
-} from 'src/User/UserDTO/users.dto';
+import { RegisterUserDTO, SignInUserDTO } from 'src/User/UserDTO/users.dto';
 import {
   BanDTOResponse,
   LoginDTO,

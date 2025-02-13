@@ -31,11 +31,9 @@ interface CartContextProps {
   setIsOpen: (isOpen: boolean) => void;
   processPayment: () => Promise<void>;
   isProcessingPayment: boolean;
+  logout: () => void;
+  loadCart: () => void; 
 }
-type CartType = {
-  items: { id: string; name: string; price: number }[]; // Ejemplo de un producto
-  total: number;
-};
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
 
@@ -43,35 +41,52 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [cart, setCart] = useState<CartType>(/* Initial state */);
 
-  console.log("CartContext value:", { cart, setCart });
+  const loadCart = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userJson = localStorage.getItem("user");
+      if (!token || !userJson) return;
+  
+      const user: IUser = JSON.parse(userJson);
+      const userId = user.userInfo?.id;
+      if (!userId) return;
+  
+      const response = await axios.get(`${API_URL}/cart/${userId}`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+  
+      interface APIItem {
+        productId: string;
+        productName: string;
+        productPrice: number | string;
+        productDescription: string;
+        productStock: number;
+        productImage: string;
+        quantity: number;
+      }
+      
+      const cartItems: CartItem[] = response.data.items.map((item: APIItem) => ({
+        id: item.productId,
+        name: item.productName,
+        price: typeof item.productPrice === "string" ? parseFloat(item.productPrice) : item.productPrice,
+        description: item.productDescription,
+        stock: item.productStock,
+        image: item.productImage,
+        quantity: item.quantity,
+      }));
+    
+  
+      setItems(cartItems);
+    } catch (error) {
+      console.error("Error loading cart:", error);
+    }
+  }, []);
+  
 
   useEffect(() => {
-    const loadCart = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const userJson = localStorage.getItem("user");
-        if (!token || !userJson) return;
-
-        const user: IUser = JSON.parse(userJson);
-        const userId = user.userInfo?.id;
-        if (!userId) return;
-
-        const response = await axios.get(`${API_URL}/cart/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        setItems(response.data.items || []);
-      } catch (error) {
-        console.error("Error loading cart:", error);
-      }
-    };
     loadCart().catch(console.error);
-  }, []);
+  }, [loadCart]);
 
   const addItemToCart = useCallback(async (item: IProducts) => {
     try {
@@ -157,10 +172,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const token = localStorage.getItem("token");
       const userJson = localStorage.getItem("user");
       if (!token || !userJson) throw new Error("No authentication token found");
-
+  
       const user: IUser = JSON.parse(userJson);
       const userId = user.userInfo?.id;
-
+  
+     
       await axios.delete(`${API_URL}/cart/remove`, {
         data: { userId, productId: id },
         headers: {
@@ -168,7 +184,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           "Content-Type": "application/json",
         },
       });
-
+  
       setItems((currentItems) => currentItems.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error removing item from cart:", error);
@@ -177,19 +193,16 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const processPayment = async () => {
     if (!items.length) {
-      alert("El carrito está vacío"); // O alguna otra forma de mostrar el error
+      alert("El carrito está vacío");
       return;
     }
 
-    setIsProcessingPayment(true); // Activamos el estado de procesamiento de pago
+    setIsProcessingPayment(true);
 
     try {
       const token = localStorage.getItem("token");
       const userJson = localStorage.getItem("user");
-      if (!token || !userJson)
-        throw new Error(
-          "No se encontró token de autenticación o datos de usuario"
-        );
+      if (!token || !userJson) throw new Error("No se encontró token de autenticación o datos de usuario");
 
       const user: IUser = JSON.parse(userJson);
       const userId = user.userInfo?.id;
@@ -206,9 +219,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
-      // Verificamos si la URL de pago es válida
       if (response.data?.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl; // Redirigimos al usuario al checkout
+        window.location.href = response.data.checkoutUrl; 
       } else {
         throw new Error("No se recibió la URL de checkout");
       }
@@ -216,31 +228,32 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error processing payment:", error);
       alert("Hubo un error al procesar el pago, por favor intente nuevamente.");
     } finally {
-      setIsProcessingPayment(false); // Desactivamos el estado de procesamiento de pago
+      setIsProcessingPayment(false); 
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setItems([]);
+  };
+
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        addItemToCart,
-        updateItemQuantity,
-        removeItemFromCart,
-        processPayment,
-        isProcessingPayment,
-        countItems: (id) => items.find((i) => i.id === id)?.quantity || 0,
-        getCartTotal: () =>
-          items.reduce(
-            (total, item) =>
-              total + Number(item.productPrice || item.price) * item.quantity,
-            0
-          ),
-        itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
-        isOpen,
-        setIsOpen,
-      }}
-    >
+    <CartContext.Provider value={{
+      items,
+      addItemToCart,
+      updateItemQuantity,
+      removeItemFromCart,
+      processPayment,
+      isProcessingPayment,
+      countItems: (id) => items.find((i) => i.id === id)?.quantity || 0,
+      getCartTotal: () => items.reduce((total, item) => total + (Number(item.productPrice || item.price) * item.quantity), 0),
+      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+      isOpen,
+      setIsOpen,
+      logout,
+      loadCart,
+    }}>
       {children}
     </CartContext.Provider>
   );
