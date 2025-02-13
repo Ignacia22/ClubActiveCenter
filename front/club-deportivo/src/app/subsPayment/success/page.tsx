@@ -15,7 +15,7 @@ function RefreshTokenButton() {
 
     try {
       const token = localStorage.getItem("token"); // Obtener token actual
-      console.log(token);
+      console.log('este es el antiguo token', token);
       const response = await fetch("/auth/tokenRefresh", {
         method: "PUT",
         headers: {
@@ -34,6 +34,8 @@ function RefreshTokenButton() {
       localStorage.setItem("token", data.tokenAccess);
       router.push("/home");
     } catch (error) {
+      console.log(error);
+      
       setError((error as Error).message);
     } finally {
       setLoading(false);
