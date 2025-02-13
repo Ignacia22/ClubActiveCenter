@@ -6,7 +6,18 @@ export const createReservaService = async (reserva: Reservation) => {
   const userData = localStorage.getItem("user"); // Obtener el objeto user almacenado
 
   if (!token) {
-    Swal.fire("⚠️ Error", "Token no disponible o no válido.", "warning");
+    Swal.fire({
+      title: "⚠️ Error",
+      text: "Debes estar logeado para reservar.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ir a Login",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/Login2";
+      }
+    });
     return;
   }
   if (!userData) {

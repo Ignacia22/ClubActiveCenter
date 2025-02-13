@@ -1,21 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAdmin } from '@/context/AdminContext';
-import {  CreateProductDto, ProductState } from '@/interface/IProducts';
-import { ProductsTable } from '@/components/admin/ProductsTable';
-import StatsCard from '@/components/InfoAdmin/StatsCard';
-import { CreateProductModal } from '@/components/admin/CreateProductModal';
+import { useState, useEffect } from "react";
+import { useAdmin } from "@/context/AdminContext";
+import { CreateProductDto, ProductState } from "@/interface/IProducts";
+import { ProductsTable } from "@/components/admin/ProductsTable";
+import StatsCard from "@/components/InfoAdmin/StatsCard";
+import { CreateProductModal } from "@/components/admin/CreateProductModal";
+import Swal from "sweetalert2";
 
 export default function ProductsPage() {
-  const { 
-    products, 
+  const {
+    products,
     loading,
     error,
     totalPages,
-    getAllProducts, 
-    createProduct, 
+    getAllProducts,
+    createProduct,
     deleteProduct,
     updateProduct,
     getProductById,
@@ -23,26 +24,26 @@ export default function ProductsPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentProductId, setCurrentProductId] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const [newProduct, setNewProduct] = useState<CreateProductDto>({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     price: 0,
     stock: 0,
-    image: '',
-    category: '',
-    State: ProductState.Disponible
+    image: "",
+    category: "",
+    State: ProductState.Disponible,
   });
 
   // Ordenar productos por ID (asumiendo que IDs más recientes son "mayores")
   const sortedProducts = [...products].sort((a, b) => {
-    if (sortOrder === 'desc') {
+    if (sortOrder === "desc") {
       return b.id.localeCompare(a.id);
     }
     return a.id.localeCompare(b.id);
@@ -53,7 +54,12 @@ export default function ProductsPage() {
       setIsLoading(true);
       await getAllProducts(currentPage, itemsPerPage);
     } catch (error) {
-      console.error('Error al obtener productos:', error);
+      console.error("Error al obtener productos:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al obtener productos",
+        text: "Por favor, intenta de nuevo más tarde.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -61,13 +67,14 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  if (loading || isLoading) return <div className="text-white">Cargando...</div>;
+  if (loading || isLoading)
+    return <div className="text-white">Cargando...</div>;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,42 +83,50 @@ export default function ProductsPage() {
       await createProduct(newProduct);
       setIsCreateModalOpen(false);
       setNewProduct({
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         price: 0,
         stock: 0,
-        image: '',
-        category: '',
-        State: ProductState.Disponible
+        image: "",
+        category: "",
+        State: ProductState.Disponible,
       });
       fetchProducts(); // Recargar productos después de crear
     } catch (error) {
-      console.error('Error al crear producto:', error);
-      alert('No se pudo crear el producto. Por favor, inténtalo de nuevo.');
+      console.error("Error al crear producto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al crear producto",
+        text: "Por favor, intenta de nuevo más tarde.",
+      });
     }
   };
 
   const handleUpdateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentProductId) return;
-    
+
     try {
       await updateProduct(currentProductId, newProduct);
       setIsEditModalOpen(false);
       setNewProduct({
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         price: 0,
         stock: 0,
-        image: '',
-        category: '',
-        State: ProductState.Disponible
+        image: "",
+        category: "",
+        State: ProductState.Disponible,
       });
       setCurrentProductId(null);
       fetchProducts(); // Recargar productos después de actualizar
     } catch (error) {
-      console.error('Error al actualizar producto:', error);
-      alert('No se pudo actualizar el producto. Por favor, inténtalo de nuevo.');
+      console.error("Error al actualizar producto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al actualizar producto",
+        text: "Por favor, intenta de nuevo más tarde.",
+      });
     }
   };
 
@@ -120,8 +135,12 @@ export default function ProductsPage() {
       await deleteProduct(id);
       fetchProducts(); // Recargar productos después de eliminar
     } catch (error) {
-      console.error('Error al eliminar producto:', error);
-      alert('Error al eliminar el producto. Por favor, intenta de nuevo.');
+      console.error("Error al eliminar producto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al eliminar producto",
+        text: "Por favor, intenta de nuevo más tarde.",
+      });
     }
   };
 
@@ -134,22 +153,27 @@ export default function ProductsPage() {
           description: product.description,
           price: product.price,
           stock: product.stock,
-          image: product.image || '',
+          image: product.image || "",
           category: product.category,
-          State: product.State || ProductState.Disponible
+          State: product.State || ProductState.Disponible,
         });
         setCurrentProductId(id);
         setIsEditModalOpen(true);
       }
     } catch (error) {
-      console.error('Error al obtener el producto:', error);
-      alert('No se pudo obtener el producto. Por favor, inténtalo de nuevo.');
+      console.error("Error al obtener el producto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al obtener el producto",
+        text: "Por favor, intenta de nuevo más tarde.",
+      });
     }
   };
 
-  const filteredProducts = sortedProducts.filter((product) => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = sortedProducts.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -157,13 +181,15 @@ export default function ProductsPage() {
       <div className="flex justify-between items-center">
         <div>
           <div className="text-gray-400 text-sm">/ Productos</div>
-          <h1 className="text-2xl font-bold text-white">Gestión de Productos</h1>
+          <h1 className="text-2xl font-bold text-white">
+            Gestión de Productos
+          </h1>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <select
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+            onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
             className="px-3 py-2 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="desc">Más recientes primero</option>
@@ -181,13 +207,10 @@ export default function ProductsPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <StatsCard 
-          title="Total Productos" 
-          value={products.length} 
-        />
+        <StatsCard title="Total Productos" value={products.length} />
       </div>
 
-      <ProductsTable 
+      <ProductsTable
         products={filteredProducts}
         totalProducts={filteredProducts.length}
         onDelete={handleDeleteProduct}
@@ -199,7 +222,7 @@ export default function ProductsPage() {
       />
 
       {isCreateModalOpen && (
-        <CreateProductModal 
+        <CreateProductModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSubmit={handleCreateProduct}
@@ -209,7 +232,7 @@ export default function ProductsPage() {
       )}
 
       {isEditModalOpen && (
-        <CreateProductModal 
+        <CreateProductModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleUpdateProduct}

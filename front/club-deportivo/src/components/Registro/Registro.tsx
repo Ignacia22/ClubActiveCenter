@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import { AuthService } from "@/service/AuthServiceRegistro.ts";
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation"; // ✅ Importa el router para la redirección
+import { useRouter } from "next/navigation"; 
+import Link from "next/link";
 
 const Register = () => {
-  const router = useRouter(); // ✅ Inicializa el router
+  const router = useRouter(); 
 
   const [formData, setFormData] = useState({
     name: "",
@@ -69,9 +71,7 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     try {
       const response = await AuthService.register({
         name: formData.name,
@@ -82,9 +82,6 @@ const Register = () => {
         password: formData.password,
         passwordConfirmation: formData.passwordConfirmation,
       });
-
-      console.log("✅ Usuario registrado con éxito:", response);
-
       if (response?.id) {
         Swal.fire({
           icon: "success",
@@ -92,9 +89,8 @@ const Register = () => {
           text: "¡Bienvenido a nuestra comunidad!",
           confirmButtonText: "Ir al Login",
         }).then(() => {
-          router.push("/Login2"); // ✅ Redirige a /Login2 después de cerrar la alerta
+          router.push("/Login2");
         });
-
         setFormData({
           name: "",
           email: "",
@@ -108,22 +104,18 @@ const Register = () => {
         Swal.fire({
           icon: "error",
           title: "Error en el registro",
-          text: "El servidor no creó el usuario. Revisa los datos ingresados.",
+          text: "Hubo un error lo lamentamos vuelve a intentar.",
         });
       }
-    } catch (error) {
-      console.error("❌ Error en el registro:", error);
+    } catch (error: any) {
       Swal.fire({
         icon: "error",
         title: "Error al registrar usuario",
-        text: "Por favor, intenta de nuevo más tarde.",
+        text: `Por favor, intenta de nuevo más tarde. ${error.message || error}.`,
       });
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/login";
-  };
   return (
     <div className="flex justify-center items-center min-h-screen bg-[url('https://res.cloudinary.com/dqiehommi/image/upload/v1737912176/pexels-sukh-winder-3740393-5611633_y1bx8n.jpg')] bg-cover bg-center">
       <form
@@ -162,12 +154,9 @@ const Register = () => {
         </button>
         <div className="mt-6 text-center">
           <p className="text-gray-400">O inicia sesión con tu cuenta Gmail:</p>
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition font-bold"
-          >
+          <Link href="https://club-active-center.vercel.app/api/auth/login" className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition font-bold">
             Iniciar sesión con Google
-          </button>
+          </Link>
         </div>
       </form>
     </div>

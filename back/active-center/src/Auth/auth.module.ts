@@ -12,7 +12,7 @@ import { Chat } from 'src/Entities/Chat.entity';
   controllers: [AuthController],
   providers: [AuthService],
   imports: [
-    TypeOrmModule.forFeature([User,Chat]),
+    TypeOrmModule.forFeature([User, Chat]),
     forwardRef(() => UserModule),
     SendGridModule,
   ],

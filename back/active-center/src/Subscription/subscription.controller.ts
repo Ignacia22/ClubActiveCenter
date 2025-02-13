@@ -15,7 +15,10 @@ import { CreateSubscriptionDTO } from './SubscriptionDTO/subscription.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/User/UserDTO/Role.enum';
 import { RolesGuard } from 'src/Auth/Guard/roles.guard';
-import {  SubscribeResponseDTO, SubscriptionResponseDTO } from './SubscriptionDTO/Subscription.enum';
+import {
+  SubscribeResponseDTO,
+  SubscriptionResponseDTO,
+} from './SubscriptionDTO/Subscription.enum';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -37,7 +40,9 @@ export class SubscriptionController {
     description: 'Busca y devuelve una suscripción específica según su ID.',
   })
   @SetMetadata('isPublic', true)
-  async getSubscriptionById(@Param('id') id: string): Promise<SubscriptionResponseDTO> {
+  async getSubscriptionById(
+    @Param('id') id: string,
+  ): Promise<SubscriptionResponseDTO> {
     return this.subscriptionService.getSubscriptionById(id);
   }
 
@@ -49,23 +54,26 @@ export class SubscriptionController {
   @ApiBearerAuth()
   @Roles(Role.admin)
   @UseGuards(RolesGuard)
-  async createSubscrition(data: CreateSubscriptionDTO): Promise<SubscriptionResponseDTO> {
+  async createSubscrition(
+    data: CreateSubscriptionDTO,
+  ): Promise<SubscriptionResponseDTO> {
     return await this.subscriptionService.createSubscription(data);
   }
 
   @Post('subscribe/:id')
-@ApiOperation({
-  summary: 'Suscribirse a una suscripción',
-  description: 'Redirige al usuario a Stripe Checkout para completar el pago.',
-})
-@ApiBearerAuth()
-async subscribe(
-  @Req() req: any,
-  @Param('id', ParseUUIDPipe) subId: string,
-): Promise<{ url: string }> {
-  const userId: string = req.access.id;
-  return this.subscriptionService.subscribe(userId, subId);
-}
+  @ApiOperation({
+    summary: 'Suscribirse a una suscripción',
+    description:
+      'Redirige al usuario a Stripe Checkout para completar el pago.',
+  })
+  @ApiBearerAuth()
+  async subscribe(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) subId: string,
+  ): Promise<{ url: string }> {
+    const userId: string = req.access.id;
+    return this.subscriptionService.subscribe(userId, subId);
+  }
 
   @Delete('unsubscribe/:id')
   @ApiOperation({

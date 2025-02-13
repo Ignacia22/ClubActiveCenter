@@ -1,3 +1,6 @@
+
+import { UserStatus } from "@/components/InfoAdmin/UsersTable";
+
 export interface Subscription {
   id: string; // ID de la suscripción
   name: string; // Nombre de la suscripción
@@ -20,6 +23,7 @@ export interface SubscriptionDetail {
   user?: IUser; // Relación con el usuario (opcional)
 }
 
+
 export interface IUser {
   userInfo: {
     id: string; // ID del usuario
@@ -30,17 +34,17 @@ export interface IUser {
     userStatus: string; // Estado del usuario
     isAdmin: boolean; // Si el usuario es admin
   };
-  id: string; // ID global del usuario
+  id: string;
   name: string;
   email: string;
-  password: string; // Aunque no deberías exponerlo en el frontend
+  password: string;
   phone: string;
   address?: string;
-  dni: number; // DNI del usuario
-  activities: []; // Relación ManyToMany con Activity
-  reservations: []; // Relación OneToMany con Reservation
-  orders: []; // Relación OneToMany con Order
-  userStatus: string; // Tipo enum
+  dni: number;
+  activities: [];
+  reservations: [];
+  orders: [];
+  userStatus: UserStatus; // Usar el enum aquí
   isAdmin: boolean;
   subscriptionsDetails: SubscriptionDetail[]; // Relación con los detalles de las suscripciones
   createUser?: Date;

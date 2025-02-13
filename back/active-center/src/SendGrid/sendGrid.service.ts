@@ -2,8 +2,6 @@ import { Inject } from '@nestjs/common';
 import * as sgMail from '@sendgrid/mail';
 import { ContactFormDTO } from './sengridDTO/contactForm.dto';
 
-
-
 export class SendGridService {
   constructor(
     @Inject('SENDGRID') private readonly sgMail: sgMail.MailService,
@@ -20,7 +18,6 @@ export class SendGridService {
     };
     try {
       await this.sgMail.send(mail);
-      console.log('Email enviado correctamente');
     } catch (error) {
       console.error('Error enviando email:', error.response.body.errors);
     }
@@ -59,7 +56,6 @@ export class SendGridService {
     };
     try {
       await this.sgMail.send(mail);
-      console.log('Email enviado correctamente');
     } catch (error) {
       console.error('Error enviando email:', error.response.body.errors);
     }
@@ -101,34 +97,30 @@ export class SendGridService {
           'Acá iría el link para ver el estado de la orden segun el id',
       },
     };
-      
-      try {
-        await this.sgMail.send(mail);
-        console.log('Email enviado correctamente');
-      } catch (error) {
-        console.error('Error enviando email:', error.response.body.errors);
-    } 
-  };
-    
 
-  async contactMail(contactForm: ContactFormDTO): Promise<void>{
+    try {
+      await this.sgMail.send(mail);
+    } catch (error) {
+      console.error('Error enviando email:', error.response.body.errors);
+    }
+  }
 
-    const {name, phone, email, message} = contactForm;
-    
-    const senderMail = "jumi.rc@hotmail.com";
-    const receiver = "jumicjv@gmail.com"
+  async contactMail(contactForm: ContactFormDTO): Promise<void> {
+    const { name, phone, email, message } = contactForm;
+
+    const senderMail = 'jumi.rc@hotmail.com';
+    const receiver = 'jumicjv@gmail.com';
     const mail = {
       to: receiver,
       from: senderMail,
-      subject: "Mail de consultas",
-      text: `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nMensaje: ${message}`
+      subject: 'Mail de consultas',
+      text: `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nMensaje: ${message}`,
     };
 
     try {
       await this.sgMail.send(mail);
-      console.log('Email enviado correctamente');
     } catch (error) {
       console.error('Error enviando email:', error.response.body.errors);
-  } 
+    }
   }
-  }
+}

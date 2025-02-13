@@ -17,8 +17,7 @@ export class Activity {
   @PrimaryGeneratedColumn('uuid')
   id = uuid();
 
-  @ManyToMany(() => User)
-  @JoinTable()
+  @ManyToMany(() => User, (user) => user.activities)
   users: User[];
 
   @Column({ type: 'varchar', length: 90, nullable: false })
@@ -43,6 +42,11 @@ export class Activity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ type: 'enum', enum: StatusActivity, default: StatusActivity.ACTIVE, nullable: false })
+  @Column({
+    type: 'enum',
+    enum: StatusActivity,
+    default: StatusActivity.ACTIVE,
+    nullable: false,
+  })
   status?: StatusActivity;
 }

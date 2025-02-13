@@ -1,3 +1,5 @@
+
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
@@ -36,8 +38,11 @@ interface AdminContextType {
 
   // Funciones de Usuarios
   getAllUsers: () => Promise<IUser[]>;
-  isRetired: (userId: string) => Promise<boolean>;
-  isBan: (userId: string) => Promise<boolean>;
+  deleteUser: (userId: string) => Promise<boolean>;
+  isBan: (id: string) => Promise<{
+    message: string;
+    newStatus: UserStatus;
+  }>;
   isAdmin: (userId: string) => Promise<boolean>;
 
   // Funciones de Actividades
@@ -81,97 +86,139 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      console.log('Token:', token);
-  
-      console.log('API_URL:', API_URL);
-      console.log('Full request URL:', `${API_URL}/user`);
-      console.log('Request headers:', { 'Authorization': `Bearer ${token}` });
-  
       const response = await axios.get(`${API_URL}/user`, {
         params: { limit: 1000 },
         headers: { 'Authorization': `Bearer ${token}` }
       });
-  
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      console.log('Response data:', response.data);
-  
       const usersList = response.data.users || response.data;
-      console.log('Processed user list:', usersList);
-  
-      setUsers(usersList);
+      const processedUsersList = usersList.map((user: IUser) => ({
+        ...user,
+        userStatus: user.userStatus ? UserStatus.ACTIVE : UserStatus.BANNED
+      }));
+      setUsers(processedUsersList);
       setLoading(false);
-      return usersList;
+      return processedUsersList;
     } catch (error) {
       setLoading(false);
       console.error('Error in getAllUsers:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error details:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers,
-          message: error.message
-        });
-      }
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(errorMessage);
       throw new Error(errorMessage);
     }
   };
-
-  const getUserById = async (userId: string) => {
+  
+  // Modificar isBan para actualizar localStorage
+  const isBan = async (id: string) => {
     try {
-      const { data } = await axios.get(`${API_URL}/user/${userId}`);
-      return data;
-    } catch (error) {
-      // Verificar si es un error de Axios
-      if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error al obtener usuario';
-        throw new Error(errorMessage);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No se encontró token de autenticación');
       }
-      
-      // Manejo de errores genéricos
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Error desconocido al obtener usuario';
-      
-      throw new Error(errorMessage);
-    }
-  };
-
+      const response = await axios.delete(`${API_URL}/auth/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      console.log('Respuesta completa del servidor:', response.data);
   
-
-  const isRetired = async (userId: string) => {
-    try {
-      const { data } = await axios.get(`${API_URL}/user/${userId}/isRetired`);
-      return data;
-    } catch (error) {
-      throw new Error('Error al verificar estado de jubilación');
-    }
-  };
-
-  const isBan = async (userId: string) => {
-    try {
-      const { data } = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/${userId}`);
-      
-      // Actualizar el estado local de usuarios
-      setUsers(users.map(user => 
-        user.id === userId 
-          ? {
-              ...user, 
-              userStatus: user.userStatus === UserStatus.ACTIVE 
-                ? UserStatus.BANNED 
-                : UserStatus.ACTIVE
-            } 
-          : user
-      ));
+      // Determinar el nuevo estado basado en el mensaje, no en el newStatus devuelto
+      const newStatus = response.data.message.toLowerCase().includes('desbaneado')
+        ? UserStatus.ACTIVE
+        : UserStatus.BANNED;
   
-      return data;
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === id ? { ...user, userStatus: newStatus } : user
+        )
+      );
+  
+      return {
+        id: response.data.id || id,
+        message: response.data.message,
+        newStatus: newStatus
+      };
     } catch (error) {
-      console.error('Error al cambiar estado del usuario:', error);
+      console.error('Error al cambiar estado:', error);
       throw error;
     }
   };
+  
+  
+  const deleteUser = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('No se encontró token de autenticación');
+    }
+
+    const { data } = await axios.delete(`${API_URL}/user/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Obtener usuarios actuales de localStorage
+    const storedUsers = localStorage.getItem('usersList');
+    let usersList = storedUsers ? JSON.parse(storedUsers) : [];
+
+    // Filtrar el usuario eliminado
+    const updatedUsers = usersList.filter((user: IUser) => user.id !== userId);
+
+    // Guardar usuarios actualizados en localStorage
+    localStorage.setItem('usersList', JSON.stringify(updatedUsers));
+
+    // Actualizar estado local
+    setUsers(updatedUsers);
+
+    return data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Error al eliminar usuario';
+        console.error('Error detallado al eliminar usuario:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: errorMessage
+        });
+  
+        // Manejar errores específicos
+        switch (error.response?.status) {
+          case 401:
+            throw new Error('No autorizado. Verifica tus permisos.');
+          case 404:
+            throw new Error('Usuario no encontrado.');
+          case 403:
+            throw new Error('No tienes permiso para eliminar este usuario.');
+            default:
+            throw new Error(errorMessage);
+          }
+        }
+        
+        // Manejar errores que no son de Axios
+        throw new Error('Error inesperado al eliminar usuario');
+    }
+  };
+
+
+
+  const getUserById = async (userId: string) => {
+      try {
+        const { data } = await axios.get(`${API_URL}/user/${userId}`);
+        return data;
+      } catch (error) {
+        // Verificar si es un error de Axios
+        if (error instanceof AxiosError) {
+          const errorMessage = error.response?.data?.message || error.message || 'Error al obtener usuario';
+          throw new Error(errorMessage);
+        }
+        
+        // Manejo de errores genéricos
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Error desconocido al obtener usuario';
+        
+        throw new Error(errorMessage);
+      }
+  };
+
 
   const isAdmin = async (userId: string) => {
     try {
@@ -190,61 +237,51 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No se encontró token de autenticación');
       }
   
-      try {
-        const response = await axios.get(`${API_URL}/activity`, {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-  
-        // Log para ver la estructura exacta de la respuesta
-        console.log('Estructura de response.data:', {
-          type: typeof response.data,
-          value: response.data
-        });
-  
-        // Asegurarnos de que estamos manejando correctamente el array de actividades
-        let activitiesArray;
-        if (Array.isArray(response.data)) {
-          activitiesArray = response.data;
-        } else if (response.data.activities) {
-          activitiesArray = response.data.activities;
-        } else if (response.data.data) {
-          activitiesArray = response.data.data;
-        } else {
-          activitiesArray = [];
-          console.error('Estructura de datos inesperada:', response.data);
+      const response = await axios.get(`${API_URL}/activity`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
+      });
   
-        console.log('Array de actividades procesado:', activitiesArray);
+      // Log para ver la estructura exacta de la respuesta
+      console.log('Estructura de response.data:', {
+        type: typeof response.data,
+        value: response.data
+      });
   
-        // Actualizar el estado solo si tenemos un array válido
-        if (Array.isArray(activitiesArray)) {
-          setActivities(activitiesArray);
-        }
+      // Asegurarnos de que estamos manejando correctamente el array de actividades
+      let activitiesArray = [];
+      if (Array.isArray(response.data)) {
+        activitiesArray = response.data;
+      } else if (response.data.activities) {
+        activitiesArray = response.data.activities;
+      } else if (response.data.data) {
+        activitiesArray = response.data.data;
+      } else {
+        console.error('Estructura de datos inesperada:', response.data);
+      }
   
-        return activitiesArray;
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          // Si es un error 404, establece un array vacío
+      console.log('Array de actividades procesado:', activitiesArray);
+  
+      // Actualizar el estado 
+      setActivities(activitiesArray);
+  
+      return activitiesArray;
+    } catch (error) {
+      console.error('Error al obtener actividades:', error);
+      
+      // Manejar específicamente errores de Axios
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
           console.warn('No se encontraron actividades (404)');
           setActivities([]);
-          return []; // Devuelve un array vacío
+        } else if (error.response?.status === 401) {
+          // Manejar token inválido o expirado
+          localStorage.removeItem('token');
+          // Redirigir a login o mostrar mensaje de sesión expirada
+          window.location.href = '/login';
         }
-        // Si es otro tipo de error, lo relanza
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error completo al obtener actividades:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Detalles del error Axios:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers,
-          message: error.message,
-          config: error.config
-        });
       }
   
       const errorMessage = error instanceof Error 
@@ -317,12 +354,15 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   
 
 
-  const updateActivityRegistration = async (id: string, activityData: Partial<Activity>) => {
+  const updateActivityRegistration = async (id: string) => {
     try {
-      const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`, activityData);
+      const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`);
       setActivities(prev => prev.map(activity => activity.id === id ? data : activity));
+      console.log(data)
+      return data;
     } catch (error) {
-      throw new Error('Error al actualizar actividad');
+      console.log(error);
+      throw error;
     }
   };
 
@@ -360,16 +400,17 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Funciones de Productos 
 
 
-  const getAllProducts = async (page = 1, limit = 10) => {
+  const getAllProducts = async (page = 1) => {
     try {
       setLoading(true);
-      console.log(`Obteniendo productos - página ${page}, límite ${limit}`);
+      console.log(`Obteniendo productos - página ${page}, `);
       
       // Realizar la petición con los parámetros de paginación
       const response = await axios.get(`${API_URL}/product`, {
         params: { 
-          page,
-          limit
+          page: page,
+          limit: 14,
+          pagination: true 
         }
       });
   
@@ -400,7 +441,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       console.log('Productos mapeados:', mappedProducts);
   
       // Calcular el total de páginas
-      const calculatedTotalPages = Math.ceil(total / limit);
+      const calculatedTotalPages = Math.ceil(total);
   
       // Actualizar el estado
       setProducts(mappedProducts);
@@ -572,7 +613,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     currentPage,
     // Añadir nuevas funciones de usuario
     getAllUsers,
-    isRetired,
+    deleteUser,
     isBan,
     isAdmin,
     // Funciones de Actividades

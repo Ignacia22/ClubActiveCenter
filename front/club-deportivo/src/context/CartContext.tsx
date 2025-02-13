@@ -1,9 +1,16 @@
 "use client";
 
-import { createContext, useState, useEffect, useCallback, useContext } from "react";
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+} from "react";
 import axios from "axios";
 import { IProducts, ProductState } from "@/interface/IProducts";
 import { IUser } from "@/interface/IUser";
+import Swal from "sweetalert2";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -83,7 +90,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addItemToCart = useCallback(async (item: IProducts) => {
     try {
-      if (item.State !== ProductState.Disponible) throw new Error("Producto no disponible");
+      if (item.State !== ProductState.Disponible)
+        throw new Error("Producto no disponible");
 
       const token = localStorage.getItem("token");
       const userData = localStorage.getItem("user");
@@ -93,13 +101,22 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const userId = user?.userInfo?.id;
       if (!userId) throw new Error("Usuario inválido");
 
-      await axios.post(`${API_URL}/cart/add`, { userId, products: [{ productId: item.id, quantity: 1 }] }, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      });
+      await axios.post(
+        `${API_URL}/cart/add`,
+        { userId, products: [{ productId: item.id, quantity: 1 }] },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       setItems((currentItems) => {
         return currentItems.some((i) => i.id === item.id)
-          ? currentItems.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i))
+          ? currentItems.map((i) =>
+              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+            )
           : [...currentItems, { ...item, quantity: 1 }];
       });
       setIsOpen(true);
@@ -108,29 +125,47 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const updateItemQuantity = useCallback(async (productId: string, quantity: number) => {
-    try {
-      if (quantity < 0) throw new Error("La cantidad no puede ser negativa");
+  const updateItemQuantity = useCallback(
+    async (productId: string, quantity: number) => {
+      try {
+        if (quantity < 0) throw new Error("La cantidad no puede ser negativa");
 
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("user");
-      if (!token || !userData) throw new Error("No authentication token found");
+        const token = localStorage.getItem("token");
+        const userData = localStorage.getItem("user");
+        if (!token || !userData)
+          throw new Error("No authentication token found");
 
-      const user: IUser = JSON.parse(userData);
-      const userId = user?.userInfo?.id;
-      if (!userId) throw new Error("User not found");
+        const user: IUser = JSON.parse(userData);
+        const userId = user?.userInfo?.id;
+        if (!userId) throw new Error("User not found");
 
-      await axios.put(`${API_URL}/cart/update`, { userId, productId, quantity }, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      });
+        await axios.put(
+          `${API_URL}/cart/update`,
+          { userId, productId, quantity },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      setItems((currentItems) =>
-        currentItems.map((item) => (item.id === productId ? { ...item, quantity } : item))
-      );
-    } catch (error) {
-      console.error("Error updating item quantity:", error);
-    }
-  }, []);
+        setItems((currentItems) =>
+          currentItems.map((item) =>
+            item.id === productId ? { ...item, quantity } : item
+          )
+        );
+      } catch (error) {
+        console.error("Error updating item quantity:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Sin Stock",
+          text: "Por favor, intenta de nuevo más tarde.",
+        });
+      }
+    },
+    []
+  );
 
   const removeItemFromCart = useCallback(async (id: string) => {
     try {
@@ -144,7 +179,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
      
       await axios.delete(`${API_URL}/cart/remove`, {
         data: { userId, productId: id },
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
   
       setItems((currentItems) => currentItems.filter((item) => item.id !== id));
@@ -171,13 +209,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       if (!userId) throw new Error("No se encontró ID de usuario");
 
       const response = await axios.post(
-        `${API_URL}/order/${userId}/convert-cart`, 
-        {}, 
+        `${API_URL}/order/${userId}/convert-cart`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 

@@ -160,12 +160,11 @@ export class ActivityController {
     description:
       'Este endpoint, permite registrar a un usuario, a una actividad, y en caso de que ya lo este, permite al usuario cancelar su registro.',
   })
-  async togglereGistration(
+  async toggleRegistration(
     @Req() req: any,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<string> {
     const email: string = req.access.email;
-    console.log(email);
     return await this.activityService.registerActivity(email, id);
   }
 

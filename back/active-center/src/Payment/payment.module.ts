@@ -13,8 +13,16 @@ import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, User, Payment, Reservation,Subscription,SubscriptionDetail]),
-    forwardRef(() => OrderModule),forwardRef(() => SubscriptionModule)
+    TypeOrmModule.forFeature([
+      Order,
+      User,
+      Payment,
+      Reservation,
+      Subscription,
+      SubscriptionDetail,
+    ]),
+    forwardRef(() => OrderModule),
+    forwardRef(() => SubscriptionModule),
   ],
   providers: [PaymentService],
   controllers: [PaymentController],

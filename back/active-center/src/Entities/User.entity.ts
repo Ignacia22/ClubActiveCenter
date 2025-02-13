@@ -21,7 +21,6 @@ import { Payment } from './Payment.entity';
 import { SubscriptionDetail } from './SubscriptionDetails.entity';
 import { Chat } from './Chat.entity';
 
-
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -51,7 +50,7 @@ export class User {
   @OneToMany(() => SubscriptionDetail, (subscription) => subscription.user)
   subscriptionsDetails: SubscriptionDetail[];
 
-  @ManyToMany(() => Activity)
+  @ManyToMany(() => Activity, (activity) => activity.users)
   @JoinTable()
   activities: Activity[];
 
