@@ -2,9 +2,12 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { usePrivate } from "@/Hooks/usePrivate";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 export default function CartPage() {
+  usePrivate();
   const {
     getCartTotal,
     processPayment,
@@ -19,10 +22,18 @@ export default function CartPage() {
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error al procesar el pago:", error.message);
-        alert(`Error al procesar el pago: ${error.message}`);
+        Swal.fire({
+          icon: "error",
+          title: "Error al porcesar el pago",
+          text: "Por favor, intenta de nuevo más tarde.",
+        });
       } else {
         console.error("Error desconocido al procesar el pago", error);
-        alert("Ocurrió un error desconocido al procesar el pago");
+        Swal.fire({
+          icon: "error",
+          title: "Error al desconocido al procesar el pago",
+          text: "Por favor, intenta de nuevo más tarde.",
+        });
       }
     }
   };
