@@ -14,7 +14,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 // Corregir el problema de los íconos en Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon.src,
+  iconUrl: markerIcon.src, 
   iconRetinaUrl: markerIcon2x.src,
   shadowUrl: markerShadow.src,
 })

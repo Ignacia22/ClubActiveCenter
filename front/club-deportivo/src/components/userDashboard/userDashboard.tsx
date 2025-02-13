@@ -14,6 +14,7 @@ import { getUserById, getUserReservations } from "../../service/user";
 import { IUser, SubscriptionDetail } from "../../interface/IUser";
 import Swal from "sweetalert2";
 import { Order, StatusOrder } from "@/interface/Orders";
+import { cancelarReserva } from "@/service/cancelarReserva";
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
@@ -264,7 +265,6 @@ const UserOrders = ({ orders }: { orders: Order[] }) => (
 
 const UserReservations = ({
   reservations,
-  onCancel,
 }: {
   reservations: {
     id: string;
@@ -308,9 +308,10 @@ const UserReservations = ({
             </div>
             <button
               className="bg-red-500 text-white px-4 py-2 rounded-lg"
-              onClick={() => onCancel(reservation.id)}
+              onClick={() => cancelarReserva(reservation.id)}
+              disabled= { reservation.status === "cancelled" || reservation.status === "pending" ? true : false}
             >
-              Cancelar
+              {reservation.status === "cancelled" ? 'Cancelado' :  'Cancelar'}
             </button>
           </li>
         ))}
