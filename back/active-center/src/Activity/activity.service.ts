@@ -101,45 +101,31 @@ export class ActivityService {
   async registerActivity(email: string, activityId: string): Promise<string> {
     try {
       return await this.dataSource.transaction(
-        async (entityManger: EntityManager): Promise<string> => {
-          const activity: Activity | null = await entityManger.findOne(
-            Activity,
-            { where: { id: activityId }, relations: ['users'] },
-          );
+        async (entityManager: EntityManager): Promise<string> => {
+          const activity = await entityManager.findOne(Activity, {
+            where: { id: activityId },
+            relations: ['users'],
+          });
           if (!activity) throw new NotFoundException('No existe la actividad.');
           if (activity.status === StatusActivity.CANCEL)
-            throw new BadRequestException(
-              'Lo lamentamos esta actividad fue cancelada.',
-            );
-          const user: User | null = await entityManger.findOneBy(User, {
-            email,
-          });
+            throw new BadRequestException('Lo lamentamos, esta actividad fue cancelada.');
+          const user = await entityManager.findOneBy(User, { email });
           if (!user) throw new NotFoundException('No existe el usuario.');
-          const messageCancel: null | string = await this.cancelRegister(
-            entityManger,
-            user,
-            activity,
-          );
+          const messageCancel = await this.cancelRegister(entityManager, user, activity);
           if (messageCancel) return messageCancel;
-          const updatedUsers: User[] = [...activity.users, user];
-          const updatedRegisteredPeople: number = activity.registeredPeople + 1;
-          if (activity.maxPeople < updatedRegisteredPeople)
-            throw new BadRequestException(
-              'Lo lamentamos el cupo ya esta lleno.',
-            );
-          const updatedActivity: Activity = {
-            ...activity,
-            users: updatedUsers,
-            registeredPeople: updatedRegisteredPeople,
-            status: updatedRegisteredPeople < activity.maxPeople ? StatusActivity.ACTIVE : StatusActivity.Full,
-          };
-          await entityManger.save(Activity, updatedActivity);
-          return `Te has registrado con exito a ${activity.title}.`;
+  
+          // Verificar cupo antes de actualizar
+          if (activity.registeredPeople + 1 > activity.maxPeople)
+            throw new BadRequestException('Lo lamentamos, el cupo ya está lleno.');
+          activity.users.push(user);
+          activity.registeredPeople += 1;
+          activity.status = activity.registeredPeople < activity.maxPeople ? StatusActivity.ACTIVE : StatusActivity.Full;
+          await entityManager.save(Activity, activity);
+          return `Te has registrado con éxito a ${activity.title}.`;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      if (error instanceof BadRequestException) throw error;
+      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Lo lamentamos hubo un error al registraese.',
         error.message || error,
