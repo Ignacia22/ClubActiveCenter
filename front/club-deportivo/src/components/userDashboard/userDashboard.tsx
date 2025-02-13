@@ -53,6 +53,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
         setReservations(reservationsData);
       } catch (error) {
         console.error("Error fetching data:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error al buscar la data",
+          text: "Por favor, intenta de nuevo más tarde.",
+        });
       }
     };
 

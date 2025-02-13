@@ -1,3 +1,5 @@
+import Swal from "sweetalert2";
+
 export const comprarMembresia = async (
   membershipId: string
 ): Promise<string> => {
@@ -42,6 +44,11 @@ export const comprarMembresia = async (
     }
   } catch (error) {
     console.error("Error en el servicio de suscripción:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error en el servicio de suscripcion",
+      text: "Por favor, intenta de nuevo más tarde.",
+    });
     throw error;
   }
 };
