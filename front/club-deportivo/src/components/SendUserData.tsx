@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -11,7 +10,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 const SendUserData = () => {
   const { user, isLoading } = useUser();
   const router = useRouter();
-  const [dataSaved, setDataSaved] = useState(false);
+  const [dataSaved, setDataSaved] = useState(() => {
+    return !!localStorage.getItem("user"); // Si ya hay datos en localStorage, no enviar de nuevo
+  });
 
   useEffect(() => {
     const sendUserData = async () => {
@@ -53,6 +54,7 @@ const SendUserData = () => {
           const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
           router.push(route);
         }, 500);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error.response?.data?.statusCode === 404) {
           router.push("/Formulario");
