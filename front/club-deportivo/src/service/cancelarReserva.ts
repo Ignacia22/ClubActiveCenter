@@ -1,15 +1,27 @@
-export const cancelarReserva = async (reservationId: string) => {
-  // Lógica para cancelar la reserva, por ejemplo:
-  const response = await fetch(
-    `https://active-center-db-3rfj.onrender.com/reservas/${reservationId}`,
-    {
-      method: "DELETE",
-    }
-  );
+import axios from "axios";
+import Swal from "sweetalert2";
 
-  if (!response.ok) {
-    throw new Error("Error al cancelar la reserva");
+export const cancelarReserva = async (id: string) => {
+  try {
+    const token: string | null = localStorage.getItem("token");
+    console.log(token);
+    
+    if(!token) Swal.fire('No estas autentificado por favor vuelve a loguearte.');
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    const { data } = await axios.delete(`https://active-center-db-3rfj.onrender.com/reservation/${id}`,
+      {
+        headers
+      }
+    );
+    console.log('esto es la data', data);
+    
+    return data;
+  } catch (error) {
+    console.log(error);
   }
-
-  return response.json();
+  
 };

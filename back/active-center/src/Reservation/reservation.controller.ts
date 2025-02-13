@@ -73,7 +73,7 @@ export class ReservationController {
     );
   }
 
-  @Delete()
+  @Delete(':id')
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'cancela una reserva',
