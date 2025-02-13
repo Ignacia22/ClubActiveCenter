@@ -2,16 +2,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useAdmin } from "@/context/AdminContext";
-import Image from "next/image";
-import type { Activity } from "@/interface/IActivity";
-import Swal from "sweetalert2";
+import { useState, useEffect, useMemo } from "react"
+import { useAdmin } from "@/context/AdminContext"
+import Image from "next/image"
+import type { Activity } from "@/interface/IActivity"
+import { ActivityDetailsPopup } from "@/components/admin/ActivityDetailsPopup"
+
 
 export default function ActivitiesPage() {
-  const { activities, getAllActivities } = useAdmin();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const { activities, error, getAllActivities, updateActivityRegistration } = useAdmin()
+  const [isLoading, setIsLoading] = useState(true)
 
   const availableActivities = useMemo(() => {
     const processActivities = (activities: any): Activity[] => {
@@ -39,8 +40,8 @@ export default function ActivitiesPage() {
         });
         return false;
       }
-    });
-  }, []);
+    })
+  }, [activities])
 
   useEffect(() => {
     const loadActivities = async () => {
@@ -48,13 +49,7 @@ export default function ActivitiesPage() {
         setIsLoading(true);
         await getAllActivities();
       } catch (err) {
-        console.error("Error cargando actividades:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Error cargando actividades",
-          text: "Por favor, intenta de nuevo más tarde.",
-        });
-        setError(err instanceof Error ? err.message : "Error desconocido");
+        console.error("Error cargando actividades:", err)
       } finally {
         setIsLoading(false);
       }
@@ -98,6 +93,17 @@ export default function ActivitiesPage() {
         text: "Por favor, intenta de nuevo más tarde.",
       });
       return dateString;
+    }
+  }
+
+  const handleReserve = async (activity: Activity) => {
+    try {
+      const response = await updateActivityRegistration(activity.id, {});
+      setSelectedActivity(null);
+      // Reemplazar toast con alert
+      alert(response);
+    } catch (error: unknown) {
+      console.error('Error al reservar/cancelar la actividad:', error);
     }
   };
 
@@ -158,7 +164,10 @@ export default function ActivitiesPage() {
                     </p>
                   </div>
 
-                  <button className="px-4 py-2 rounded-lg transition-colors bg-blue-500 text-white hover:bg-blue-600">
+                  <button
+                    onClick={() => setSelectedActivity(activity)}
+                    className="px-4 py-2 rounded-lg transition-colors bg-blue-500 text-white hover:bg-blue-600"
+                  >
                     Ver Detalles
                   </button>
                 </div>
@@ -171,6 +180,15 @@ export default function ActivitiesPage() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Agregar el popup fuera del mapeo */}
+      {selectedActivity && (
+        <ActivityDetailsPopup
+          activity={selectedActivity}
+          onClose={() => setSelectedActivity(null)}
+          onReserve={() => handleReserve(selectedActivity)}
+        />
       )}
     </div>
   );
