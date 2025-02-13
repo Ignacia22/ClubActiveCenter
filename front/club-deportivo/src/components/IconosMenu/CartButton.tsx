@@ -16,7 +16,7 @@ export function CartButton() {
   };
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity < 0) return; // No permitir cantidad negativa
+    if (newQuantity <= 0) return; 
     updateItemQuantity(id, newQuantity);
   };
 
@@ -97,6 +97,7 @@ export function CartButton() {
                             value={item.quantity}
                             onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
                             className="w-12 text-center border rounded-md"
+                            min="1"
                           />
                           <button
                             onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
@@ -142,3 +143,4 @@ export function CartButton() {
     </Dialog.Root>
   );
 }
+

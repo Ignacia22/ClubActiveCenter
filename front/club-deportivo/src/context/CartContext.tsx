@@ -1,12 +1,13 @@
 "use client";
 
+// src/context/CartContext.tsx
+
 import { createContext, useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { IProducts, ProductState } from "@/interface/IProducts";
 import { IUser } from "@/interface/IUser";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 
 interface CartItem extends IProducts {
   quantity: number;
@@ -25,11 +26,8 @@ interface CartContextProps {
   setIsOpen: (isOpen: boolean) => void;
   processPayment: () => Promise<void>;
   isProcessingPayment: boolean;
+  logout: () => void;
 }
-type CartType = {
-  items: { id: string; name: string; price: number }[]; // Ejemplo de un producto
-  total: number;
-};
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
 
@@ -37,9 +35,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [cart, setCart] = useState<CartType>(/* Initial state */);
-
-  console.log("CartContext value:", { cart, setCart }); 
 
   useEffect(() => {
     const loadCart = async () => {
@@ -137,11 +132,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const processPayment = async () => {
     if (!items.length) {
-      alert("El carrito está vacío"); // O alguna otra forma de mostrar el error
+      alert("El carrito está vacío");
       return;
     }
   
-    setIsProcessingPayment(true); // Activamos el estado de procesamiento de pago
+    setIsProcessingPayment(true);
   
     try {
       const token = localStorage.getItem("token");
@@ -151,8 +146,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const user: IUser = JSON.parse(userJson);
       const userId = user.userInfo?.id;
       if (!userId) throw new Error("No se encontró ID de usuario");
-
-
   
       const response = await axios.post(
         `${API_URL}/order/${userId}/convert-cart`, 
@@ -165,9 +158,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
   
-      // Verificamos si la URL de pago es válida
       if (response.data?.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl; // Redirigimos al usuario al checkout
+        window.location.href = response.data.checkoutUrl; 
       } else {
         throw new Error("No se recibió la URL de checkout");
       }
@@ -175,8 +167,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error processing payment:", error);
       alert("Hubo un error al procesar el pago, por favor intente nuevamente.");
     } finally {
-      setIsProcessingPayment(false); // Desactivamos el estado de procesamiento de pago
+      setIsProcessingPayment(false); 
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setItems([]);
   };
 
   return (
@@ -191,7 +189,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       getCartTotal: () => items.reduce((total, item) => total + (Number(item.productPrice || item.price) * item.quantity), 0),
       itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
       isOpen,
-      setIsOpen
+      setIsOpen,
+      logout
     }}>
       {children}
     </CartContext.Provider>
@@ -205,3 +204,4 @@ export const useCart = () => {
   }
   return context;
 };
+
