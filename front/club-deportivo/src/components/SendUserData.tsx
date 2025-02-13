@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -59,6 +60,7 @@ const SendUserData = () => {
           const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
           router.push(route);
         }, 500);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error.response?.data?.statusCode === 404) {
           router.push("/Formulario");
