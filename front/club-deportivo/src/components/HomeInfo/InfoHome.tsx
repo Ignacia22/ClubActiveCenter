@@ -9,7 +9,7 @@ export default function InfoHome() {
   const markers = [
     {
       lat: 40.416775,
-      lng: -3.703790,
+      lng: -3.703790, 
       title: "Madrid - Puerta del Sol"
     },
     {
