@@ -10,7 +10,8 @@ export const getProducts = async (page: number = 1): Promise<{ products: IProduc
 
     const response = await axios.get(`${API_URL}/product`, {
       params: { 
-        offset: (page - 1) * 10,  // Prueba cambiar esto a "offset" si no funciona
+        page: page,
+        limit: 14,
         pagination: true // 👀 Si la API lo necesita
       }
     });

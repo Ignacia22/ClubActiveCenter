@@ -61,7 +61,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);

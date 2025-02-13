@@ -400,7 +400,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Funciones de Productos 
 
 
-  const getAllProducts = async (page = 1,) => {
+  const getAllProducts = async (page = 1) => {
     try {
       setLoading(true);
       console.log(`Obteniendo productos - página ${page}, `);
@@ -408,8 +408,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       // Realizar la petición con los parámetros de paginación
       const response = await axios.get(`${API_URL}/product`, {
         params: { 
-          page,
-          
+          page: page,
+          limit: 14,
+          pagination: true 
         }
       });
   
