@@ -3,9 +3,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Swal from "sweetalert2";
+import { useCart } from "@/context/CartContext";
+
 
 const Login = () => {
   const { login } = useAuth();
+  const { loadCart } = useCart();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -35,6 +38,7 @@ const Login = () => {
 
     try {
       await login(formData);
+      loadCart();
       
       Swal.fire({
         icon: "success",

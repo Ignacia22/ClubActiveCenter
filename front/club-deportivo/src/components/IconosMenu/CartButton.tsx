@@ -10,6 +10,8 @@ import Image from "next/image";
 export function CartButton() {
   const [open, setOpen] = useState(false);
   const { items, itemCount, getCartTotal, removeItemFromCart, processPayment, isProcessingPayment, updateItemQuantity } = useCart();
+  
+  console.log(items); 
 
   const handleRemoveFromCart = (id: string) => {
     removeItemFromCart(id);
@@ -143,4 +145,5 @@ export function CartButton() {
     </Dialog.Root>
   );
 }
+
 

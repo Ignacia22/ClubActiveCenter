@@ -28,7 +28,7 @@ export default function CartPage() {
   };
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity < 0) return; // No permitir cantidad negativa
+    if (newQuantity <= 0) return; // No permitir cantidad negativa
     updateItemQuantity(id, newQuantity);
   };
 

@@ -1,7 +1,5 @@
 "use client";
 
-// src/context/CartContext.tsx
-
 import { createContext, useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { IProducts, ProductState } from "@/interface/IProducts";
@@ -27,6 +25,7 @@ interface CartContextProps {
   processPayment: () => Promise<void>;
   isProcessingPayment: boolean;
   logout: () => void;
+  loadCart: () => void; 
 }
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
@@ -36,28 +35,51 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  useEffect(() => {
-    const loadCart = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const userJson = localStorage.getItem("user");
-        if (!token || !userJson) return;
-
-        const user: IUser = JSON.parse(userJson);
-        const userId = user.userInfo?.id;
-        if (!userId) return;
-
-        const response = await axios.get(`${API_URL}/cart/${userId}`, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        });
-
-        setItems(response.data.items || []);
-      } catch (error) {
-        console.error("Error loading cart:", error);
+  const loadCart = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userJson = localStorage.getItem("user");
+      if (!token || !userJson) return;
+  
+      const user: IUser = JSON.parse(userJson);
+      const userId = user.userInfo?.id;
+      if (!userId) return;
+  
+      const response = await axios.get(`${API_URL}/cart/${userId}`, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+  
+      interface APIItem {
+        productId: string;
+        productName: string;
+        productPrice: number | string;
+        productDescription: string;
+        productStock: number;
+        productImage: string;
+        quantity: number;
       }
-    };
-    loadCart().catch(console.error);
+      
+      const cartItems: CartItem[] = response.data.items.map((item: APIItem) => ({
+        id: item.productId,
+        name: item.productName,
+        price: typeof item.productPrice === "string" ? parseFloat(item.productPrice) : item.productPrice,
+        description: item.productDescription,
+        stock: item.productStock,
+        image: item.productImage,
+        quantity: item.quantity,
+      }));
+    
+  
+      setItems(cartItems);
+    } catch (error) {
+      console.error("Error loading cart:", error);
+    }
   }, []);
+  
+
+  useEffect(() => {
+    loadCart().catch(console.error);
+  }, [loadCart]);
 
   const addItemToCart = useCallback(async (item: IProducts) => {
     try {
@@ -115,15 +137,16 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const token = localStorage.getItem("token");
       const userJson = localStorage.getItem("user");
       if (!token || !userJson) throw new Error("No authentication token found");
-
+  
       const user: IUser = JSON.parse(userJson);
       const userId = user.userInfo?.id;
-
+  
+     
       await axios.delete(`${API_URL}/cart/remove`, {
         data: { userId, productId: id },
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
-
+  
       setItems((currentItems) => currentItems.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error removing item from cart:", error);
@@ -135,18 +158,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       alert("El carrito está vacío");
       return;
     }
-  
+
     setIsProcessingPayment(true);
-  
+
     try {
       const token = localStorage.getItem("token");
       const userJson = localStorage.getItem("user");
       if (!token || !userJson) throw new Error("No se encontró token de autenticación o datos de usuario");
-  
+
       const user: IUser = JSON.parse(userJson);
       const userId = user.userInfo?.id;
       if (!userId) throw new Error("No se encontró ID de usuario");
-  
+
       const response = await axios.post(
         `${API_URL}/order/${userId}/convert-cart`, 
         {}, 
@@ -157,7 +180,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
       );
-  
+
       if (response.data?.checkoutUrl) {
         window.location.href = response.data.checkoutUrl; 
       } else {
@@ -190,7 +213,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
       isOpen,
       setIsOpen,
-      logout
+      logout,
+      loadCart,
     }}>
       {children}
     </CartContext.Provider>
@@ -204,4 +228,3 @@ export const useCart = () => {
   }
   return context;
 };
-
