@@ -279,8 +279,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         } else if (error.response?.status === 401) {
           // Manejar token inválido o expirado
           localStorage.removeItem('token');
-          // Redirigir a login o mostrar mensaje de sesión expirada
-          window.location.href = '/login';
         }
       }
   

@@ -15,6 +15,7 @@ import { IUser, SubscriptionDetail } from "../../interface/IUser";
 import Swal from "sweetalert2";
 import { Order, StatusOrder } from "@/interface/Orders";
 import { cancelarReserva } from "@/service/cancelarReserva";
+import { Activity } from "@/interface/IActivity";
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
@@ -190,8 +191,9 @@ const UserProfile = ({ user }: { user: IUser }) => (
   </div>
 );
 
-export const UserActivities = ({ activities }: { activities: any[] }) => (
-  <div>
+export const UserActivities: React.FC<{ activities: Activity[] }> = ({ activities }) => {
+  return (
+    <div>
       <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
       {activities.length === 0 ? (
         <p className="text-gray-600">No tienes actividades registradas.</p>
@@ -207,7 +209,8 @@ export const UserActivities = ({ activities }: { activities: any[] }) => (
         </ul>
       )}
     </div>
-);
+  );
+};
 
 const UserOrders = ({ orders }: { orders: Order[] }) => (
   <div>
