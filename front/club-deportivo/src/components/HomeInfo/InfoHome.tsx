@@ -6,6 +6,19 @@ import Map from "../Map";
 
 
 export default function InfoHome() {
+  const markers = [
+    {
+      lat: 40.416775,
+      lng: -3.703790,
+      title: "Madrid - Puerta del Sol"
+    },
+    {
+      lat: 40.420847,
+      lng: -3.705367,
+      title: "Gran Vía"
+    }
+  ]
+
   return (
     <div>
       {/* Sección principal */}
@@ -115,17 +128,14 @@ export default function InfoHome() {
             Encuéntranos
           </h2>
           <div className="rounded-lg overflow-hidden">
-            <Map 
-              center={{ lat: 19.4326, lng: -99.1332 }} // Cambia estas coordenadas por la ubicación real de tu club
-              zoom={15}
-              markers={[
-                {
-                  lat: 19.4326,
-                  lng: -99.1332,
-                  title: "Club Active Center"
-                }
-              ]}
-            />
+          <Map 
+        center={{ 
+          lat: 40.416775, 
+          lng: -3.703790 
+        }} 
+        zoom={13}
+        markers={markers}
+      />
           </div>
           <div className="mt-6 text-center">
             <p className="text-white mb-4">Visítanos en nuestras instalaciones</p>
