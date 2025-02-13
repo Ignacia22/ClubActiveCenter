@@ -18,6 +18,7 @@ import { Order, StatusOrder } from "@/interface/Orders";
 import { cancelarReserva } from "@/service/cancelarReserva";
 import { deletedUser } from "@/service/deletedUserService";
 import { useRouter } from "next/navigation";
+import { CancelSub } from "@/service/CancelSubscriptionService";
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
@@ -363,38 +364,74 @@ const UserSubscriptions = ({
   subscriptions,
 }: {
   subscriptions: SubscriptionDetail[];
-}) => (
-  <div>
-    <h2 className="text-2xl font-bold mb-6 text-primary">Suscripciones</h2>
-    {subscriptions.length === 0 ? (
-      <p className="text-gray-600">No tienes suscripciones activas.</p>
-    ) : (
-      <ul className="space-y-4">
-        {subscriptions.map((subscription) => (
-          <li
-            key={subscription.id}
-            className="bg-gray-300 p-4 rounded-lg shadow-md"
-          >
-            <p className="font-semibold">Plan: Gold</p>
-            <p className="text-sm">
-              Fecha de inicio:{" "}
-              {new Date(subscription.dayInit).toLocaleDateString()}
-            </p>
+}) => {
+  const route = useRouter();
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-primary">Suscripciones</h2>
+      {subscriptions.length === 0 ? (
+        <p className="text-gray-600">No tienes suscripciones activas.</p>
+      ) : (
+        <ul className="space-y-4">
+          {subscriptions.map((subscription) => (
+            <li
+              key={subscription.id}
+              className="bg-gray-300 p-4 rounded-lg shadow-md"
+            >
+              <p className="font-semibold">Plan: Gold</p>
+              <p className="text-sm">
+                Fecha de inicio:{" "}
+                {new Date(subscription.dayInit).toLocaleDateString()}
+              </p>
 
-            <p className="text-sm">
-              Fecha de vencimiento:{" "}
-              {new Date(subscription.dayEnd).toLocaleDateString()}
-            </p>
+              <p className="text-sm">
+                Fecha de vencimiento:{" "}
+                {new Date(subscription.dayEnd).toLocaleDateString()}
+              </p>
 
-            <p className="text-sm">Precio: {subscription.price}</p>
-            <p className="text-sm">
-              Estado: {subscription.status ? "Activo" : "Inactivo"}
-            </p>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-);
+              <p className="text-sm">Precio: {subscription.price}</p>
+              <p className="text-sm">
+                Estado: {subscription.status ? "Activo" : "Inactivo"}
+              </p>            
+            
+              <button
+              onClick={async () => {
+                const result = await Swal.fire({
+                  title: '¿Estás seguro?',
+                  text: 'Esta acción cancelara tu suscripción. No hay reembolso.',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonText: 'Cancelar suscripción',
+                  cancelButtonText: 'No cancelar',
+                  reverseButtons: true, 
+                });
+                if (result.isConfirmed) {
+                  try {
+                    const res: string | undefined = await CancelSub(subscription.id);
+                    if (!res) {
+                      Swal.fire('Lo lamentamos, hubo un error. Vuelva a intentar más tarde.');
+                      return;
+                    }
+                    Swal.fire('Suscripción cancelada', 'Tu suscripción ha sido cancelada correctamente.', 'success');
+                    route.push('/home');
+                  } catch (error) {
+                    Swal.fire('Lo lamentamos, hubo un error. Vuelva a intentar más tarde.');
+                  };
+                } else {
+                  return Swal.fire('Acción cancelada', 'Tu suscripción no fué cancelada.', 'info');
+                };
+              }
+              }
+              className="bg-gray-500 text-white px-4 py-2 rounded-md transition-colors duration-300 hover:bg-red-600 disabled:opacity-50"
+              >
+              Cancelar suscripción
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+};
 
 export default UserDashboard;
