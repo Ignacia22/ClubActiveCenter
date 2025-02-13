@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { AuthService } from "@/service/AuthServiceRegistro.ts";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation"; 
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 const Register = () => {
   const router = useRouter(); 
@@ -154,10 +154,7 @@ const Register = () => {
         </button>
         <div className="mt-6 text-center">
           <p className="text-gray-400">O inicia sesión con tu cuenta Gmail:</p>
-          <Link
-            href="/api/auth/login"
-            className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition font-bold"
-          >
+          <Link href="https://club-active-center.vercel.app/api/auth/login" className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition font-bold">
             Iniciar sesión con Google
           </Link>
         </div>
