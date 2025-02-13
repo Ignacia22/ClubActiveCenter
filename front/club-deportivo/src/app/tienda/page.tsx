@@ -15,15 +15,15 @@ export default function Tienda() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Usar la página actual del estado
         await getAllProducts(page);
       } catch (error) {
         alert("Error al obtener los productos");
       }
     };
-
+  
     fetchProducts();
-  }, []); // Añadir page como dependencia para recargar cuando cambie
+  }, [page]); // 👀 Ahora se ejecutará cada vez que cambie "page"
+  
 
   // Función para generar los números de página (sin cambios)
   const generatePageNumbers = () => {
@@ -63,9 +63,11 @@ export default function Tienda() {
   };
 
   // Función para cambiar página que actualiza tanto el estado local como el contexto
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = async (newPage: number) => {
     setPage(newPage);
+    await getAllProducts(newPage); // 👀 Hacer nueva petición con la página seleccionada
   };
+  
 
   return (
     <div>

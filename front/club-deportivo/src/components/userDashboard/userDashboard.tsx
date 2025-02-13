@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import {
   FaUser,
@@ -31,6 +32,7 @@ interface UserDashboardProps {
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
   const [user, setUser] = useState<IUser | null>(null);
+  console.log(user)
   const [reservations, setReservations] = useState<
     {
       id: string;
@@ -150,21 +152,23 @@ const UserProfile = ({ user }: { user: IUser }) => (
   </div>
 );
 
-const UserActivities = ({ activities }: { activities: string[] }) => (
+const UserActivities = ({ activities }: { activities: any[] }) => (
   <div>
-    <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
-    {activities.length === 0 ? (
-      <p className="text-gray-600">No tienes actividades registradas.</p>
-    ) : (
-      <ul className="space-y-4">
-        {activities.map((activity, index) => (
-          <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
-            {activity}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
+      <h2 className="text-2xl font-bold mb-6 text-primary">Actividades</h2>
+      {activities.length === 0 ? (
+        <p className="text-gray-600">No tienes actividades registradas.</p>
+      ) : (
+        <ul className="space-y-4">
+          {activities.map((activity, index) => (
+            <li key={index} className="bg-gray-300 p-4 rounded-lg shadow-md">
+              <h3 className="font-bold">{activity.title}</h3>
+              <p>Fecha: {new Date(activity.date).toLocaleDateString()}</p>
+              <p>Hora: {activity.hour}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
 );
 
 import { StatusOrder } from "@/interface/Orders"; // Asegúrate de importar StatusOrder

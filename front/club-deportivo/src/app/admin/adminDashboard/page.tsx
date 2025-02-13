@@ -5,6 +5,9 @@ import React, { useEffect } from 'react';
 import { useAdmin } from '@/context/AdminContext';
 import { UserStatus } from '@/components/InfoAdmin/UsersTable';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useAuth } from '@/context/AuthContext';
+import Swal from 'sweetalert2';
 
 export default function AdminDashboard() {
   const { 
@@ -17,6 +20,28 @@ export default function AdminDashboard() {
     getAllActivities,
     getAllProducts,
   } = useAdmin();
+
+  const { isAuthenticated, isAdmin } = useAuth();
+  const router = useRouter();
+  
+
+  useEffect(() => {
+    // Verificar autenticación y admin
+    const isAdminDash = localStorage.getItem("isAdminDash") === "true";
+
+    if (!isAuthenticated || !isAdmin) {
+      Swal.fire({
+        icon: "warning",
+        title: "Acceso denegado",
+        text: "Solo los administradores pueden acceder.",
+        confirmButtonText: "Volver",
+      }).then(() => {
+        router.push("/home");
+      });
+    } else if (isAdminDash) {
+      router.push("/admin/adminDashboard"); // Página a la que quieres redirigir
+    }
+  }, [isAuthenticated, isAdmin, router]);
 
   useEffect(() => {
     const fetchData = async () => {

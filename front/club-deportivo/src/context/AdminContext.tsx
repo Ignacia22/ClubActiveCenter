@@ -237,61 +237,51 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No se encontró token de autenticación');
       }
   
-      try {
-        const response = await axios.get(`${API_URL}/activity`, {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-  
-        // Log para ver la estructura exacta de la respuesta
-        console.log('Estructura de response.data:', {
-          type: typeof response.data,
-          value: response.data
-        });
-  
-        // Asegurarnos de que estamos manejando correctamente el array de actividades
-        let activitiesArray;
-        if (Array.isArray(response.data)) {
-          activitiesArray = response.data;
-        } else if (response.data.activities) {
-          activitiesArray = response.data.activities;
-        } else if (response.data.data) {
-          activitiesArray = response.data.data;
-        } else {
-          activitiesArray = [];
-          console.error('Estructura de datos inesperada:', response.data);
+      const response = await axios.get(`${API_URL}/activity`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
+      });
   
-        console.log('Array de actividades procesado:', activitiesArray);
+      // Log para ver la estructura exacta de la respuesta
+      console.log('Estructura de response.data:', {
+        type: typeof response.data,
+        value: response.data
+      });
   
-        // Actualizar el estado solo si tenemos un array válido
-        if (Array.isArray(activitiesArray)) {
-          setActivities(activitiesArray);
-        }
+      // Asegurarnos de que estamos manejando correctamente el array de actividades
+      let activitiesArray = [];
+      if (Array.isArray(response.data)) {
+        activitiesArray = response.data;
+      } else if (response.data.activities) {
+        activitiesArray = response.data.activities;
+      } else if (response.data.data) {
+        activitiesArray = response.data.data;
+      } else {
+        console.error('Estructura de datos inesperada:', response.data);
+      }
   
-        return activitiesArray;
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          // Si es un error 404, establece un array vacío
+      console.log('Array de actividades procesado:', activitiesArray);
+  
+      // Actualizar el estado 
+      setActivities(activitiesArray);
+  
+      return activitiesArray;
+    } catch (error) {
+      console.error('Error al obtener actividades:', error);
+      
+      // Manejar específicamente errores de Axios
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
           console.warn('No se encontraron actividades (404)');
           setActivities([]);
-          return []; // Devuelve un array vacío
+        } else if (error.response?.status === 401) {
+          // Manejar token inválido o expirado
+          localStorage.removeItem('token');
+          // Redirigir a login o mostrar mensaje de sesión expirada
+          window.location.href = '/login';
         }
-        // Si es otro tipo de error, lo relanza
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error completo al obtener actividades:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Detalles del error Axios:', {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers,
-          message: error.message,
-          config: error.config
-        });
       }
   
       const errorMessage = error instanceof Error 
@@ -364,12 +354,15 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   
 
 
-  const updateActivityRegistration = async (id: string, activityData: Partial<Activity>) => {
+  const updateActivityRegistration = async (id: string) => {
     try {
-      const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`, activityData);
+      const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`);
       setActivities(prev => prev.map(activity => activity.id === id ? data : activity));
+      console.log(data)
+      return data;
     } catch (error) {
-      throw new Error('Error al actualizar actividad');
+      console.log(error);
+      throw error;
     }
   };
 
@@ -407,16 +400,16 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   // Funciones de Productos 
 
 
-  const getAllProducts = async (page = 1, limit = 10) => {
+  const getAllProducts = async (page = 1,) => {
     try {
       setLoading(true);
-      console.log(`Obteniendo productos - página ${page}, límite ${limit}`);
+      console.log(`Obteniendo productos - página ${page}, `);
       
       // Realizar la petición con los parámetros de paginación
       const response = await axios.get(`${API_URL}/product`, {
         params: { 
           page,
-          limit
+          
         }
       });
   
@@ -447,7 +440,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       console.log('Productos mapeados:', mappedProducts);
   
       // Calcular el total de páginas
-      const calculatedTotalPages = Math.ceil(total / limit);
+      const calculatedTotalPages = Math.ceil(total);
   
       // Actualizar el estado
       setProducts(mappedProducts);
