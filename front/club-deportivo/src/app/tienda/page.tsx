@@ -8,27 +8,36 @@ import Card from "../../components/Card/Card";
 
 export default function Tienda() {
   const { products, getAllProducts, totalPages, currentPage } = useAdmin();
-  
+
   // Usar currentPage del contexto en lugar de un estado local separado
   const [page, setPage] = useState(currentPage);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true); // Activa el estado de carga antes de la petición
       try {
-        // Usar la página actual del estado
         await getAllProducts(page);
       } catch (error) {
         alert("Error al obtener los productos");
+      } finally {
+        setLoading(false); // Desactiva el estado de carga después de la petición
       }
     };
 
     fetchProducts();
-  }, []); // Añadir page como dependencia para recargar cuando cambie
+  }, [page]);
+
+  // 🔥 Si la página está cargando, muestra solo el mensaje de carga
+  if (loading)
+    return (
+      <div className="text-white text-2xl text-center py-20">Cargando...</div>
+    );
 
   // Función para generar los números de página (sin cambios)
   const generatePageNumbers = () => {
     const pageNumbers = [];
-    
+
     // Mostrar primeras 3 páginas
     for (let i = 1; i <= Math.min(3, totalPages); i++) {
       pageNumbers.push(i);
@@ -85,11 +94,11 @@ export default function Tienda() {
             <Card key={product.id} product={product} />
           ))}
         </div>
-        
+
         {/* Componente de Paginación */}
         <div className="flex justify-center items-center space-x-2 mt-8 bg-black py-4">
           {/* Botón de página anterior */}
-          <button 
+          <button
             onClick={() => handlePageChange(Math.max(1, page - 1))}
             disabled={page === 1}
             className="px-3 py-1 bg-gray-800 text-gray-400 rounded disabled:opacity-50"
@@ -97,26 +106,28 @@ export default function Tienda() {
             &lt;
           </button>
 
-          {generatePageNumbers().map((pageNum) => (
+          {generatePageNumbers().map((pageNum) =>
             pageNum === -1 ? (
-              <span key="ellipsis" className="px-3 py-1 text-gray-400">...</span>
+              <span key="ellipsis" className="px-3 py-1 text-gray-400">
+                ...
+              </span>
             ) : (
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
                 className={`px-4 py-2 rounded ${
-                  pageNum === currentPage 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  pageNum === currentPage
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 text-gray-400 hover:bg-gray-700"
                 }`}
               >
                 {pageNum}
               </button>
             )
-          ))}
+          )}
 
           {/* Botón de página siguiente */}
-          <button 
+          <button
             onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
             className="px-3 py-1 bg-gray-800 text-gray-400 rounded disabled:opacity-50"
