@@ -7,23 +7,20 @@ import {
   FaSignOutAlt,
   FaChevronRight,
   FaBasketballBall,
-  FaClock,
   FaDollarSign,
-  FaCheckCircle,
-  FaExclamationTriangle,
   FaRss,
 } from "react-icons/fa";
 import { getUserById, getUserReservations } from "../../service/user";
 import { IUser, SubscriptionDetail } from "../../interface/IUser";
 import Swal from "sweetalert2";
-import { Order } from "@/interface/Orders";
+import { Order, StatusOrder } from "@/interface/Orders";
 
 const menuOptions = [
   { id: "profile", label: "Datos personales", icon: <FaUser /> },
   { id: "activities", label: "Actividades", icon: <FaBasketballBall /> },
   { id: "orders", label: "Productos comprados", icon: <FaShoppingCart /> },
   { id: "reservations", label: "Reservas", icon: <FaCalendarAlt /> },
-  { id: "subscriptions", label: "Suscripciones", icon: <FaRss /> }, // Nueva opción
+  { id: "subscriptions", label: "Suscripciones", icon: <FaRss /> },
 ];
 
 interface UserDashboardProps {
@@ -88,6 +85,38 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
     });
   };
 
+  const handleCancelReservation = (reservationId: string) => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Se cancelará esta reserva.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Eliminar la reserva cancelada del estado
+        const updatedReservations = reservations.filter(
+          (reservation) => reservation.id !== reservationId
+        );
+
+        // Actualizar el estado de las reservas
+        setReservations(updatedReservations);
+
+        // Guardar las reservas actualizadas en el localStorage
+        localStorage.setItem(
+          "reservations",
+          JSON.stringify(updatedReservations)
+        );
+
+        // Log para ver las reservas actualizadas
+        console.log("Reservas actualizadas:", updatedReservations);
+
+        Swal.fire("Reservación cancelada", "", "success");
+      }
+    });
+  };
+
   if (!user)
     return <div className="text-white text-center mt-10">Cargando...</div>;
 
@@ -134,7 +163,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ userId }) => {
           )}
           {selectedOption === "orders" && <UserOrders orders={user.orders} />}
           {selectedOption === "reservations" && (
-            <UserReservations reservations={reservations} />
+            <UserReservations
+              reservations={reservations}
+              onCancel={handleCancelReservation}
+            />
           )}
           {selectedOption === "subscriptions" && (
             <UserSubscriptions subscriptions={user.subscriptionsDetails} />
@@ -175,8 +207,6 @@ export const UserActivities = ({ activities }: { activities: any[] }) => (
       )}
     </div>
 );
-
-import { StatusOrder } from "@/interface/Orders"; // Asegúrate de importar StatusOrder
 
 const UserOrders = ({ orders }: { orders: Order[] }) => (
   <div>
@@ -234,6 +264,7 @@ const UserOrders = ({ orders }: { orders: Order[] }) => (
 
 const UserReservations = ({
   reservations,
+  onCancel,
 }: {
   reservations: {
     id: string;
@@ -243,44 +274,44 @@ const UserReservations = ({
     price: string;
     status: string;
   }[];
+  onCancel: (id: string) => void;
 }) => (
   <div>
-    <h2 className="text-2xl font-bold mb-6 text-primary">Reservas</h2>
+    <h2 className="text-2xl font-bold mb-6 text-primary">Mis Reservas</h2>
     {reservations.length === 0 ? (
-      <p className="text-gray-600">No tienes reservas realizadas.</p>
+      <p className="text-gray-600">No tienes reservas actuales.</p>
     ) : (
       <ul className="space-y-4">
         {reservations.map((reservation) => (
           <li
             key={reservation.id}
-            className="bg-gray-300 p-4 rounded-lg shadow-md"
+            className="bg-gray-300 p-4 rounded-lg shadow-md flex justify-between"
           >
-            <p className="flex items-center gap-2">
-              <FaCalendarAlt /> <span>Fecha: {reservation.date}</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <FaClock />{" "}
-              <span>
-                Horario: {reservation.startTime} - {reservation.endTime}
-              </span>
-            </p>
-            <p className="flex items-center gap-2">
-              <FaDollarSign /> <span>Precio: ${reservation.price}</span>
-            </p>
-            <p
-              className={`flex items-center gap-2 ${
-                reservation.status === "confirmed"
-                  ? "text-green-600"
-                  : "text-yellow-500"
-              }`}
+            <div>
+              <p className="font-semibold">{reservation.date}</p>
+              <p>
+                <span className="font-medium">Horario:</span>{" "}
+                {reservation.startTime} - {reservation.endTime}
+              </p>
+              <p className="font-medium">Precio: ${reservation.price}</p>
+              <p
+                className={`font-medium ${
+                  reservation.status === "confirmed"
+                    ? "text-green-600"
+                    : reservation.status === "pending"
+                    ? "text-yellow-500"
+                    : "text-red-600"
+                }`}
+              >
+                Estado: {reservation.status}
+              </p>
+            </div>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded-lg"
+              onClick={() => onCancel(reservation.id)}
             >
-              {reservation.status === "confirmed" ? (
-                <FaCheckCircle />
-              ) : (
-                <FaExclamationTriangle />
-              )}
-              {reservation.status === "confirmed" ? "Confirmada" : "Pendiente"}
-            </p>
+              Cancelar
+            </button>
           </li>
         ))}
       </ul>

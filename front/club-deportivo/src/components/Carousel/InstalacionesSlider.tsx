@@ -68,7 +68,7 @@ export default function InstalacionesSlider({
               RESERVAR
             </Link>
             <Link
-              href="/contratar-plan"
+              href="/Membresias"
               className="block w-full font-semibold bg-white text-black text-center py-3 px-6 rounded-lg hover:bg-slate-500 transition duration-300"
             >
               CONTRATAR PLAN
