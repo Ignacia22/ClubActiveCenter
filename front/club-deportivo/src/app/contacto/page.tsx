@@ -1,8 +1,6 @@
 'use client';
-
 import { useState } from 'react';
 import Map from '@/components/Map';
-
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -10,13 +8,11 @@ export default function ContactPage() {
     phone: '',
     message: '',
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Aquí puedes manejar el envío del formulario
     console.log('Form data:', formData);
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -24,7 +20,6 @@ export default function ContactPage() {
       [name]: value
     }));
   };
-
   return (
     <div className="min-h-screen bg-black">
       {/* Header Section */}
@@ -36,7 +31,6 @@ export default function ContactPage() {
           </p>
         </div>
       </div>
-
       {/* Contact Information and Form Section */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 gap-12">
@@ -64,7 +58,6 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-
           {/* Contact Form */}
           <div className="bg-white rounded-lg p-6">
             <h2 className="text-3xl font-bold mb-6 text-black">Envíanos un mensaje</h2>
@@ -134,7 +127,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-
       {/* Map Section */}
       <div className="container mx-auto px-4 py-12">
         <h2 className="text-3xl font-bold mb-6 text-white">Ubicación</h2>

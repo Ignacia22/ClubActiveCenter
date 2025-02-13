@@ -350,8 +350,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   };
   
-
-
   const updateActivityRegistration = async (id: string) => {
     try {
       const { data } = await axios.put(`${API_URL}/activity/toggle-registration/${id}`);
@@ -393,7 +391,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       console.error('Error al cancelar actividad:', error);
       throw error;
     }
-};
+  };
 
   // Funciones de Productos 
 
