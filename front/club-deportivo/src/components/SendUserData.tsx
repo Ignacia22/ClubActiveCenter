@@ -49,7 +49,7 @@ const SendUserData =  () => {
           },
           (error) => Promise.reject(error)
         );
-        const route = isAdmin ? "/admin/adminDashboard" : "/home";
+        const route = isAdmin ? "/admin/adminDashboard" : "/userDashboard";
         router.push(route);
       } catch (error: any) {
         if (error.response.data.statusCode === 404) router.push("/Formulario");
