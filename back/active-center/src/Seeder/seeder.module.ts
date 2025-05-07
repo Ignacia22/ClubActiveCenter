@@ -9,6 +9,7 @@ import { UserModule } from 'src/User/user.module';
 export class SeederModule implements OnApplicationBootstrap {
   constructor(private readonly seeder: SeeederDB) {}
   async onApplicationBootstrap(): Promise<void> {
-    await this.seeder.seederDB();
+    //await this.seeder.seederDB();
+    console.log('Seeder deshabilitado temporalmente');
   }
 }
