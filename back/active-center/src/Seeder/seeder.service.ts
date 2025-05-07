@@ -26,8 +26,21 @@ export class SeeederDB {
         SubscriptionEntity,
         { name: subscriptionGold.name },
       );
-      if (!existing)
-        await queryRunner.manager.save(SubscriptionEntity, subscriptionGold);
+      // Si no existe, crear una nueva instancia explícitamente
+      if (!existing) {
+        // Crear una nueva instancia de la entidad
+        const newSubscription = new SubscriptionEntity();
+        newSubscription.name = subscriptionGold.name;
+        newSubscription.description = subscriptionGold.description;
+        newSubscription.percentage = subscriptionGold.percentage;
+        newSubscription.benefits = subscriptionGold.benefits;
+        newSubscription.price = subscriptionGold.price;
+        newSubscription.duration = subscriptionGold.duration;
+        
+        // Guardar la nueva instancia
+        await queryRunner.manager.save(newSubscription);
+      }
+        //await queryRunner.manager.save(SubscriptionEntity, subscriptionGold);
 
       console.log('Suscripción cargada con exito.');
 
