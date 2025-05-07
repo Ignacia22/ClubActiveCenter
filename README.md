@@ -224,7 +224,7 @@ Ejemplos de archivos o carpetas especificas (en next js se ocupa enrutado por ca
 
 13. **Repetir el ciclo para una nueva tarea.**
 
-
+```
 
 🧑‍💻 Autoría
 Este proyecto fue creado y mantenido por:
@@ -238,3 +238,6 @@ Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más 
 
 📄 Contacto
 Si tienes alguna duda o sugerencia, no dudes en contactarme a través de mi mail mfernandezpolanco@gmail.com
+
+
+```
