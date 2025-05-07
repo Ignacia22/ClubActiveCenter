@@ -2,7 +2,7 @@
 
 1. **Posicionarse en la rama `main`:**
    ```bash
-   git checkout main
+   git checkout main   
    ```
    Nos aseguramos de estar en la rama principal.
 
