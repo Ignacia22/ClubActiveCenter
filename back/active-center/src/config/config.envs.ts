@@ -1,8 +1,14 @@
 /* eslint-disable prettier/prettier */
 import 'dotenv/config';
+import { Logger } from '@nestjs/common';
 
+const logger = new Logger('DatabaseConfig');
 const data = process.env;
 
+// Verificar si existe DATABASE_URL para usar la conexión de Neon
+const DATABASE_URL = data.DATABASE_URL;
+
+// Configuración tradicional como respaldo
 const DB_TYPE: any = data.DB_TYPE ?? 'postgres';
 const DB_HOST: string | undefined = data.DB_HOST;
 const DB_PORT: number | undefined = data.DB_PORT
@@ -31,7 +37,11 @@ const DB_MIGRATION: string[] | undefined = data.DB_MIGRATION
     : [data.DB_MIGRATION.trim()]
   : ['./dist/**/*.migration{.ts, .js}'];
 
+// Configuración para entorno de producción - Neon requiere SSL
+const isProduction = data.NODE_ENV === 'production';
+
 export const dbConfig = {
+  // Propiedades básicas
   type: DB_TYPE,
   host: DB_HOST,
   port: DB_PORT,
@@ -43,7 +53,23 @@ export const dbConfig = {
   entities: DB_ENTITIES,
   dropSchema: DB_DROPSCHEMA,
   migration: DB_MIGRATION,
+  
+  // Nueva propiedad para URL
+  url: DATABASE_URL,
+  
+  // SSL para producción (necesario para Neon)
+  ssl: isProduction ? { rejectUnauthorized: false } : undefined,
+  
+  // Flag para indicar si usar URL
+  useUrl: !!DATABASE_URL
 };
+
+// Registrar qué método de conexión se está usando
+if (DATABASE_URL) {
+  logger.log('Se detectó DATABASE_URL. Se usará para la conexión a la base de datos.');
+} else {
+  logger.log('No se detectó DATABASE_URL. Se usará configuración tradicional.');
+}
 
 export const SALT: number = data.SALT ? parseInt(data.SALT, 10) : 10;
 export const SECRET_SECRET_WORD: string | undefined = data.SECRET_WORD;
