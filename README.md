@@ -223,3 +223,18 @@ Ejemplos de archivos o carpetas especificas (en next js se ocupa enrutado por ca
     Si ya no se necesita la rama, se puede eliminar.
 
 13. **Repetir el ciclo para una nueva tarea.**
+
+
+
+🧑‍💻 Autoría
+Este proyecto fue creado y mantenido por:
+
+Maria Ignacia Fernández - Desarrolladora Frontend (Colaboradora)
+
+Compañeros del equipo - Colaboradores del proyecto
+
+📝 Licencia
+Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+
+📄 Contacto
+Si tienes alguna duda o sugerencia, no dudes en contactarme a través de mi mail mfernandezpolanco@gmail.com
