@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,7 +23,9 @@ import { Subscription } from 'src/Entities/Subscription.entity';
 
 @Injectable()
 export class PaymentService {
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
+  private isEnabled: boolean = false;
+  private readonly logger = new Logger(PaymentService.name);
 
   constructor(
     @InjectRepository(Payment)
@@ -37,20 +40,36 @@ export class PaymentService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(SubscriptionDetail)
     private subscriptionDetailRepository: Repository<SubscriptionDetail>,
-
     private subscriptionService: SubscriptionService,
   ) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    
     if (!stripeSecretKey) {
-      throw new InternalServerErrorException(
-        'La clave secreta de Stripe no está definida en las variables de entorno',
-      );
+      this.isEnabled = false;
+      this.logger.warn('La clave secreta de Stripe no está definida en las variables de entorno. La funcionalidad de pagos estará en modo simulación.');
+    } else {
+      this.isEnabled = true;
+      this.stripe = new Stripe(stripeSecretKey, {
+        apiVersion: '2025-01-27.acacia',
+      });
+      this.logger.log('Stripe inicializado correctamente');
     }
-
-    this.stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2025-01-27.acacia',
-    });
   }
+
+  // Método auxiliar para verificar si Stripe está habilitado
+  private checkStripeEnabled(): boolean {
+    if (!this.isEnabled || !this.stripe) {
+      this.logger.log('Operación de Stripe simulada - Stripe no está configurado');
+      return false;
+    }
+    return true;
+  }
+
+  // Método para generar un ID simulado
+  private generateMockId(prefix: string): string {
+    return `${prefix}_mock_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  }
+
   async createCheckoutSession(
     orderId: string,
     userId: string,
@@ -65,6 +84,33 @@ export class PaymentService {
       throw new BadRequestException('La orden no tiene productos asociados.');
     }
 
+    // Si Stripe no está habilitado, devolver una URL simulada
+    if (!this.checkStripeEnabled()) {
+      // Simular el procesamiento del pago y actualizar la orden directamente
+      const payment = this.paymentRepository.create({
+        amount: order.orderItems.reduce((total, item) => total + (item.product.price * item.quantity), 0),
+        currency: 'usd',
+        paymentStatus: PaymentStatus.PAID,
+        user: { id: userId },
+        order: { id: orderId },
+        paymentIntentId: this.generateMockId('pi'),
+        reservationId: null,
+      });
+
+      await this.paymentRepository.save(payment);
+      order.status = StatusOrder.complete;
+      await this.orderRepository.save(order);
+
+      // Devolver una URL simulada que indique que el pago fue procesado en modo simulación
+      return 'https://club-active-center.vercel.app/payment/mock-success?simulation=true';
+    }
+
+    // En este punto sabemos que this.stripe no es null porque checkStripeEnabled() devolvió true
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Stripe no está inicializado correctamente');
+    }
+
+    // Código original con Stripe
     const lineItems = order.orderItems.map((item) => ({
       price_data: {
         currency: 'usd',
@@ -98,7 +144,7 @@ export class PaymentService {
 
   async createCheckoutSessionForReservation(
     reservationId: string,
-  ): Promise<Stripe.Checkout.Session> {
+  ): Promise<Stripe.Checkout.Session | { id: string; url: string }> {
     const reservation = await this.reservationRepository.findOne({
       where: { id: reservationId },
       relations: ['spaces', 'user'],
@@ -113,6 +159,38 @@ export class PaymentService {
       throw new NotFoundException('Usuario no encontrado en la reserva');
     }
 
+    // Si Stripe no está habilitado, procesar la reserva directamente
+    if (!this.checkStripeEnabled()) {
+      // Crear un pago simulado
+      const payment = this.paymentRepository.create({
+        amount: reservation.price,
+        currency: 'usd',
+        paymentStatus: PaymentStatus.PAID,
+        reservation: reservation,
+        user: reservation.user,
+        paymentIntentId: this.generateMockId('pi'),
+        reservationId: reservationId,
+      });
+
+      await this.paymentRepository.save(payment);
+      
+      // Actualizar el estado de la reserva
+      reservation.status = ReservationStatus.CONFIRMED;
+      await this.reservationRepository.save(reservation);
+
+      // Devolver un objeto similar al de Stripe
+      return {
+        id: this.generateMockId('cs'),
+        url: 'https://club-active-center.vercel.app/pago/mock-success?simulation=true',
+      };
+    }
+
+    // En este punto sabemos que this.stripe no es null porque checkStripeEnabled() devolvió true
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Stripe no está inicializado correctamente');
+    }
+
+    // Código original con Stripe
     const successUrl =
       'https://club-active-center.vercel.app/pago/success?session_id={CHECKOUT_SESSION_ID}';
     const cancelUrl = 'https://club-active-center.vercel.app/pago/cancel';
@@ -143,6 +221,7 @@ export class PaymentService {
 
     return session;
   }
+
   async createCheckoutSessionSub(
     userId: string,
     subId: string,
@@ -156,6 +235,23 @@ export class PaymentService {
         throw new NotFoundException('Suscripción no encontrada');
       }
 
+      // Si Stripe no está habilitado, procesar la suscripción directamente
+      if (!this.checkStripeEnabled()) {
+        // Activar la suscripción directamente
+        await this.subscriptionService.activateSubscription(userId, subId);
+        
+        return { 
+          sessionId: this.generateMockId('cs'), 
+          url: 'https://club-active-center.vercel.app/subsPayment/mock-success?simulation=true' 
+        };
+      }
+
+      // En este punto sabemos que this.stripe no es null porque checkStripeEnabled() devolvió true
+      if (!this.stripe) {
+        throw new InternalServerErrorException('Stripe no está inicializado correctamente');
+      }
+
+      // Código original con Stripe
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         mode: 'payment',
@@ -182,6 +278,8 @@ export class PaymentService {
       });
       return { sessionId: session.id, url: session.url };
     } catch (error) {
+      // Si el error se debe a que Stripe no está configurado, ya lo manejamos arriba
+      // Este catch es para otros errores
       throw new InternalServerErrorException(
         'Hubo un error al crear la sesión de pago.',
         error?.message || error,
@@ -190,6 +288,17 @@ export class PaymentService {
   }
 
   async handleWebhook(rawBody: string, sig: string) {
+    // Si Stripe no está habilitado, simplemente registrar y retornar
+    if (!this.checkStripeEnabled()) {
+      this.logger.log('Webhook recibido en modo simulación, ignorando');
+      return { received: true, mode: 'simulation' };
+    }
+
+    // En este punto sabemos que this.stripe no es null porque checkStripeEnabled() devolvió true
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Stripe no está inicializado correctamente');
+    }
+
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
       throw new InternalServerErrorException('Webhook secret no está definido');
@@ -300,30 +409,5 @@ export class PaymentService {
     await this.paymentRepository.save(payment);
     reservation.status = ReservationStatus.CONFIRMED;
     await this.reservationRepository.save(reservation);
-  }
-  private async activateSubscription(userId: string, subId: string) {
-    const subscription = await this.subscriptionRepository.findOne({
-      where: { id: subId },
-    });
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-
-    if (!user || !subscription)
-      throw new NotFoundException('Usuario o suscripción no encontrados');
-
-    const newSubscription = this.subscriptionDetailRepository.create({
-      user,
-      subscription,
-      dayInit: new Date(),
-      dayEnd: new Date(
-        new Date().setDate(
-          new Date().getDate() + (subscription.duration ?? 31),
-        ),
-      ),
-      price: subscription.price,
-      status: true,
-    });
-
-    await this.subscriptionDetailRepository.save(newSubscription);
-    await this.userRepository.update(user.id, { isSubscribed: true });
   }
 }
