@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Subscription } from './Subscription.entity';
+import { SubscriptionEntity } from './Subscription.entity';
 import { User } from './User.entity';
 
 @Entity({ name: 'subscriptionsDetails' })
@@ -20,10 +20,10 @@ export class SubscriptionDetail {
   status?: boolean;
 
   @ManyToOne(
-    () => Subscription,
-    (subscriptions) => subscriptions.subscriptionsDetails,
+    () => SubscriptionEntity,
+    (subscriptions: SubscriptionEntity) => subscriptions.subscriptionsDetails,
   )
-  subscription?: Subscription;
+  subscription?: SubscriptionEntity;
 
   @Column({ type: 'int', nullable: false })
   duration?: number;

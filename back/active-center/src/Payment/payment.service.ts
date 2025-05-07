@@ -19,7 +19,7 @@ import {
 } from 'src/Entities/Reservation.entity';
 import { SubscriptionService } from 'src/Subscription/subscriptions.service';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
-import { Subscription } from 'src/Entities/Subscription.entity';
+import { SubscriptionEntity } from 'src/Entities/Subscription.entity';
 
 @Injectable()
 export class PaymentService {
@@ -36,8 +36,8 @@ export class PaymentService {
     private orderRepository: Repository<Order>,
     @InjectRepository(Reservation)
     private reservationRepository: Repository<Reservation>,
-    @InjectRepository(Subscription)
-    private subscriptionRepository: Repository<Subscription>,
+    @InjectRepository(SubscriptionEntity)
+    private subscriptionRepository: Repository<SubscriptionEntity>,
     @InjectRepository(SubscriptionDetail)
     private subscriptionDetailRepository: Repository<SubscriptionDetail>,
     private subscriptionService: SubscriptionService,

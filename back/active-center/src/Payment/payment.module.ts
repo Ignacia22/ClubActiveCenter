@@ -8,7 +8,7 @@ import { Payment } from 'src/Entities/Payment.entity';
 import { OrderModule } from 'src/Order/order.module';
 import { Reservation } from 'src/Entities/Reservation.entity';
 import { SubscriptionModule } from 'src/Subscription/subscription.module';
-import { Subscription } from 'src/Entities/Subscription.entity';
+import { SubscriptionEntity } from 'src/Entities/Subscription.entity';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 
 @Module({
@@ -18,7 +18,7 @@ import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
       User,
       Payment,
       Reservation,
-      Subscription,
+      SubscriptionEntity,
       SubscriptionDetail,
     ]),
     forwardRef(() => OrderModule),

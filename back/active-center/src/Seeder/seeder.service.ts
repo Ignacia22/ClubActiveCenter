@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/Entities/Category.entity';
 import { Product } from 'src/Entities/Product.entity';
-import { Subscription } from 'src/Entities/Subscription.entity';
+import { SubscriptionEntity } from 'src/Entities/Subscription.entity';
 import { User } from 'src/Entities/User.entity';
 import { Products } from 'src/Products';
 import { subscriptionGold } from 'src/Subscription';
@@ -22,12 +22,12 @@ export class SeeederDB {
     await queryRunner.connect();
     try {
       await queryRunner.startTransaction();
-      const existing: Subscription | null = await queryRunner.manager.findOneBy(
-        Subscription,
+      const existing: SubscriptionEntity | null = await queryRunner.manager.findOneBy(
+        SubscriptionEntity,
         { name: subscriptionGold.name },
       );
       if (!existing)
-        await queryRunner.manager.save(Subscription, subscriptionGold);
+        await queryRunner.manager.save(SubscriptionEntity, subscriptionGold);
 
       console.log('Suscripción cargada con exito.');
 

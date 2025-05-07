@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Subscription } from 'src/Entities/Subscription.entity';
+import { SubscriptionEntity } from 'src/Entities/Subscription.entity';
 
 export enum Subscriptions {
   GOLD = 'Gold',
@@ -50,9 +50,9 @@ export class SubscribeResponseDTO {
 
   @ApiProperty({
     description: 'Información de la suscripción',
-    type: Subscription,
+    type: SubscriptionEntity,
   })
-  subscription?: Subscription;
+  subscription?: SubscriptionEntity;
 
   @ApiProperty({ description: 'Datos del usuario suscrito', type: UserSub })
   user: UserSub;

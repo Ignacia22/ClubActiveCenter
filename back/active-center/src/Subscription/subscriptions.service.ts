@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Subscription } from 'src/Entities/Subscription.entity';
+import { SubscriptionEntity } from 'src/Entities/Subscription.entity';
 import { SubscriptionDetail } from 'src/Entities/SubscriptionDetails.entity';
 import { User } from 'src/Entities/User.entity';
 import { Repository } from 'typeorm';
@@ -20,8 +20,8 @@ import { PaymentService } from 'src/Payment/payment.service';
 export class SubscriptionService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Subscription)
-    private subscriptionRepository: Repository<Subscription>,
+    @InjectRepository(SubscriptionEntity)
+    private subscriptionRepository: Repository<SubscriptionEntity>,
     @InjectRepository(SubscriptionDetail)
     private subscriptionDetailRepository: Repository<SubscriptionDetail>,
     @Inject(forwardRef(() => PaymentService))
@@ -41,7 +41,7 @@ export class SubscriptionService {
 
   async getSubscriptionById(id: string): Promise<SubscriptionResponseDTO> {
     try {
-      const sub: Subscription | null =
+      const sub: SubscriptionEntity | null =
         await this.subscriptionRepository.findOneBy({ id });
       if (!sub) throw new NotFoundException('No se encontro la suscripción.');
       return sub;
@@ -76,7 +76,7 @@ export class SubscriptionService {
         }
       } else {
       }
-      const subscription: Subscription | null =
+      const subscription: SubscriptionEntity | null =
         await this.subscriptionRepository.findOneBy({ id: subId });
 
       if (!subscription) {
@@ -103,7 +103,7 @@ export class SubscriptionService {
 
   async subscriptionDetail(
     user: User,
-    subscription: Subscription,
+    subscription: SubscriptionEntity,
   ): Promise<SubscriptionDetail> {
     try {
       if (!subscription.duration) {
@@ -177,7 +177,7 @@ export class SubscriptionService {
 
   async deleteSubscription(id: string): Promise<string> {
     try {
-      const sub: Subscription | null =
+      const sub: SubscriptionEntity | null =
         await this.subscriptionRepository.findOneBy({ id });
       if (!sub)
         throw new NotFoundException(
